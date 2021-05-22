@@ -30,6 +30,7 @@ import Drafts from "./Drafts.vue";
 import ClosingDialog from "./ClosingDialog.vue";
 import NewCustomer from "./NewCustomer.vue";
 import Returns from "./Returns.vue";
+import Help from "./Help.vue";
 
 export default {
   data: function () {
@@ -50,6 +51,7 @@ export default {
     ClosingDialog,
     NewCustomer,
     Returns,
+    Help
   },
 
   methods: {

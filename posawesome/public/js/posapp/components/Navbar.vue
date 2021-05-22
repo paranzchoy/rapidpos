@@ -32,6 +32,15 @@
                   </v-list-item-content>
                 </v-list-item>
                 <v-divider class="my-0"></v-divider>
+                <v-list-item @click="help_modal">
+                  <v-list-item-icon>
+                    <v-icon>mdi-help-circle</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>Help &nbsp;&nbsp; <span  style="color:gray">F1</span></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider class="my-0"></v-divider>
                 <v-list-item @click="go_about">
                   <v-list-item-icon>
                     <v-icon>mdi-information-outline</v-icon>
@@ -167,6 +176,18 @@ export default {
       this.snackColor = data.color;
       this.snackText = data.text;
     },
+
+   help_modal() {
+      evntBus.$emit('open_help');
+    },
+    openHelp(e) {
+      if (e.key === 'F1') {
+        e.preventDefault();
+        console.log({ e });
+
+        this.help_modal();
+      }
+    }, 
   },
   created: function () {
     this.$nextTick(function () {
