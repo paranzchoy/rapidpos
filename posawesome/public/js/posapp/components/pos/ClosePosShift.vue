@@ -1,7 +1,66 @@
 <!-- test -->
 <template>
   <v-row justify="center">
-    <v-dialog v-model="closingDialog" max-width="900px">
+      <!-- Verify username & password -->
+    <v-dialog v-model="verify_user" max-width="500px">
+      <v-card>
+        <!-- Title -->
+        <v-card-title>
+          <span>POS Closing Shift</span>
+          <v-spacer></v-spacer>
+        </v-card-title>
+
+        <!-- Username -->
+        <v-row justify="center">
+          <h4 style="color: rgb(155, 0, 0); --darkreader-inline-color:#ff6060;" data-darkreader-inline-color="">* Head Cashier or Sales manager only   </h4>
+          <v-col
+            cols="12"
+            sm="7"
+          >
+          <v-text-field
+              label="Username"
+              v-model="inputUsername"
+              clearable
+              required
+            ></v-text-field>
+          </v-col>  
+        </v-row>
+
+        <!-- Password -->
+        <v-row justify="center">
+          <v-col
+            cols="12"
+            sm="7"
+          >
+            <v-text-field
+              :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="show ? 'text' : 'password'"
+              name="input-10-2"
+              label="Password"
+              v-model="inputPassword"
+              value=""
+              class="input-group--focused"
+              @click:append="show = !show"
+              clearable
+              counter
+              required
+              @keyup.enter="submit_dialog"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+
+        <!-- Buttons -->
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" dark @click="close_verify_dialog">Cancel</v-btn>
+          <v-btn color="primary" @click="configure_modal">Verify</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Close POS Shift -->
+    <!-- <v-dialog v-model="closingDialog" max-width="900px"> -->
+    <v-dialog v-model="closingShiftDialog" max-width="900px">
       <v-card>
         <v-card-title>
           <span class="headline indigo--text">Closing POS Shift v2</span>
@@ -67,9 +126,15 @@
 import { evntBus } from '../../bus';
 export default {
   data: () => ({
-    closingDialog: false,
+    // closingDialog: false,
     itemsPerPage: 20,
     dialog_data: {},
+    verify_user: false,
+    inputUsername: null,
+    inputPassword: null,
+    closingShiftDialog: false,
+    show: false,
+
     headers: [
       {
         text: 'Mode of Payment',
@@ -108,12 +173,49 @@ export default {
   watch: {},
   methods: {
     close_dialog() {
-      this.closingDialog = false;
+    //   this.closingDialog = false;
+        this.closingShiftDialog = false;
     },
-
+    close_verify_dialog() {
+        this.verify_user = false;
+    },
     submit_dialog() {
       evntBus.$emit('submit_closing_pos', this.dialog_data);
       this.closingDialog = false;
+    },
+    configure_modal() {
+      if (!this.inputUsername || !this.inputPassword) {
+        evntBus.$emit("show_mesage", {
+          text: `Please complete the required fields`,
+          color: "warning",
+        })
+      } else {
+        // if (this.inputUsername === this.user && this.inputPassword) {
+        //   frappe.call({
+        //     method: "posawesome.posawesome.api.custom_posapp.verify_user",
+        //     args: {
+        //       username: this.inputUsername,
+        //       password: this.inputPassword
+        //     },
+        //     callback: function(r) {
+        //       if(!r.exc) {
+        //         callback();
+        //       }
+        //     }
+        //   })
+
+          this.closingShiftDialog = true;
+          this.verify_user = false;
+        //   this.calculate_totals();
+          this.inputUsername = null;
+          this.inputPassword = null;
+        //  } else {
+        //   evntBus.$emit("show_mesage", {
+        //     text: `Username does not match. Please try again.`,
+        //     color: "error",
+        //   })
+        // }
+      }
     },
     formtCurrency(value) {
       value = parseFloat(value);
@@ -122,7 +224,8 @@ export default {
   },
   created: function () {
     evntBus.$on('open_ClosingDialog2', (data) => {
-      this.closingDialog = true;
+    //   this.closingDialog = true;
+      this.verify_user = true;
       this.dialog_data = data;
     });
   },
