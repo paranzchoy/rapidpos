@@ -1,6 +1,7 @@
 <template>
   <div fluid>
     <ClosingDialog></ClosingDialog>
+    <CashWithdrawal></CashWithdrawal>
     <Help></Help>
     <Drafts></Drafts>
     <Returns></Returns>
@@ -32,6 +33,7 @@ import ClosingDialog from "./ClosingDialog.vue";
 import NewCustomer from "./NewCustomer.vue";
 import Returns from "./Returns.vue";
 import Help from "./Help.vue";
+import CashWithdrawal from "./CashWithdrawal.vue";
 
 export default {
   data: function () {
@@ -52,7 +54,8 @@ export default {
     ClosingDialog,
     NewCustomer,
     Returns,
-    Help
+    Help,
+    CashWithdrawal
   },
 
   methods: {

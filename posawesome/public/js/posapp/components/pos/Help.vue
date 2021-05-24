@@ -297,7 +297,6 @@ export default {
   // props: ["draftsDialog"],
   data: () => ({
     helpDialog: false,
-    customer_name: "",
 
               }),
   watch: {},
