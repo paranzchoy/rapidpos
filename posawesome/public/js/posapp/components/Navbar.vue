@@ -19,7 +19,9 @@
           </template>
           <v-card class="mx-auto" max-width="300" tile>
             <v-list dense>
+              
               <v-list-item-group v-model="menu_item" color="primary">
+
                 <v-list-item
                   @click="close_shift_dialog"
                   v-if="!pos_profile.posa_hide_closing_shift"
@@ -31,7 +33,9 @@
                     <v-list-item-title>Close Shift</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
+
                 <v-divider class="my-0"></v-divider>
+
                 <v-list-item @click="help_modal">
                   <v-list-item-icon>
                     <v-icon>mdi-help-circle</v-icon>
@@ -40,7 +44,9 @@
                     <v-list-item-title>Help &nbsp;&nbsp; <span  style="color:gray">F1</span></v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
+
                 <v-divider class="my-0"></v-divider>
+
                 <v-list-item @click="go_about">
                   <v-list-item-icon>
                     <v-icon>mdi-information-outline</v-icon>
@@ -49,12 +55,14 @@
                     <v-list-item-title>About</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
+
               </v-list-item-group>
+
             </v-list>
           </v-card>
         </v-menu>
       </div>
-// TEST COMMIT1
+<!-- // TEST COMMIT1 -->
       <div class="text-center">
         <v-menu offset-y>
           <template v-slot:activator="{ on, attrs }">

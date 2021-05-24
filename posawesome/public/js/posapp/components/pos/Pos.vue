@@ -1,6 +1,7 @@
 <template>
   <div fluid>
     <ClosingDialog></ClosingDialog>
+    <Help></Help>
     <Drafts></Drafts>
     <Returns></Returns>
     <NewCustomer></NewCustomer>
