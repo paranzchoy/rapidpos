@@ -4,7 +4,7 @@
     <v-dialog v-model="closingDialog" max-width="900px">
       <v-card>
         <v-card-title>
-          <span class="headline indigo--text">Closing POS Shift</span>
+          <span class="headline indigo--text">Closing POS Shift v2</span>
         </v-card-title>
         <v-card-text class="pa-0">
           <v-container>
@@ -121,7 +121,7 @@ export default {
     },
   },
   created: function () {
-    evntBus.$on('open_ClosingDialog', (data) => {
+    evntBus.$on('open_ClosingDialog2', (data) => {
       this.closingDialog = true;
       this.dialog_data = data;
     });

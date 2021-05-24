@@ -7,6 +7,7 @@
     <XReading></XReading>
     <ZReading></ZReading>
     <Help></Help>
+    <ClosePosShift></ClosePosShift>
     <Drafts></Drafts>
     <Returns></Returns>
     <NewCustomer></NewCustomer>
@@ -38,6 +39,7 @@ import OpeningDialog from "./OpeningDialog.vue";
 import Payments from "./Payments.vue";
 import Drafts from "./Drafts.vue";
 import ClosingDialog from "./ClosingDialog.vue";
+import ClosePosShift from "./ClosePosShift.vue";
 import NewCustomer from "./NewCustomer.vue";
 import Returns from "./Returns.vue";
 import Help from "./Help.vue";
@@ -68,6 +70,7 @@ export default {
     Payments,
     Drafts,
     ClosingDialog,
+    ClosePosShift,
     NewCustomer,
     Returns,
     Help,
@@ -117,6 +120,19 @@ export default {
           }
         });
     },
+    get_closing_data2() {
+      return frappe
+        .call("posawesome.posawesome.doctype.pos_closing_shift.pos_closing_shift.make_closing_shift_from_opening", {
+          opening_shift: this.pos_opening_shift,
+        })
+        .then((r) => {
+          if (r.message) {
+            evntBus.$emit("open_ClosingDialog2",r.message);
+          } else {
+            console.log(r)
+          }
+        });
+    },
     submit_closing_pos(data){
       frappe
         .call("posawesome.posawesome.doctype.pos_closing_shift.pos_closing_shift.submit_closing_shift", {
@@ -154,6 +170,9 @@ export default {
       })
       evntBus.$on("open_closing_dialog", () => {
         this.get_closing_data()
+      })
+      evntBus.$on("open_closing_dialog2", () => {
+        this.get_closing_data2()
       })
       evntBus.$on("submit_closing_pos", (data) => {
         this.submit_closing_pos(data)
