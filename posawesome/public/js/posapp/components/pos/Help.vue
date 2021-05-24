@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="customerDialog" max-width="600">
+    <v-dialog v-model="helpDialog" max-width="600">
       <!-- <template v-slot:activator="{ on, attrs }">
         <v-btn color="primary" dark v-bind="attrs" v-on="on">Open Dialog</v-btn>
       </template>-->
@@ -296,21 +296,20 @@ import { evntBus } from "../../bus";
 export default {
   // props: ["draftsDialog"],
   data: () => ({
-    customerDialog: false,
-    customer_name: "",
+    helpDialog: false,
 
               }),
   watch: {},
   methods: {
       close_dialog() {
-      this.customerDialog = false;
+      this.helpDialog = false;
       },
     },
 
 
   created: function () {
     evntBus.$on("open_help", () => {
-      this.customerDialog = true;
+      this.helpDialog = true;
     });
   },
 };
