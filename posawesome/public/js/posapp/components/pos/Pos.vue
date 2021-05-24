@@ -1,16 +1,13 @@
 <template>
   <div fluid>
     <ClosingDialog></ClosingDialog>
-<<<<<<< HEAD
     <CashWithdrawal></CashWithdrawal>
     <ResumeUser></ResumeUser>
     <ReprintInvoice></ReprintInvoice>
     <XReading></XReading>
     <ZReading></ZReading>
     <Help></Help>
-=======
     <ClosePosShift></ClosePosShift>
->>>>>>> raine_feature_ClosePosShift
     <Drafts></Drafts>
     <Returns></Returns>
     <NewCustomer></NewCustomer>

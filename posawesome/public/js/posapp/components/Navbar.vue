@@ -21,7 +21,6 @@
             <v-list dense>
               
               <v-list-item-group v-model="menu_item" color="primary">
-<<<<<<< HEAD
 
                   <!-- IDLE DIALOG -->
                   <v-list-item @click="idle_dialog">
@@ -97,7 +96,6 @@
                   </v-list-item>
 
 
-=======
                 <!-- <v-list-item
                   @click="close_shift_dialog"
                   v-if="!pos_profile.posa_hide_closing_shift"
@@ -131,7 +129,6 @@
                     <v-list-item-title>Help &nbsp;&nbsp; <span  style="color:gray">F1</span></v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
->>>>>>> raine_feature_ClosePosShift
                 <v-divider class="my-0"></v-divider>
 
                   <!-- ABOUT -->
