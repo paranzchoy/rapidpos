@@ -19,42 +19,61 @@
           </template>
           <v-card class="mx-auto" max-width="300" tile>
             <v-list dense>
+              
               <v-list-item-group v-model="menu_item" color="primary">
-                <v-list-item
-                  @click="close_shift_dialog"
-                  v-if="!pos_profile.posa_hide_closing_shift"
-                >
-                  <v-list-item-icon>
-                    <v-icon>mdi-folder-open</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>Close Shift</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
+
+                  <v-list-item
+                    @click="close_shift_dialog"
+                    v-if="!pos_profile.posa_hide_closing_shift"
+                  >
+                    <v-list-item-icon>
+                      <v-icon>mdi-folder-open</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                      <v-list-item-title>Close Shift</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
                 <v-divider class="my-0"></v-divider>
-                <v-list-item @click="help_modal">
-                  <v-list-item-icon>
-                    <v-icon>mdi-help-circle</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>Help &nbsp;&nbsp; <span  style="color:gray">F1</span></v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
+
+                  <v-list-item @click="cash_withdrawal">
+                    <v-list-item-icon>
+                      <v-icon>mdi-cash</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                      <v-list-item-title>Cash Withdrawal &nbsp;&nbsp; <span style="color:gray">Ctrl+L</span></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
                 <v-divider class="my-0"></v-divider>
-                <v-list-item @click="go_about">
-                  <v-list-item-icon>
-                    <v-icon>mdi-information-outline</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>About</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
+
+                  <v-list-item @click="help_modal">
+                    <v-list-item-icon>
+                      <v-icon>mdi-help-circle</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                      <v-list-item-title>Help &nbsp;&nbsp; <span  style="color:gray">F1</span></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
+                <v-divider class="my-0"></v-divider>
+
+                  <v-list-item @click="go_about">
+                    <v-list-item-icon>
+                      <v-icon>mdi-information-outline</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                      <v-list-item-title>About</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
               </v-list-item-group>
+
             </v-list>
           </v-card>
         </v-menu>
       </div>
-
+<!-- // TEST COMMIT1 -->
       <div class="text-center">
         <v-menu offset-y>
           <template v-slot:activator="{ on, attrs }">
@@ -175,6 +194,19 @@ export default {
       this.snack = true;
       this.snackColor = data.color;
       this.snackText = data.text;
+    },
+
+    cash_withdrawal() {
+      evntBus.$emit('open_withdrawal');
+    },
+
+    withdraw(e) {
+      if (e.key === 'l' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        console.log({ e });
+
+        this.cash_withdrawal();
+      }
     },
 
    help_modal() {
