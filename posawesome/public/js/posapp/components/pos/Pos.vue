@@ -1,6 +1,8 @@
 <template>
   <div fluid>
     <ClosingDialog></ClosingDialog>
+    <CashWithdrawal></CashWithdrawal>
+    <Help></Help>
     <Drafts></Drafts>
     <Returns></Returns>
     <NewCustomer></NewCustomer>
@@ -39,6 +41,7 @@ import PaymentsCash from "./PaymentsCash.vue";
 import PaymentsCreditCard from "./PaymentsCreditCard.vue";
 import PaymentsDebitCard from "./PaymentsDebitCard.vue";
 import PaymentsCoupon from "./PaymentsCoupon.vue";
+import CashWithdrawal from "./CashWithdrawal.vue";
 
 export default {
   data: function () {
@@ -64,6 +67,7 @@ export default {
     PaymentsCreditCard,
     PaymentsDebitCard,
     PaymentsCoupon,
+    CashWithdrawal
   },
 
   methods: {
