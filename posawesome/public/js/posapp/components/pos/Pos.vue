@@ -13,6 +13,10 @@
       </v-col>
       <v-col v-show="payment" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
         <Payments></Payments>
+        <!-- <PaymentsCash></PaymentsCash>
+        <PaymentsCreditCard></PaymentsCreditCard>
+        <PaymentsDebitCard></PaymentsDebitCard>
+        <PaymentsCoupon></PaymentsCoupon> -->
       </v-col>
       <v-col xl="7" lg="6" md="6" sm="6" cols="12" class="pos">
         <Invoice></Invoice>
@@ -33,6 +37,10 @@ import ClosingDialog from "./ClosingDialog.vue";
 import NewCustomer from "./NewCustomer.vue";
 import Returns from "./Returns.vue";
 import Help from "./Help.vue";
+import PaymentsCash from "./PaymentsCash.vue";
+import PaymentsCreditCard from "./PaymentsCreditCard.vue";
+import PaymentsDebitCard from "./PaymentsDebitCard.vue";
+import PaymentsCoupon from "./PaymentsCoupon.vue";
 import CashWithdrawal from "./CashWithdrawal.vue";
 
 export default {
@@ -55,6 +63,10 @@ export default {
     NewCustomer,
     Returns,
     Help,
+    PaymentsCash,
+    PaymentsCreditCard,
+    PaymentsDebitCard,
+    PaymentsCoupon,
     CashWithdrawal
   },
 
