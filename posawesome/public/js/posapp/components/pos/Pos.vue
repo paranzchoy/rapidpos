@@ -2,6 +2,10 @@
   <div fluid>
     <ClosingDialog></ClosingDialog>
     <CashWithdrawal></CashWithdrawal>
+    <ResumeUser></ResumeUser>
+    <ReprintInvoice></ReprintInvoice>
+    <XReading></XReading>
+    <ZReading></ZReading>
     <Help></Help>
     <Drafts></Drafts>
     <Returns></Returns>
@@ -42,6 +46,10 @@ import PaymentsCreditCard from "./PaymentsCreditCard.vue";
 import PaymentsDebitCard from "./PaymentsDebitCard.vue";
 import PaymentsCoupon from "./PaymentsCoupon.vue";
 import CashWithdrawal from "./CashWithdrawal.vue";
+import ResumeUser from "./ResumeUser.vue";
+import ReprintInvoice from "./ReprintInvoice.vue";
+import XReading from "./XReading.vue";
+import ZReading from "./ZReading.vue";
 
 export default {
   data: function () {
@@ -63,6 +71,11 @@ export default {
     NewCustomer,
     Returns,
     Help,
+    CashWithdrawal,
+    ResumeUser,
+    ReprintInvoice,
+    XReading,
+    ZReading,
     PaymentsCash,
     PaymentsCreditCard,
     PaymentsDebitCard,

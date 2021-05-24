@@ -22,6 +22,47 @@
               
               <v-list-item-group v-model="menu_item" color="primary">
 
+                  <!-- IDLE DIALOG -->
+                  <v-list-item @click="idle_dialog">
+                    <v-list-item-icon>
+                      <v-icon>mdi-clock</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                      <v-list-item-title>Idle &nbsp;&nbsp; <span class="spacer"  style="color:gray">Ctrl+I</span></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
+                  <!-- REPRINT INVOICE -->
+                  <v-list-item @click="show_reprint">
+                    <v-list-item-icon>
+                      <v-icon>mdi-printer-check</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                      <v-list-item-title>Reprint &nbsp;&nbsp; <span  style="color:gray">Ctrl+R</span></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
+                  <!-- XREADING DIALOG -->
+                  <v-list-item @click="xreading_print_dialog">
+                    <v-list-item-icon>
+                      <v-icon>mdi-printer</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                      <v-list-item-title>X-Reading &nbsp;&nbsp; <span  style="color:gray">Ctrl+X</span></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+
+                  <!-- ZREADING DIALOG -->
+                  <!-- <v-list-item @click="zreading_print_dialog">
+                    <v-list-item-icon>
+                      <v-icon>mdi-printer-pos</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-content>
+                      <v-list-item-title>Z-Reading</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item> -->
+
+                  <!-- CLOSING SHIFT DIALOG -->
                   <v-list-item
                     @click="close_shift_dialog"
                     v-if="!pos_profile.posa_hide_closing_shift"
@@ -34,8 +75,7 @@
                     </v-list-item-content>
                   </v-list-item>
 
-                <v-divider class="my-0"></v-divider>
-
+                  <!-- CASH WITHDRAWAL DIALOG -->
                   <v-list-item @click="cash_withdrawal">
                     <v-list-item-icon>
                       <v-icon>mdi-cash</v-icon>
@@ -45,8 +85,7 @@
                     </v-list-item-content>
                   </v-list-item>
 
-                <v-divider class="my-0"></v-divider>
-
+                  <!-- HELP DIALOG -->
                   <v-list-item @click="help_modal">
                     <v-list-item-icon>
                       <v-icon>mdi-help-circle</v-icon>
@@ -56,8 +95,10 @@
                     </v-list-item-content>
                   </v-list-item>
 
+
                 <v-divider class="my-0"></v-divider>
 
+                  <!-- ABOUT -->
                   <v-list-item @click="go_about">
                     <v-list-item-icon>
                       <v-icon>mdi-information-outline</v-icon>
@@ -196,10 +237,12 @@ export default {
       this.snackText = data.text;
     },
 
+    // CASH WITHDRAWAL
     cash_withdrawal() {
       evntBus.$emit('open_withdrawal');
     },
 
+    // CASH WITHDRAWAL Shortcut Key
     withdraw(e) {
       if (e.key === 'l' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
@@ -209,9 +252,57 @@ export default {
       }
     },
 
-   help_modal() {
+    // XREADING
+    xreading_print_dialog() {
+      evntBus.$emit("open_xreading_dialog");
+    },
+
+    // XREADING Shortcut Key
+    openXReading(e) {
+      if (e.key === 'x' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        console.log({ e });
+
+        this.xreading_print_dialog();
+      }
+    },
+
+    // ZREADING
+    openZReading(e) {
+      if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        console.log({ e });
+        this.xreading_print_dialog();
+      }
+    },
+
+
+    // REPRINT INVOICE
+    show_reprint(){
+      evntBus.$emit("open_reprint_dialog", this.company);
+    },
+
+    // REPRINT INVOICE Shortcut Key
+    openReprint(e) {
+      if (e.key === 'r' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        console.log({ e });
+
+        this.show_reprint();
+      }
+    },
+
+    // IDLE
+    idle_dialog() {
+    evntBus.$emit("open_IdleDialog");
+    },
+
+    // HELP
+    help_modal() {
       evntBus.$emit('open_help');
     },
+
+    // HELP Shortcut Key
     openHelp(e) {
       if (e.key === 'F1') {
         e.preventDefault();
@@ -236,7 +327,20 @@ export default {
         this.pos_profile = data.pos_profile;
       });
     });
+
+    document.addEventListener('keydown', this.openHelp.bind(this));    
+    document.addEventListener('keydown', this.withdraw.bind(this));    
+    document.addEventListener('keydown', this.openReprint.bind(this));    
+    document.addEventListener('keydown', this.openXReading.bind(this));    
   },
+  
+  destroyed(){
+    document.removeEventListener('keydown', this.openHelp);
+    document.removeEventListener('keydown', this.withdraw);
+    document.removeEventListener('keydown', this.openReprint);
+    document.removeEventListener('keydown', this.openXReading);
+
+  }
 };
 </script>
 
