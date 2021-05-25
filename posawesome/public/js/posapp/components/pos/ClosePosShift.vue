@@ -75,8 +75,86 @@
               <div v-if="activetab ==='1'" class="tabcontent">
                   <p>Todo...Tab 1</p>
               </div>
-              <div v-if="activetab ==='2'" class="tabcontent">
-                <p>Todo...Tab 2</p>
+              <div v-if="activetab ==='2'" class="tabcontent2">
+                <template>
+                  <div>
+                    <v-data-table
+                    dense
+                    :headers="denomHeaders"
+                    :items="denominations"
+                    :items-per-page="5"
+                    class="elevation-1"
+                    hide-default-footer 
+                    disable-pagination
+                    v-model="pos_closing_shift_data.cash_details"
+                    height="373px"
+                    >
+                      <template v-slot:item.quantity="props">
+                        <v-col
+                          sm="7"
+                        >
+                          <v-text-field
+                              
+                            v-model="pos_closing_shift_data.cash_details = props.item.quantity"
+                            :rules="[max25chars]"
+                            label="Edit"
+                            single-line
+                            type="number"
+                            min=0 oninput="validity.valid||(value='');"
+                            dense
+                          ></v-text-field>
+                        </v-col>
+                      </template>
+                      <template v-slot:item.total="{ item }">
+                        {{
+                          (item.total = 
+                            item.amount * item.quantity
+                          )
+                        }}
+                      </template>
+                    </v-data-table>
+                      <template>
+                        <v-row justify="end" no-gutters class="ma-0 pa-0" height="5px">
+                          <v-col
+                            cols="12"
+                            sm="9"
+                            class="text-right">
+                            Cash On Hand:
+                          </v-col>
+                          <v-col
+                            cols="12"
+                            sm="3"
+                            class="text-right">
+                            {{totalAmount}}
+                          </v-col>
+                            <v-col
+                            cols="12"
+                            sm="9"
+                            class="text-right">
+                            Prev. Cash Withdrawn:
+                          </v-col>
+                            <v-col
+                              cols="12"
+                              sm="3"
+                              class="text-right">
+                              1200
+                            </v-col>
+                          <v-col
+                            cols="12"
+                            sm="9"
+                            class="text-right">
+                            Total Cash:
+                          </v-col>
+                          <v-col
+                            cols="12"
+                            sm="3"
+                            class="text-right">
+                          {{totalAmount+1200}}
+                          </v-col>
+                        </v-row>
+                      </template>
+                  </div>
+                </template>
               </div>
             </div>
           </template>
@@ -193,6 +271,8 @@ export default {
     show: false,
     activetab: '1',
     el: '#tabs',
+    pos_closing_shift_data: {},
+    cash_details: "",
 
     headers: [
       {
@@ -226,6 +306,31 @@ export default {
         sortable: false,
       },
     ],
+    denomHeaders: [
+      {
+        text: 'DENOMINATION',
+        align: 'end',
+        sortable: false,
+        value: 'amount',
+        width: '25%',
+      },
+      {
+        text: 'QTY',
+        align: 'center',
+        sortable: false,
+        value: 'quantity',
+        width: '50%',
+      },
+       {
+        text: 'Total',
+        align: 'end',
+        sortable: false,
+        value: 'total',
+        width: '25%',
+      },
+    ],
+    denominations: [],
+
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
     pagination: {},
   }),
