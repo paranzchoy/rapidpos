@@ -1266,3 +1266,55 @@ def get_bank_names_data():
     for i in get_bank:
         bank_list.append(i.name)
     return bank_list
+
+
+@frappe.whitelist()
+def submit_pos_opening_shift_withdrawal(withdrawal):
+    withdrawal = json.loads(withdrawal)
+    withdrawal_doc = frappe.get_doc("POS Opening Shift Withdrawal", withdrawal)
+    withdrawal_doc.flags.ignore_permissions = True
+    withdrawal_doc.save()
+    withdrawal_doc.submit()
+    return withdrawal_doc.name
+
+@frappe.whitelist()
+def submit_pos_opening_shift_withdrawal2(withdrawal):
+    card_details = []
+    cash_details = []
+    coupon_details = []
+    card_total = 0
+    withdrawal = json.loads(withdrawal)
+    opening_shift_doc = frappe.get_doc("POS Opening Shift", withdrawal.get("posa_opening_shift"))
+    new_cash_withdrawals = frappe.get_doc({
+        'doctype': 'POS Opening Shift Withdrawal Details'
+    })
+
+    if withdrawal.get("card_details"):
+        for item in withdrawal.get("card_details"):
+                card_details.append({'cardnumber': item["card_number_hidden"], 'salesinvoicenumber': item["name"], 'amount': item["amount"]})
+        new_cash_withdrawals.set("withdrawal_card_details", card_details)
+        
+    if withdrawal.get("cash_details"):
+        for item in withdrawal.get("cash_details"):
+                cash_details.append({'denomination': item["amount"], 'quantity': item["quantity"], 'total': item["total"]})
+        new_cash_withdrawals.set("withdrawal_cash_details", cash_details)
+        
+    if withdrawal.get("coupon_details"):
+        for item in withdrawal.get("coupon_details"):
+                coupon_details.append({'couponnumber': item["couponnumber"], 'description': item["description"], 'amount': item["amount"]})
+        new_cash_withdrawals.set("withdrawal_coupon_details", coupon_details)
+    new_cash_withdrawals.submit()
+
+    opening_shift_doc.append("opening_shift_withdrawal", {
+        "cash_amount": withdrawal.get("cash_amount"),
+        "card_amount": withdrawal.get("card_amount"),
+        "coupon": withdrawal.get("coupon"),
+        "withdrawal_details": new_cash_withdrawals.name
+    })
+
+
+    opening_shift_doc.flags.ignore_permissions = True
+    opening_shift_doc.save()
+    opening_shift_doc.submit()
+    return opening_shift_doc.name
+
