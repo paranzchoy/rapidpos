@@ -66,6 +66,7 @@ def create_opening_voucher(pos_profile, company, balance_details):
             "user": frappe.session.user,
             "pos_profile": pos_profile,
             "company": company,
+            # "checkout_counter":pos_checkout_counter
         }
     )
     new_pos_opening.set("balance_details", balance_details)
@@ -266,6 +267,22 @@ def save_draft_invoice(data):
         for tax in invoice_doc.taxes:
             tax.included_in_print_rate = 1
     invoice_doc.save()
+    
+    # append_opening_shift = frappe.get_doc("POS Opening Shift",
+    #     invoice_doc.posa_pos_opening_shift
+    # )
+    # append_opening_shift.no_of_invoices+=1
+
+    # if(len(append_opening_shift.sales_invoices)==0):
+    #     append_opening_shift.first_sales_invoice = invoice_doc.name
+        
+    # append_opening_shift.append("sales_invoices", {
+    #     "sales_invoice": invoice_doc.name,
+    #     "posting_date": invoice_doc.posting_date,
+    #     "customer": invoice_doc.customer,
+    #     "grand_total": invoice_doc.grand_total
+    # })
+    # append_opening_shift.submit()
     return invoice_doc
 
 
@@ -286,6 +303,14 @@ def update_invoice(data):
             tax.included_in_print_rate = 1
 
     invoice_doc.save()
+    # append_opening_shift = frappe.get_doc("POS Opening Shift",
+    #     invoice_doc.posa_pos_opening_shift
+    # )
+    # for item in append_opening_shift.sales_invoices:
+    #     if invoice_doc.name == item.sales_invoice:
+    #         item.customer = invoice_doc.customer
+
+    # append_opening_shift.submit()
     return invoice_doc
 
 
@@ -404,6 +429,70 @@ def submit_invoice(data):
 
     return {"name": invoice_doc.name, "status": invoice_doc.docstatus}
 
+# @frappe.whitelist()
+# def submit_invoice(data, cardNumber):
+#     data = json.loads(data)
+#     invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
+#     if data.get("loyalty_amount") > 0:
+#         invoice_doc.loyalty_amount = data.get("loyalty_amount")
+#         invoice_doc.redeem_loyalty_points = data.get("redeem_loyalty_points")
+#         invoice_doc.loyalty_points = data.get("loyalty_points")
+#     payments = []
+#     for payment in data.get("payments"):
+#         for i in invoice_doc.payments:
+#             if i.mode_of_payment == payment["mode_of_payment"]:
+#                 i.amount = payment["amount"]
+#                 i.card_number = cardNumber
+#                 i.card_number_hidden = cardNumberHide(cardNumber)
+#                 i.base_amount = 0
+#                 if i.amount:
+#                     payments.append(i)
+#                 break
+#     if len(payments) == 0:
+#         payments = [invoice_doc.payments[0]]
+#     invoice_doc.payments = payments
+#     invoice_doc.due_date = data.get("due_date")
+#     invoice_doc.flags.ignore_permissions = True
+#     frappe.flags.ignore_account_permission = True
+#     invoice_doc.posa_is_printed = 1
+#     invoice_doc.save()
+#     if frappe.get_value("POS Profile", invoice_doc.pos_profile, "posa_allow_submissions_in_background_job"):
+#         invoices_list = frappe.get_all("Sales Invoice", filters={
+#             "posa_pos_opening_shift": invoice_doc.posa_pos_opening_shift,
+#             "docstatus": 0,
+#             "posa_is_printed": 1
+#         })
+#         for invoice in invoices_list:
+#             enqueue(method=submit_in_background_job, queue='short',
+#                     timeout=1000, is_async=True, kwargs=invoice.name)
+#     else:
+#         invoice_doc.submit()
+
+#         append_opening_shift = frappe.get_doc("POS Opening Shift",
+#             invoice_doc.posa_pos_opening_shift
+#         )
+
+#         for item in append_opening_shift.sales_invoices:
+#             if invoice_doc == item.sales_invoice:
+#                 item.grand_total = invoice_doc.grand_total
+#         append_opening_shift.submit()
+
+
+#     return {
+#         "name": invoice_doc.name,
+#         "status": invoice_doc.docstatus
+#     }
+
+def cardNumberHide(card_number):
+    first_two = ''
+    search_last_four = ''
+    asterisks=''
+    first_two = first_two.join(re.findall(r"\d(?<!\d{3})", card_number, re.IGNORECASE))
+    search_last_four = search_last_four.join(re.findall(r"\d(?!\d{4})", card_number, re.IGNORECASE))
+    asterisks_loop= len(card_number)-6
+    for item in range(asterisks_loop):
+        asterisks = asterisks + '*'
+    return first_two + asterisks + search_last_four
 
 def redeeming_customer_credit(
     invoice_doc, data, is_payment_entry, total_cash, cash_account
@@ -625,6 +714,21 @@ def create_customer(customer_name, tax_id, mobile_no, email_id):
         ).insert(ignore_permissions=True)
         return customer
 
+@frappe.whitelist()
+def create_withdrawal_test(name, denomination, quantity, total, coupon, type):
+    parent = frappe.get_doc("POS Opening Shift", name)
+
+    parent.append("opening_shift_withdrawal", {
+        "denomination": denomination,
+        "quantity": quantity,
+        "total": total,
+        "coupon": coupon,
+        "type": type,
+
+
+    })
+    parent.save()
+    parent.submit()
 
 @frappe.whitelist()
 def get_items_from_barcode(selling_price_list, currency, barcode):
@@ -745,6 +849,129 @@ def search_invoices_for_return(invoice_name, company):
         data.append(frappe.get_doc("Sales Invoice", invoice["name"]))
     return data
 
+@frappe.whitelist()
+def search_invoices_for_reprint(invoice_name, company):
+    invoices_list = frappe.get_list(
+        "Sales Invoice",
+        filters={
+            "name": ["like", "%"+invoice_name+"%"],
+            "company": company,
+            "docstatus": 1
+        },
+        fields=["name"],
+        limit_page_length=0,
+        order_by='customer'
+    )
+    data = []
+    doc = frappe.get_all(
+        "Sales Invoice",
+        filters={
+            "return_against": invoice_name,
+            "docstatus": 1
+        },
+        fields=["name"],
+        order_by='customer'
+    )
+    if len(doc):
+        return data
+    for invoice in invoices_list:
+        data.append(frappe.get_doc("Sales Invoice", invoice["name"]))
+    return data
+
+@frappe.whitelist()
+def submit_total_opening_readings(opening_shift):
+    paid_outs=0
+    total_cash=0
+    total_card=0
+    last_invoice = ""
+    first_void=""
+    void_count_array = []
+    total = 0
+    gross_amount = 0
+
+    opening_shift_doc=frappe.get_doc("POS Opening Shift", opening_shift)
+    array_length = len(opening_shift_doc.sales_invoices)
+    for i in opening_shift_doc.sales_invoices:
+        total+=1
+        gross_amount= gross_amount + i.grand_total
+
+        invoice_get=frappe.get_doc("Sales Invoice", i.sales_invoice)
+
+        if(invoice_get.status=="Draft"):
+            if(len(void_count_array)==0):
+                first_void = invoice_get.name
+            void_count_array.append(invoice_get.name)
+
+        if(total==array_length): 
+            last_invoice = invoice_get.name
+
+        for item in invoice_get.payments:
+            if(item.mode_of_payment == "Cash"):
+                total_cash = total_cash + item.amount
+            if(item.mode_of_payment == "Credit Card"):
+                total_card = total_card + item.amount
+ 
+    for item in opening_shift_doc.opening_shift_withdrawal:
+        paid_outs = paid_outs = item.amount
+
+    opening_shift_doc.first_void_no = first_void
+    if(len(void_count_array)!=0):
+        opening_shift_doc.last_void_no = void_count_array[-1]
+    opening_shift_doc.void_count = len(void_count_array)
+    opening_shift_doc.withdrawal_amount = paid_outs
+    opening_shift_doc.gross_amount = gross_amount
+    opening_shift_doc.total_cash = total_cash
+    opening_shift_doc.total_card = total_card
+    opening_shift_doc.last_sales_invoice = last_invoice
+    opening_shift_doc.submit()
+
+@frappe.whitelist()
+def submit_total_closing_readings(closing_shift):
+    total_cash=0
+    total_card=0
+    first_invoice = ""
+    last_invoice = ""
+    first_void=""
+    void_count_array = []
+    total = 0
+    gross_amount = 0
+
+    closing_shift_doc=frappe.get_doc("POS Closing Shift", closing_shift)
+    array_length = len(closing_shift_doc.pos_transactions)
+    for i in closing_shift_doc.pos_transactions:
+        total+=1
+        gross_amount= gross_amount + i.grand_total
+
+        invoice_get=frappe.get_doc("Sales Invoice", i.sales_invoice)
+
+        if(invoice_get.status=="Draft"):
+            if(len(void_count_array)==0):
+                first_void = invoice_get.name
+            void_count_array.append(invoice_get.name)
+
+        if(total == 1):
+            first_invoice = invoice_get.name
+        if(total==array_length): 
+            last_invoice = invoice_get.name
+
+        for item in invoice_get.payments:
+            if(item.mode_of_payment == "Cash"):
+                total_cash = total_cash + item.amount
+            if(item.mode_of_payment == "Credit Card"):
+                total_card = total_card + item.amount
+ 
+
+    closing_shift_doc.first_void_no = first_void
+    if(len(void_count_array)!=0):
+        closing_shift_doc.last_void_no = void_count_array[-1]
+    closing_shift_doc.void_count = len(void_count_array)
+    closing_shift_doc.gross_amount = gross_amount
+    closing_shift_doc.no_of_invoices = total
+    closing_shift_doc.total_cash = total_cash
+    closing_shift_doc.total_card = total_card
+    closing_shift_doc.last_sales_invoice = last_invoice
+    closing_shift_doc.first_sales_invoice = first_invoice
+    closing_shift_doc.submit()
 
 def get_version():
     branch_name = get_app_branch("erpnext")
@@ -769,3 +996,10 @@ def get_app_branch(app):
         return branch
     except Exception:
         return ""
+
+@frappe.whitelist()
+def xreading_verify_user(user, pwd):
+
+    # TODO
+    retval = "arguments: {}, {}".format(user, pwd)
+    return retval 
