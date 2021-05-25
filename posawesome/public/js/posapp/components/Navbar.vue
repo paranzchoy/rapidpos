@@ -96,6 +96,39 @@
                   </v-list-item>
 
 
+                <!-- <v-list-item
+                  @click="close_shift_dialog"
+                  v-if="!pos_profile.posa_hide_closing_shift"
+                > -->
+                <v-list-item
+                  @click="close_shift_dialog"
+                >
+                  <v-list-item-icon>
+                    <v-icon>mdi-folder-open</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>Close Shift</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item
+                  @click="close_shift_dialog2"
+                >
+                  <v-list-item-icon>
+                    <v-icon>mdi-folder-open</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>Close Shift v2</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider class="my-0"></v-divider>
+                <v-list-item @click="help_modal">
+                  <v-list-item-icon>
+                    <v-icon>mdi-help-circle</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>Help &nbsp;&nbsp; <span  style="color:gray">F1</span></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
                 <v-divider class="my-0"></v-divider>
 
                   <!-- ABOUT -->
@@ -230,6 +263,9 @@ export default {
     },
     close_shift_dialog() {
       evntBus.$emit('open_closing_dialog');
+    },
+    close_shift_dialog2() {
+      evntBus.$emit('open_closing_dialog2');
     },
     show_mesage(data) {
       this.snack = true;

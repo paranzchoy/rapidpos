@@ -1317,3 +1317,4 @@ def submit_pos_opening_shift_withdrawal2(withdrawal):
     opening_shift_doc.save()
     opening_shift_doc.submit()
     return opening_shift_doc.name
+
