@@ -19,6 +19,7 @@
                   required
                 ></v-autocomplete>
               </v-col>
+              <!-- <v-col cols="7"> -->
               <v-col cols="12">
                 <v-autocomplete
                   :items="pos_profiles"
@@ -27,6 +28,14 @@
                   required
                 ></v-autocomplete>
               </v-col>
+              <!-- <v-col cols="5">
+                <v-autocomplete
+                  :items="pos_checkout_counters"
+                  label="POS Counter"
+                  v-model="pos_checkout_counter"
+                  required
+                ></v-autocomplete>
+              </v-col>    -->
               <v-col cols="12">
                 <template>
                   <v-data-table
@@ -78,6 +87,9 @@ export default {
     pos_profiles_data: [],
     pos_profiles: [],
     pos_profile: '',
+    pos_checkout_counters_data: [],
+    pos_checkout_counters: [],
+    pos_checkout_counter: '',
     payments_method_data: [],
     payments_methods: [],
     payments_methods_headers: [
@@ -114,6 +126,19 @@ export default {
           this.pos_profile = '';
         }
       });
+
+    //   this.pos_checkout_counters_data.forEach((element) => {
+    //   // if (element.company === val) {
+    //   //   this.pos_checkout_counters.push(element.name);
+    //   // }
+    //   this.pos_checkout_counters.push(element.counter_name);
+
+    //   if (this.pos_checkout_counters.length) {
+    //     this.pos_checkout_counter = this.pos_checkout_counters[0];
+    //   } else {
+    //     this.pos_checkout_counter = '';
+    //   }
+    // });  
     },
     pos_profile(val) {
       this.payments_methods = [];
@@ -143,6 +168,7 @@ export default {
             });
             vm.company = vm.companys[0];
             vm.pos_profiles_data = r.message.pos_profiles_data;
+            // vm.pos_checkout_counters_data = r.message.pos_checkout_counters_data;
             vm.payments_method_data = r.message.payments_method;
           }
         },
@@ -157,6 +183,7 @@ export default {
         .call('posawesome.posawesome.api.posapp.create_opening_voucher', {
           pos_profile: this.pos_profile,
           company: this.company,
+          // pos_checkout_counter: this.pos_checkout_counter,
           balance_details: this.payments_methods,
         })
         .then((r) => {
