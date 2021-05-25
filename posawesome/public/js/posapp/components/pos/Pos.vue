@@ -59,7 +59,10 @@ export default {
       dialog: false,
       pos_profile: "",
       pos_opening_shift: "",
+      pos_closing_shift: "",
+      item_selector: true,
       payment: false,
+      timerCount: 0,
     };
   },
 
@@ -86,7 +89,34 @@ export default {
     CashWithdrawal
   },
 
+  watch: {
+      timerCount: {
+                  handler(value) {
+
+                      if (value < 10) {
+                          setTimeout(() => {
+                              this.timerCount++;
+                          }, 1000);
+                      } 
+                      // else {
+                      //     // this.get_idle_data();
+                      // }
+                      // if (value == 10) {
+                      //   this.idleDialog = true;
+                      // }
+
+                  },
+                  immediate: true // This ensures the watcher is triggered upon creation
+              }
+    },
+
   methods: {
+    
+    resetTimerCount() {
+    // this.timerCount = 0;
+      clearTimeout(this.timerCount);
+    },
+
     check_opening_entry() {
       return frappe
         .call("posawesome.posawesome.api.posapp.check_opening_shift", {
@@ -97,6 +127,7 @@ export default {
             this.pos_profile = r.message.pos_profile;
             this.pos_opening_shift = r.message.pos_opening_shift;
             evntBus.$emit("register_pos_profile", r.message);
+            // evntBus.$emit("current_opening_shift", r.message);
             evntBus.$emit("set_company", r.message.company);
             console.log("LoadPosProfile");
           } else {
@@ -133,6 +164,9 @@ export default {
           }
         });
     },
+    get_withdrawal_data() {
+      evntBus.$emit('open_withdrawal', this.pos_opening_shift);
+    },
     submit_closing_pos(data){
       frappe
         .call("posawesome.posawesome.doctype.pos_closing_shift.pos_closing_shift.submit_closing_shift", {
@@ -140,6 +174,8 @@ export default {
         })
         .then((r) => {
           if (r.message) {
+            this.pos_closing_shift = r.message.pos_closing_shift;
+            evntBus.$emit("current_closing_shift", r.message);
             evntBus.$emit("show_mesage", {
               text: `POS Shift Closed`,
               color: "success",
@@ -149,6 +185,32 @@ export default {
             console.log(r)
           }
         });
+    },
+     print_page() {
+      const vm = this;
+      vm.load_print_page();
+    },
+
+    load_print_page() {
+      const url =
+        frappe.urllib.get_base_url() +
+        '/printview?doctype=POS%20Closing%20Shift&name=' +
+        this.pos_closing_shift.name +
+        '&trigger_print=1' +
+        '&format=' +
+        'Z Reading Report' +
+        '&no_letterhead=' +
+        'letter_head';
+      const printWindow = window.open(url, 'Print');
+      printWindow.addEventListener(
+        'load',
+        function () {
+          printWindow.print();
+          // printWindow.close();
+          // NOTE : uncomoent this to auto closing printing window
+        },
+        true
+      );
     },
   },
 
@@ -166,6 +228,7 @@ export default {
       });
       evntBus.$on("show_payment", (data) => {
         this.payment = true ? data ==="true": false;
+        this.item_selector = false;
         // evntBus.$emit("update_cur_items_details");
       })
       evntBus.$on("open_closing_dialog", () => {
@@ -174,6 +237,11 @@ export default {
       evntBus.$on("open_closing_dialog2", () => {
         this.get_closing_data2()
       })
+       evntBus.$on("open_withdrawal_2", () => {
+      // this.withdrawalDialog = true;
+        this.get_withdrawal_data()
+      })
+
       evntBus.$on("submit_closing_pos", (data) => {
         this.submit_closing_pos(data)
       })
