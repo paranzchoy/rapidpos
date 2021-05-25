@@ -20,35 +20,35 @@
         <!-- Password -->
         <v-row justify="center">
           <v-col cols="12" sm="7" >
-            <v-text-field
-              :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-              :type="show ? 'text' : 'password'"
-              name="input-10-2"
-              label="Password"
-              v-model="inputPassword"
-              value=""
-              class="input-group--focused"
-              @click:append="show = !show"
-              clearable
-              counter
-              required
-              @keyup.enter="submit_dialog"
-            ></v-text-field>
+              <v-text-field
+                :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+                :type="show ? 'text' : 'password'"
+                name="input-10-2"
+                label="Password"
+                v-model="inputPassword"
+                value=""
+                class="input-group--focused"
+                @click:append="show = !show"
+                clearable
+                counter
+                required
+                @keyup.enter="submit_dialog"
+              ></v-text-field>
           </v-col>
         </v-row>
 
         <!-- Buttons -->
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" dark @click="close_dialog">Cancel</v-btn>
-          <v-btn color="primary" @click="configure_modal">Start</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+            <v-btn color="error" dark @click="close_dialog">Cancel</v-btn>
+            <v-btn color="primary" @click="configure_modal">Start</v-btn>
+          </v-card-actions>
+        </v-card>
+     </v-dialog>
 
     <!-- Tabs: Cash, Cards, Coupon-->
    <v-dialog v-model="withdrawalDialog" max-width="900px">
-      <v-card>
+        <v-card>
         <!-- Title -->
         <v-card-title>
           <span class="headline indigo--text">Withdrawal</span>
@@ -520,7 +520,7 @@ export default {
       console.log({cash_withdrawal_temp});
 
       frappe
-        .call("posawesome.posawesome.doctype.pos_opening_shift_withdrawal.pos_opening_shift_withdrawal.submit_pos_opening_shift_withdrawal2", {
+        .call("posawesome.posawesome.api.custom_posapp.submit_pos_opening_shift_withdrawal2", {
           withdrawal: this.cash_withdrawal,
         })
         .then((r) => {
