@@ -65,7 +65,23 @@
         <v-card-title>
           <span class="headline indigo--text">Closing POS Shift v2</span>
         </v-card-title>
-        <v-card-text class="pa-0">
+        <v-card-text>
+          <template>
+            <div class="tabs">
+                <a v-on:click="activetab='1'" v-bind:class="[ activetab === '1' ? 'active' : '' ]">Tab 1</a>
+                <a v-on:click="activetab='2'" v-bind:class="[ activetab === '2' ? 'active' : '' ]">Tab 2</a>
+            </div>
+            <div class="content">
+              <div v-if="activetab ==='1'" class="tabcontent">
+                  <p>Todo...Tab 1</p>
+              </div>
+              <div v-if="activetab ==='2'" class="tabcontent">
+                <p>Todo...Tab 2</p>
+              </div>
+            </div>
+          </template>
+        </v-card-text>
+        <!-- <v-card-text class="pa-0">
           <v-container>
             <v-row>
               <v-col cols="12" class="pa-1">
@@ -111,11 +127,12 @@
               </v-col>
             </v-row>
           </v-container>
-        </v-card-text>
+        </v-card-text> -->
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" dark @click="close_dialog">Close</v-btn>
-          <v-btn color="primary" dark @click="submit_dialog">Submit</v-btn>
+          <!-- <v-btn color="primary" dark @click="submit_dialog">Submit</v-btn> -->
+          <v-btn color="primary" dark @click="close_dialog">Submit</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -133,6 +150,8 @@ export default {
     inputPassword: null,
     closingShiftDialog: false,
     show: false,
+    activetab: '1',
+    el: '#tabs',
 
     headers: [
       {
