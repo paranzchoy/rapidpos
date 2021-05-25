@@ -81,6 +81,47 @@
             </div>
           </template>
         </v-card-text>
+
+        <template>
+          <v-data-table
+            :headers="headers"
+            :items="dialog_data.payment_reconciliation"
+            item-key="mode_of_payment"
+            class="elevation-1"
+            :items-per-page="itemsPerPage"
+            hide-default-footer
+          >
+            <template v-slot:item.closing_amount="props">
+              <v-edit-dialog
+                :return-value.sync="props.item.closing_amount"
+              >
+                {{ formtCurrency(props.item.closing_amount) }}
+                <template v-slot:input>
+                  <v-text-field
+                    v-model="props.item.closing_amount"
+                    :rules="[max25chars]"
+                    label="Edit"
+                    single-line
+                    counter
+                    type="number"
+                  ></v-text-field>
+                </template>
+              </v-edit-dialog>
+            </template>
+            <template v-slot:item.difference="{ item }">{{
+              (item.difference = formtCurrency(
+                item.expected_amount - item.closing_amount
+              ))
+            }}</template>
+            <template v-slot:item.opening_amount="{ item }">{{
+              formtCurrency(item.opening_amount)
+            }}</template>
+            <template v-slot:item.expected_amount="{ item }">{{
+              formtCurrency(item.expected_amount)
+            }}</template>
+          </v-data-table>
+        </template>
+
         <!-- <v-card-text class="pa-0">
           <v-container>
             <v-row>
