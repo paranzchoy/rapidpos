@@ -7,6 +7,7 @@
     <XReading></XReading>
     <ZReading></ZReading>
     <Help></Help>
+    <PaymentsConfirmation></PaymentsConfirmation>
     <ClosePosShift></ClosePosShift>
     <Drafts></Drafts>
     <Returns></Returns>
@@ -37,6 +38,7 @@ import ItemsSelector from "./ItemsSelector.vue";
 import Invoice from "./Invoice.vue";
 import OpeningDialog from "./OpeningDialog.vue";
 import Payments from "./Payments.vue";
+import PaymentsConfirmation from "./PaymentsConfirmation.vue";
 import Drafts from "./Drafts.vue";
 import ClosingDialog from "./ClosingDialog.vue";
 import ClosePosShift from "./ClosePosShift.vue";
@@ -71,6 +73,7 @@ export default {
     Invoice,
     OpeningDialog,
     Payments,
+    PaymentsConfirmation,
     Drafts,
     ClosingDialog,
     ClosePosShift,
