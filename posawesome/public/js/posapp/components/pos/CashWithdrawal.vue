@@ -270,9 +270,9 @@
                 hide-details
               ></v-text-field>
             </v-col>
-          </v-row>
+          </v-row> 
         </template>
-
+<!-- TEST -->
         <!-- Buttons -->
         <v-card-actions>
           <v-spacer></v-spacer>
