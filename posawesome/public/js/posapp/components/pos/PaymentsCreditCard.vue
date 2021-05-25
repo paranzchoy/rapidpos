@@ -291,7 +291,7 @@
           >
         </v-col>
         <v-col cols="12">
-          <v-btn block class="mt-2" large color="primary" dark @click="submit"
+          <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
             >Submit Payments</v-btn
           >
         </v-col>
@@ -335,6 +335,9 @@ export default {
     back_to_invoice() {
       evntBus.$emit('show_payment', 'false');
       evntBus.$emit('set_customer_readonly', false);
+    },
+    on_confirm_dialog() {
+      evntBus.$emit("open_confirmation_dialog");
     },
     submit() {
 
