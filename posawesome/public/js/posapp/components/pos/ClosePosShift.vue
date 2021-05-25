@@ -126,7 +126,6 @@
 import { evntBus } from '../../bus';
 export default {
   data: () => ({
-    // closingDialog: false,
     itemsPerPage: 20,
     dialog_data: {},
     verify_user: false,
@@ -173,7 +172,6 @@ export default {
   watch: {},
   methods: {
     close_dialog() {
-    //   this.closingDialog = false;
         this.closingShiftDialog = false;
     },
     close_verify_dialog() {
@@ -224,7 +222,6 @@ export default {
   },
   created: function () {
     evntBus.$on('open_ClosingDialog2', (data) => {
-    //   this.closingDialog = true;
       this.verify_user = true;
       this.dialog_data = data;
     });
