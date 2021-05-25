@@ -19,7 +19,7 @@
                     :items-per-page="itemsPerPage"
                     hide-default-footer
                   >
-                    <template v-slot:item.closing_amount="props">
+                    <!-- <template v-slot:item.closing_amount="props">
                       <v-edit-dialog
                         :return-value.sync="props.item.closing_amount"
                       >
@@ -35,7 +35,8 @@
                           ></v-text-field>
                         </template>
                       </v-edit-dialog>
-                    </template>
+                    </template> -->
+                    <template v-slot:item.closing_amount="props">
                     <template v-if="props.item.mode_of_payment === 'Cash'">{{
                       (
                         props.item.closing_amount = formtCurrency(totalAmount)
@@ -70,7 +71,7 @@
                     <template v-slot:item.expected_amount="{ item }">{{
                       formtCurrency(item.expected_amount)
                     }}</template>
-                  </v-data-table>
+                </v-data-table>
                    <v-expansion-panels>
                     <v-expansion-panel
                       v-for="(item,i) in 1"
@@ -296,5 +297,6 @@ export default {
         return totalSum + (item.denom * item.qty);
       },0);
     },
+  }
 };
 </script>
