@@ -8,11 +8,27 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" dark @click="close_dialog">Cancel</v-btn>
-          <v-btn color="warning" dark @click="close_dialog">Add another payment</v-btn>
+          <v-btn color="warning" dark @click="another_payment_dialog">Add another payment</v-btn>
           <v-btn color="primary" dark @click="submit_dialog">Confirm</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+     <v-dialog v-model="anotherPayment" max-width="500px">
+      <v-card>
+        <v-card-title>
+          <span class="headline indigo--text">Add a Payment?</span>
+        </v-card-title>
+        <v-card-actions>
+          <v-btn color="error" dark @click="close_payment_dialog">Cancel</v-btn>
+          <v-btn color="success" dark @click="close_payment_dialog">Cash</v-btn>
+          <v-btn color="primary" dark @click="close_payment_dialog">Debit Card</v-btn>
+          <v-btn color="secondary" dark @click="close_payment_dialog">Credit Card</v-btn>
+          <v-btn color="warning" dark @click="close_payment_dialog">Coupon</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </v-row>
 </template>
 
@@ -22,11 +38,13 @@ export default {
   data: () => ({
     show: false,
     confirmPayment: false,
+    anotherPayment: false,
     itemsPerPage: 20,
     inputUsername: null,
     inputPassword: null,
     messages: '',
     dialog_data: {},
+    invoice_doc: '',
     // opening_shift_name: pos_opening_shift.name,
     pos_opening_shift: "",
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
@@ -38,106 +56,51 @@ export default {
     close_dialog() {
       this.confirmPayment = false;
     },
-
-   
-    submit_dialog() {
-      
-      if (!this.inputUsername || !this.inputPassword) {
-        evntBus.$emit("show_mesage", {
-          text: `Please complete the required fields`,
-          color: "warning",
-        })
-      } 
-      else if (this.inputUsername && this.inputPassword) {
-          frappe.call({
-            method: "posawesome.posawesome.api.custom_posapp.verify_password",
-            args: {
-              username: this.inputUsername,
-              password: this.inputPassword
-            },
-            callback: function(r) {
-              if(r.message) {
-                this.messages = r.message;
-              }
-            }
-          })
-          this.load_print_page();
-          this.confirmPayment = false;
-          // this.inputUsername = null;
-          // this.inputPassword = null;
-         } 
-        //  else {
-        //   evntBus.$emit("show_mesage", {
-        //     text: `Username does not match. Please try again.`,
-        //     color: "error",
-        //   })
-        // }
-      
+    close_payment_dialog() {
+      this.anotherPayment = false;
     },
+    another_payment_dialog(){
+      this.anotherPayment = true;
+    },
+    back_to_invoice() {
+      evntBus.$emit('show_payment', 'false');
+      evntBus.$emit('set_customer_readonly', false);
+    },
+    submit() {
+      this.submit_invoice();
+      evntBus.$emit('new_invoice', 'false');
+      this.back_to_invoice();
+      this.card_number = '';
 
-    print_page() {
+    },
+    submit_invoice() {
       const vm = this;
-      vm.calculate_totals();
-      vm.load_print_page();
-    },
-
-    formtCurrency(value) {
-      value = parseFloat(value);
-      return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-    },
-
-    load_print_page() {
-      const url =
-        frappe.urllib.get_base_url() +
-        '/printview?doctype=POS%20Opening%20Shift&name=' +
-        this.pos_opening_shift.name +
-        '&trigger_print=1' +
-        '&format=' +
-        'X Reading Report' +
-        '&no_letterhead=' +
-        'letter_head';
-      const printWindow = window.open(url, 'Print');
-      printWindow.addEventListener(
-        'load',
-        function () {
-          printWindow.print();
-          // printWindow.close();
-          // NOTE : uncomoent this to auto closing printing window
+      frappe.call({
+        method: 'posawesome.posawesome.api.posapp.submit_invoice',
+        args: {
+          data: this.invoice_doc,
+          cardNumber: this.card_number,
+          cardNumberHid: this.card_number.replace(/\d(?=\d{4})/g,"*")
         },
-        true
-      );
-    },
-
-    // load_print_page() {
-    //   const print_format =
-    //     this.pos_profile.print_format_for_online ||
-    //     this.pos_profile.print_format;
-    //   const letter_head = this.pos_profile.letter_head || 0;
-    //   const url =
-    //     frappe.urllib.get_base_url() +
-    //     '/printview?doctype=Sales%20Invoice&name=' +
-    //     this.invoice_doc.name +
-    //     '&trigger_print=1' +
-    //     '&format=' +
-    //     print_format +
-    //     '&no_letterhead=' +
-    //     letter_head;
-    //   const printWindow = window.open(url, 'Print');
-    //   printWindow.addEventListener(
-    //     'load',
-    //     function () {
-    //       printWindow.print();
-    //       // printWindow.close();
-    //       // NOTE : uncomoent this to auto closing printing window
-    //     },
-    //     true
-    //   );
-    // }
+        async: true,
+        callback: function (r) {
+          if (r.message) {
+            vm.load_print_page();
+            evntBus.$emit('show_mesage', {
+              text: `Invoice ${r.message.name} is Submitted`,
+              color: 'success',
+            });
+            frappe.utils.play_sound('submit');
+          }
+        },
+      });
+    }
   },
 
   created: function () {
-    evntBus.$on('open_confirmation_dialog', () => {
+    evntBus.$on('open_confirmation_dialog', (data) => {
       this.confirmPayment = true;
+      this.invoice_doc = data;
     });
     // evntBus.$on('current_opening_shift', (data) => {
     //   this.pos_opening_shift = data.pos_opening_shift;
