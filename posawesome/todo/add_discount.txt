@@ -1,0 +1,60 @@
+ADD DISCOUNT
+
+Description:
+
+Customers who are Senior Citizen (SC) or People with Disability
+
+
+---------------------------------------------------------------------------------------------------
+REQUIREMENTS
+Support for Senior Citizen Discount
+    - 5% on essential items
+    - 20% on medicine
+
+
+---------------------------------------------------------------------------------------------------
+USE CASE
+
+1. Cashier presses F7
+2. System shows EnableDiscount modal (see UI1)
+3. Head cashier or Sales manager inputs username and password and clicks the Enable button
+4. System validates username, password                                                      [EF1]
+5. System validates user role                                                               [EF2]
+6. System enables the Discount fields (see UI2)
+
+
+[EF1]
+[EF2]
+
+---------------------------------------------------------------------------------------------------
+TODO
+
+
+
+---------------------------------------------------------------------------------------------------
+UI DESIGN
+
+UI1:
+-------------------------------------------------
+| Enable discount                               |
+|                                               |
+|   * Head Cashier or Sales manager only        |
+|                                               |
+|    Username: [           ]                    |
+|    Password: [***********]                    |
+|                                               |
+|                           [Cancel] [Enable]   |
+-------------------------------------------------
+
+
+
+UI2:
+
+Item Discount 
+[               ]
+
+Additional Discount
+SC   [5%]           [    ]
+PWD  [5%]           [    ]
+
+

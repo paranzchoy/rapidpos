@@ -361,6 +361,7 @@ export default {
       });
       evntBus.$on('register_pos_profile', (data) => {
         this.pos_profile = data.pos_profile;
+        // this.pos_opening_shift = data.pos_opening_shift;
       });
     });
 

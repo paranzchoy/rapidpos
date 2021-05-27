@@ -1,0 +1,82 @@
+OPEN POS SHIFT
+
+
+---------------------------------------------------------------------------------------------------
+DESCRIPTION:
+
+Cashier works from 9AM-5PM, equivalent to one POS Shift
+At the beginning of the shift, the cashier must open the POS shift
+
+
+
+
+---------------------------------------------------------------------------------------------------
+REQUIREMENTS:
+
+POS Checkout counter has no active Shift
+Current time must be withing POS Checkout counter StartTime and EndTime
+Cashier has no active shift
+
+
+
+---------------------------------------------------------------------------------------------------
+USE CASE
+
+1. Cashiers navigates to the POS page
+2. System check if cashier has no active shift                                 [EF1]
+3. System check if POS checkout counter has no active shift                    [EF2] [AF]
+4. System shows the POSOpeningShift modal
+5. Cashier enters the required fields and clicks the Submit button
+    - Organization
+    - POS Profile
+    - POS Checkout counter
+    - Opening amount
+6. System validates the data                                                [EF3]       
+6. System adds POS Opening Shift to database
+7. System shows the POS page
+Use case ends
+
+
+[EF1]
+[EF2]
+[EF3]
+
+[AF]
+System shows the active POS page
+
+---------------------------------------------------------------------------------------------------
+TODO
+    [ ] Doctype create: POS Checkout counter
+
+
+
+---------------------------------------------------------------------------------------------------
+UI DESIGN
+
+
+---------------------------------------------------------------------
+| Create POS Shift                                                  |
+|                                                                   |
+|   Company     [ Bamboo Mart                                    v] |
+|   POS Profile [ Default v]     POS Counter [ POS Counter 1     v] | 
+|                                                                   |
+|      Mode of Payment                      Opening Amount          |
+|      Cash                                 [       3000 ]          |
+|      Credit Card                          [            ]          |
+|                                                                   |
+|                                                       [Submit]    |
+---------------------------------------------------------------------
+
+
+
+
+---------------------------------------------------------------------------------------------------
+DOCTYPES
+
+
+POS Checkout Counter
+    Description: POS Checkout Counter 1
+    Number: 1
+    Start time: 9:00 AM
+    End time:  9:00 PM
+    Computer Name: DESKTOP-FG4GV11

@@ -1,0 +1,69 @@
+RESUME USER
+
+---------------------------------------------------------------------------------------------------
+DESCRIPTION:
+
+When the POS system is active and the cashier leaves the POS counter, 
+it is important to minimize unwanted access by unauthorized user.
+
+When system detects no activity for a specific time period, the system will
+enter an idle mode and shows a resume modal dialog.
+
+Or before the cashier leaves the POS checkout counter, he/she will activate.
+
+
+
+
+
+---------------------------------------------------------------------------------------------------
+USE CASE:
+
+1. System detects no activity for 5 minutes (or)
+1. Cashier press Ctlr+i or clicks Menu > Ctlr+i
+2. System shows the UserIdle modal
+3. Cashier inputs password & clicks Resume button                     
+4. System validates user password                                           [EF1]
+5. System closes UserIdle modal
+Use case ends
+
+[EF1] Wrong password
+System show error message: 
+    - Password is not valid
+
+---------------------------------------------------------------------------------------------------
+
+
+TODO:
+    [ ] System detects no activity for 5 minutes
+        [ ] add user idle timeout logic
+            [ ] design JS timeout
+            [ ] decide which vue component to implement timeout
+
+    [ ] System shows the UserIdle modal
+        [ ] create initial UserIdle component
+        [ ] create initial UI template 
+        [ ] create Ctlr+i shortcut
+        [ ] create menu
+
+    [ ] System validates user password
+        [ ] create resume() api
+        [ ] add validation logic
+
+    [ ] Testing
+        [ ] Test with correct password
+        [ ] Test with wrong password
+        [ ] Test in developer tools
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+USER IDLE UI:
+-------------------------------------------------
+| Resume                                        |
+|                                               |
+|    Password: [***********]                    |
+|                                               |
+|                           [Cancel] [Resume]   |
+-------------------------------------------------

@@ -1,0 +1,59 @@
+REPRINT INVOICE feature
+
+Description:
+Customers may ask for a re-print of their invoice.
+Customer must provide the invoice number.
+Cashier must be able to search for the invoice and print it.
+
+
+---------------------------------------------------------------------------------------------------
+USE CASE
+
+1. Cashier clicks Menu > Reprint or press Ctlr+r
+2. System shows the ReprintInvoice modal
+3. Cashier inputs the sales invoice number and clicks the Search button         [AF] 
+4. System search for the matching sales invoice in the system                   [EF1]
+5. System displays the sales invoice
+6. User ticks the select box and click reprint
+7. System generates the print layout with data
+8. System shows the print UI
+Use case ends
+
+
+[AF] 
+1. Cashier clicks the Close button
+2. System closes the ReprintInvoice modal
+
+
+[EF1] Sales invoice not found
+
+
+---------------------------------------------------------------------------------------------------
+TODO:
+    [X] System shows the Reprint search modal
+        [X] Create initial ReprintInvoice.vue file
+        [X] Create template
+        [X] Add Ctlr+r shortcut
+        [X] Add menu item
+
+    [ ] System search for the matching sales invoice in the system 
+        [X] Create search_invoice_for_reprint() api
+
+    [X] System displays the matching sales invoice in the system 
+        [X] Create a checkbox with sales invoice details
+        [X] Show print button if checkbox is selected
+
+    [X] System shows the X-Reading print
+        [X] Create Sales Invoice print format
+
+---------------------------------------------------------------------------------------------------
+
+Reprint modal UI:
+-------------------------------------------------
+| Reprint                                       |
+|                                               |
+|  __________________________  [Search Invoice] |
+|                                               |
+|                                       [Close] |
+-------------------------------------------------
+    

@@ -1,0 +1,261 @@
+CASH WITHDRAWAL
+
+---------------------------------------------------------------------------------------------------
+DESCRIPTION:
+
+Oftentimes, when the cash register is almost full, the sales manager may withdraw cash.
+
+Rules:
+    Permission: Sales manager or head cashier only
+    Can only withdraw if there are cash in the register
+
+---------------------------------------------------------------------------------------------------
+USE CASE:
+
+1. Cashier clicks Menu > Withdrawal or clicks Ctlr+L
+2. System shows CashWithdrawal modal                                                        [EF1]
+3. Head Cashier or Sales Manager inputs user name and password & clicks the Begin button 
+4. System validates username, password                                                      [EF2]
+5. System validates user role                                                               [EF3]
+6. System shows CashWithdrawal modal
+    - Cash Tab is shown by default
+7. Cashier inputs cash denomination by quantity
+    - System autocalculates the total
+8. Cashier clicks Card tab 
+9. System autopopulates the Card tab details
+    - System retrieves all Sales Invoice with Card payment
+    - System displays table data: Card #, Sales Invoice, Amount paid with card
+10. Cashier inputs coupon information
+    - System autopopulates the data ???todo
+11. Cashier clicks the Withdraw button
+12. System saves the following data
+    - POS Opening Shift Withdrawal (parent)
+    - POS Opening Shift Withdrawal Cash Details (child collection)
+    - POS Opening Shift Withdrawal Card Details (child collection)
+13. System closes the CashWithdrawal modal
+14. System prints the Withdrawal Print
+Use case ends     
+
+
+[EF1] There are no sales invoice yet
+[EF2] Wrong username or password
+[EF3] You are not a Head Cashier or Sales Manager
+
+---------------------------------------------------------------------------------------------------
+TODO:
+
+1. Cashier clicks Menu > Withdrawal or clicks Ctlr+L                                        [EF1]
+    [X] Ctlr+L shortcut key
+        [X] Add 'Ctlr+L' to Help
+    [X] Menu > Withdrawal
+    [ ] [EF1] There are no cash to withdraw
+        * Formula: Cash = opening_cash + sales_invoice_cash_total
+                if Cash == 0.0: show error message
+
+2. System shows CashWithdrawal modal                                                        [EF1]
+    [X] Create CashWithdrawal.vue
+    [X] Show username & password field
+
+-------------------------------------------------
+| Withdrawal                                    |
+|                                               |
+|   * Head Cashier or Sales manager only        |
+|                                               |
+|    Username: [           ]                    |
+|    Password: [***********]                    |
+|                                               |
+|                           [Cancel] [Start]    |
+-------------------------------------------------
+
+
+3. Head Cashier or Sales Manager inputs user name and password & clicks the Begin button 
+
+4. System validates username, password                                                      [EF2]
+    [ ] Create verify_user_for_cash_withdrawal() api
+    [ ] Success
+    [ ] [EF2] Error message: Wrong username or password
+
+5. System validates user role                                                               [EF3]
+    [ ] Sales Manager: success
+    [ ] Head cashier: success
+
+6. System shows CashWithdrawal modal
+    [X] Cash Tab is shown by default
+    [X] Show the following  columns: 
+        [X] Denomination                (readonly, autopopulated)
+        [X] Qtty                        Input field
+        [X] Total                       (readonly, reactive)
+    [X] Show denominations in descending order
+    [ ] Qtty positive numbers only
+    [ ] Show cash_total                 (reactive)
+    [ ] Show cash_total2                (reactive)
+    [ ] Show card_total                 (reactive)
+    [ ] Show coupon_total               (reactive)
+
+-------------------------------------------------
+| Withdrawal                                    |
+|                                               |
+|   | Cash | Card | Coupon |                    |
+|           ----------------                    |
+|                                               |
+|    Denominations        Qtty       Total      |
+|    ---------------------------------------    |
+|    1000              [        ]   [      ]    |
+|     500              [        ]   [      ]    |
+|     200              [        ]   [      ]    |
+|     100              [        ]   [      ]    |
+|      50              [        ]   [      ]    | 
+|      20              [        ]   [      ]    |
+|      10              [        ]   [      ]    |
+|       5              [        ]   [      ]    |
+|       1              [        ]   [      ]    |
+|       0.25           [        ]   [      ]    |
+|       0.05           [        ]   [      ]    |
+|                                   --------    |
+|                             Total [6500  ]    |       
+|                                               |
+|-----------------------------------------------|
+|                                               |
+|                  Cash             [ 6500 ]    |   <--- reactive
+|                  Card             [ 3400 ]    |   <--- reactive
+|                  Coupon           [    0 ]    |   <--- reactive
+|                                   -------     |
+|                           Total   [ 9900 ]    |   <--- reactive
+|                                               |
+|                         [Cancel] [Withdraw]   |   <--- active only if total is more than 0
+-------------------------------------------------
+
+7. Cashier inputs cash denomination by quantity
+
+8. Cashier clicks Card tab 
+
+9. System autopopulates the Card tab details
+    - System retrieves all Sales Invoice with Card payment
+    - System displays table data: 
+        [X] checkbox
+        [X] Card #
+        [X] Sales Invoice
+        [X] Amount paid with card
+
+-------------------------------------------------
+| Withdrawal                                    |
+|                                               |
+|   | Cash | Card | Coupon |                    |
+|   -------        ---------                    |
+|                                               |
+| [ ]     CARD #    Sales Invoice #   Amount    |
+| --------------------------------------------- |
+| [ ]  [7654*****657] [         ]  [         ]  |       <--- Card #: show only first 4 digit and last 3 digits
+| [ ]  [        ]   [           ]  [         ]  |
+| [ ]  [        ]   [           ]  [         ]  |
+| [ ]  [        ]   [           ]  [         ]  |
+| [ ]  [        ]   [           ]  [         ]  |
+| [ ]  [        ]   [           ]  [         ]  |
+|                                  -----------  |
+|                           Total [   3400   ]  |       <-- reative
+|                                               |
+|-----------------------------------------------|
+|                                               |
+|                  Cash             [ 6500 ]    |
+|                  Card             [ 3400 ]    |       <-- reative
+|                  Coupon           [    0 ]    |
+|                                   -------     |
+|                           Total   [ 9900 ]    |
+|                                               |
+|                         [Cancel] [Withdraw]   |
+-------------------------------------------------    
+
+10. Cashier clicks the coupon tab
+
+11. System shows the Coupon tab
+
+-------------------------------------------------
+| Withdrawal                                    |
+|                                               |
+|   | Cash | Card | Coupon |                    |
+|   --------------                              |
+|                                               |
+|    Coupon #     Description     Amount        |
+|    ---------------------------------------    |
+|  [        ]   [           ]  [           ]    |
+|  [        ]   [           ]  [           ]    |
+|  [        ]   [           ]  [           ]    |
+|  [        ]   [           ]  [           ]    |
+|  [        ]   [           ]  [           ]    |
+|  [        ]   [           ]  [           ]    |
+|                              -------------    |
+|                        Total [           ]    |
+|                                               |
+|-----------------------------------------------|
+|                                               |
+|                  Cash        [           ]    |
+|                  Card        [           ]    |
+|                  Coupon      [           ]    |
+|                              ------------     |
+|                           Total   [      ]    |
+|                                               |
+|                         [Cancel] [Withdraw]   |
+-------------------------------------------------
+
+10. Cashier inputs coupon information
+    - System autopopulates the data ???todo
+
+11. Cashier clicks the Withdraw button
+
+12. System saves the following data
+    [ ] POS Opening Shift Withdrawal (parent)
+    [ ] POS Opening Shift Withdrawal Cash Details (child collection)
+    [ ] POS Opening Shift Withdrawal Card Details (child collection)
+    [ ] POS Opening Shift Withdrawal Coupon Details (child collection)
+
+13. System closes the CashWithdrawal modal
+
+14. System prints the Withdrawal Print layout
+    [ ] Create Withdrawal layout
+    [ ] Print Withdrawal
+
+Use case ends     
+
+
+
+
+---------------------------------------------------------------------------------------------------
+DATA MODEL
+
+
+POS Opening Shift Withdrawal
+    - name (PK)
+    - POS Opening Shift (parent)
+    - Cash Amount
+    - POS Opening Shift Withdrawal Cash Details (Child, collection)
+        - Denomination (float)
+        - quantity
+        - total (readonly, calculated)
+    - Card Amount
+    - POS Opening Shift Withdrawal Card Details (Child, collection)
+        - Card #
+        - Sales Invoice #
+        - Amount
+    - POS Opening Shift Withdrawal Coupo Details (Child, collection)
+        - Amount
+        - Coupon description 
+
+
+Denomination
+    - name  (FK)
+    - Amount
+
+ Denomination List
+ 1000
+  500   
+  200
+  100
+   50
+   20
+   10
+    5
+    1
+    0.25
+    0.5
+
+

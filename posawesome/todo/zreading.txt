@@ -1,0 +1,72 @@
+USE CASE:
+
+1. Cashier clicks Menu > Z-Reading or press Ctlr+z
+2. System shows the XReading modal:
+    - Title: Z-Reading
+    - Username input field
+    - password input field
+    - [Cancel] [Verify] buttons
+3. Head Cashier input username and password and click Verify button
+4. System validates username and password                                       [EF1] [EF2]
+5. System generates Z-Reading data
+6. System shows Z-Reading Print
+7. User click Print button
+8. System print the Z-Reading
+9. System shows POS page
+Use case ends
+
+
+
+
+
+SCENARIOS:
+    No sales invoice created
+
+
+
+-----------------------------------------------------
+|  Z Counter:                                       |
+|                                                   |
+|  Beginning SI No:                 [           ]   |
+|  Ending SI No:                    [           ]   |
+|  Beginning Void No:               [           ]   |
+|  Ending Void No:                  [           ]   |
+|  Sales Count:                     [           ]   |
+|  Void Count:                      [           ]   |
+|  Total Transaction:               [           ]   |
+|                                                   |
+|  Beginning Balance:               [           ]   |
+|  Ending Balance:                  [           ]   |
+|                                                   |
+-----------------------------------------------------
+|  Gross Amount:                                    |
+|                                                   |
+|  Less:                                            |
+|  Discount:                        [           ]   |
+|  Senior Discount:                 [           ]   |
+|  PWD Discounts:                   [           ]   |
+|  Void:                            [           ]   |
+|  NET AMOUNT:                      [           ]   |
+|                                                   |
+|  Mode of Payments:                                |
+|  Cash:                            [           ]   |
+|  Checks:                          [           ]   |
+|  Coupons:                         [           ]   |
+|  Git Cert:                        [           ]   |
+|  Card:                            [           ]   |
+|  Cash Short/Over:                 [           ]   |
+|  Total:                           [           ]   |
+|                                                   |
+|  VATable Sales:                   [           ]   |
+|  VAT Amount:                      [           ]   |
+|  VAT Exempt Sales:                [           ]   |
+|  Zero-Rates Sales:                [           ]   |
+|                                                   |       
+|  Accumulated:                                     |        
+|  Grand Total:                                     |        
+|  Reset Counter:                                   |       
+-----------------------------------------------------
+|  Reprint Count:                                   |       
+|  Global Trans. No:                                |       
+|                                                   |       
+-----------------------------------------------------
