@@ -336,15 +336,60 @@ export default {
   }),
   watch: {},
   methods: {
+    // CHANGE TAB METHOD
+    changeTab(tabIndexValue) {
+      this.active_tab = tabIndexValue;
+    },
+    // CALCULATE TOTALS METHOD
+    calculate_totals() {
+      const vm = this;
+      frappe.call({
+        method: 'posawesome.posawesome.api.custom_posapp.submit_total_closing_readings',
+        args: {
+          opening_shift:this.pos_closing_shift.name
+        },
+        async: true,
+        callback: function (r) {
+          //do nothing
+        },
+      });
+    },
     close_dialog() {
         this.closingShiftDialog = false;
     },
     close_verify_dialog() {
         this.verify_user = false;
     },
+    // submit_dialog() {
+    //   evntBus.$emit('submit_closing_pos', this.dialog_data);
+    //   this.closingDialog = false;
+    // },
+
+     // SUBMIT_DIALOG METHOD: Submit POS Closing Shift data
     submit_dialog() {
-      evntBus.$emit('submit_closing_pos', this.dialog_data);
-      this.closingDialog = false;
+      this.cashDetailsMethod();
+      this.pos_closing_shift_data.cash_details = this.cash_details_push;
+      const pos_closing_shift_temp = this.pos_closing_shift_data;
+      console.log({pos_closing_shift_temp});
+      frappe
+        .call("posawesome.posawesome.doctype.pos_closing_shift.custom_pos_closing_shift.submit_closing_shift", {
+          closing_shift: this.dialog_data,
+          closing_cash: this.pos_closing_shift_data,
+        })
+        .then((r) => {
+          if (r.message) {
+            this.pos_closing_shift = r.message.pos_closing_shift;
+            // this.load_print_page();
+            // evntBus.$emit("current_closing_shift", r.message);
+            evntBus.$emit("show_mesage", {
+              text: message,
+              color: "success",
+            });
+            this.check_opening_entry()
+          } else {
+            console.log(r)
+          }
+        });
     },
     configure_modal() {
       if (!this.inputUsername || !this.inputPassword) {
@@ -369,7 +414,7 @@ export default {
 
           this.closingShiftDialog = true;
           this.verify_user = false;
-        //   this.calculate_totals();
+          this.calculate_totals();
           this.inputUsername = null;
           this.inputPassword = null;
         //  } else {
@@ -395,10 +440,46 @@ export default {
         },
         });
     },
-
+    // CASH_DETAILS METHOD
+    cashDetailsMethod(){
+      this.denominations.forEach((element) => {
+        if(element.quantity!=0){
+         this.cash_details_push.push(element);
+        }
+      })
+    },
     formtCurrency(value) {
       value = parseFloat(value);
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    },
+
+    // CLOSING SHIFT SHORTCUT KEY METHOD
+    OpenClosingShift(e) {
+      if (e.key === 'e' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+          this.verify_user = true;
+      }
+    },
+    check_opening_entry() {
+      return frappe
+        .call("posawesome.posawesome.api.posapp.check_opening_shift", {
+          user: frappe.session.user,
+        })
+        .then((r) => {
+          if (r.message) {
+            this.pos_profile = r.message.pos_profile;
+            this.pos_opening_shift = r.message.pos_opening_shift;
+            evntBus.$emit("register_pos_profile", r.message);
+            evntBus.$emit("current_opening_shift", r.message);
+            evntBus.$emit("set_company", r.message.company);
+            console.log("LoadPosProfile");
+          } else {
+            this.create_opening_voucher();
+          }
+        });
+    },
+    create_opening_voucher() {
+      this.dialog = true;
     },
   },
   created: function () {
@@ -407,10 +488,27 @@ export default {
       this.dialog_data = data;
     });
 
+    document.addEventListener('keydown', this.OpenClosingShift.bind(this));
+
     this.$nextTick(function (){
       this.get_denominations();
     });
   },
+
+  destroyed() {
+      document.removeEventListener('keydown', this.OpenClosingShift);
+  },
+
+  computed: {
+    totalAmount: function(){
+
+      return this.denominations.reduce(function(totalSum, item){
+
+        return totalSum + (item.amount * item.quantity);
+      },0);
+    },
+
+  }
 };
 </script>
 
