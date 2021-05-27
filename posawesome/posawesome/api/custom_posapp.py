@@ -1189,6 +1189,69 @@ def create_withdrawal_test(name, cash_amount,cash_details, card_amount):
     parent.save()
     parent.submit()
 
+#modified submit_invoice (updated)
+@frappe.whitelist()
+def submit_invoice(data):
+    data = json.loads(data)
+    invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
+    if data.get("loyalty_amount") > 0:
+        invoice_doc.loyalty_amount = data.get("loyalty_amount")
+        invoice_doc.redeem_loyalty_points = data.get("redeem_loyalty_points")
+        invoice_doc.loyalty_points = data.get("loyalty_points")
+    payments = []
+    
+    for payment in data.get("payments"): 
+        for i in invoice_doc.payments:
+            if i.mode_of_payment == payment["mode_of_payment"]:
+                i.amount = payment["amount"]
+                i.base_amount = 0
+                if i.amount:
+                    if(payment["mode_of_payment"] == "Credit Card"):
+                        i.card_number = payment["card_number"]
+                        i.card_number_hidden = cardNumberHide(payment["card_number"])
+                        i.bank_name = payment["bank_name"]
+                        i.approval_code = payment["approval_code"]
+                        i.card_expiry_date = payment["card_expiry_date"]
+                    elif (payment["mode_of_payment"] == "Debit Card"):
+                        i.bank_name = payment["bank_name"]
+                    elif (payment["mode_of_payment"] == "Coupon"):
+                        i.coupon_code = payment["coupon_code"]
+                    payments.append(i)
+                break
+    if len(payments) == 0:
+        payments = [invoice_doc.payments[0]]
+    invoice_doc.payments = payments
+    invoice_doc.due_date = data.get("due_date")
+    invoice_doc.flags.ignore_permissions = True
+    frappe.flags.ignore_account_permission = True
+    invoice_doc.posa_is_printed = 1
+    invoice_doc.save()
+    if frappe.get_value("POS Profile", invoice_doc.pos_profile, "posa_allow_submissions_in_background_job"):
+        invoices_list = frappe.get_all("Sales Invoice", filters={
+            "posa_pos_opening_shift": invoice_doc.posa_pos_opening_shift,
+            "docstatus": 0,
+            "posa_is_printed": 1
+        })
+        for invoice in invoices_list:
+            enqueue(method=submit_in_background_job, queue='short',
+                    timeout=1000, is_async=True, kwargs=invoice.name)
+    else:
+        invoice_doc.submit()
+
+        append_opening_shift = frappe.get_doc("POS Opening Shift",
+            invoice_doc.posa_pos_opening_shift
+        )
+
+        for item in append_opening_shift.sales_invoices:
+            if invoice_doc == item.sales_invoice:
+                item.grand_total = invoice_doc.grand_total
+        append_opening_shift.submit()
+
+    return {
+        "name": invoice_doc.name,
+        "status": invoice_doc.docstatus
+    }
+
 #for invoice card payment
 @frappe.whitelist()
 def submit_invoice_card(data, cardNumber):
