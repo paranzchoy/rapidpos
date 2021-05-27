@@ -69,7 +69,7 @@
           <template>
             <div class="tabs">
                 <a v-on:click="activetab='1'" v-bind:class="[ activetab === '1' ? 'active' : '' ]">Tab 1</a>
-                <a v-on:click="activetab='2'" v-bind:class="[ activetab === '2' ? 'active' : '' ]">Tab 2</a>
+                <a v-on:click="activetab='2'" v-bind:class="[ activetab === '2' ? 'active' : '' ]">Cash Breakdown</a>
             </div>
             <div class="content">
               <div v-if="activetab ==='1'" class="tabcontent">
