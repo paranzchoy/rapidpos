@@ -15,30 +15,36 @@
         <h2 style="font-weight:bold;" class="px-2 pt-2">Debit Card Payment</h2>
        <v-row>
               <v-col cols="6">
-                <v-container>
-                  <v-text-field
-                    dense
-                    outlined
-                    color="indigo"
-                    label="Debit Payment"
-                    background-color="white"
-                    hide-details
-                    type="number"
-                    v-model="invoice_doc.payment_amount"
-                    :prefix="invoice_doc.currency"
-                    @focus="set_rest_amount()"
-                    :readonly="invoice_doc.is_return ? true : false"
-                  ></v-text-field>
-                  <br/>
-                  <v-select
-                    outlined
-                    v-model="invoice_doc.card_bank"
-                    color="indigo"
-                    background-color="white"
-                    :items="bank_names"
-                    label="Select Bank..."
-                  ></v-select>
-                </v-container>
+                <v-row
+                  class="pyments px-1 py-0"
+                  v-for="payment in invoice_doc.payments"
+                  :key="payment.name"
+                >
+                  <v-container v-if="payment.mode_of_payment==='Debit Card'">
+                    <v-text-field
+                      dense
+                      outlined
+                      color="indigo"
+                      label="Debit Payment"
+                      background-color="white"
+                      hide-details
+                      type="number"
+                      v-model="payment.amount"
+                      :prefix="invoice_doc.currency"
+                      @focus="set_rest_amount()"
+                      :readonly="invoice_doc.is_return ? true : false"
+                    ></v-text-field>
+                    <br/>
+                    <v-select
+                      outlined
+                      v-model="payment.bank_name"
+                      color="indigo"
+                      background-color="white"
+                      :items="bank_names"
+                      label="Select Bank..."
+                    ></v-select>
+                  </v-container>
+                </v-row>
               </v-col>
               <v-col cols="6">
                 <v-container v-if="invoice_doc">
@@ -278,7 +284,7 @@ export default {
      get_bank_names_data() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.custom_posapp.get_bank_names_data',
+        method: 'posawesome.posawesome.api.posapp.get_bank_names_data',
         args: {},
         async: true,
         callback: function (r) {
@@ -346,19 +352,25 @@ export default {
         frappe.utils.play_sound('error');
         return;
       }
-      this.invoice_doc.mode_of_payment = "Debit Card"
+
+      this.invoice_doc.payments.forEach((payment) => {
+        payment.card_number_hidden = payment.card_number.replace(/\d(?=\d{4})/g, "*");
+      });
+
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
       this.back_to_invoice();
-      this.card_number = '';
+
+      this.invoice_doc.payments.forEach((payment) => {
+        payment.card_number = "";
+      });
     },
     submit_invoice() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.custom_posapp.submit_invoice_card',
+        method: 'posawesome.posawesome.api.posapp.submit_invoice',
         args: {
-          data: this.invoice_doc,
-          cardNumber: this.card_number
+          data: this.invoice_doc
         },
         async: true,
         callback: function (r) {
@@ -379,13 +391,15 @@ export default {
       });
     },
     set_rest_amount() {
+        this.invoice_doc.payments.forEach((payment) => {
         if (
-          this.invoice_doc.payment_amount == 0 &&
+          payment.idx == idx &&
+          payment.amount == 0 &&
           this.diff_payment > 0
         ) {
-           this.invoice_doc.payment_amount = this.diff_payment;
+          payment.amount = this.diff_payment;
         }
-      // });
+      });
     },
     load_print_page() {
       const print_format =
@@ -438,7 +452,9 @@ export default {
     
     total_payments() {
       let total = flt(this.invoice_doc.loyalty_amount);
-      total = flt(this.invoice_doc.payment_amount);
+      this.invoice_doc.payments.forEach((payment) => {
+        total += flt(payment.amount);
+      });
       return total.toFixed(2);
     },
     diff_payment() {
@@ -464,7 +480,7 @@ export default {
       evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
-          (payment) => payment.default == 1
+          (payment) => payment.default == 3
         );
         this.is_credit_sale = 0;
         if (default_payment) {
@@ -513,3 +529,4 @@ export default {
   },
 };
 </script>
+
