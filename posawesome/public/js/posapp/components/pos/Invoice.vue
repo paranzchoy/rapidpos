@@ -834,6 +834,38 @@ export default {
       invoice_doc.customer_info = this.customer_info;
       evntBus.$emit('send_invoice_doc_payment', invoice_doc);
     },
+    /**NEW SHOW_PAYMENT() METHOD FOR ALL MODE OF PAYMENTS */
+    show_payment_method(payment_method) {
+      if (!this.customer) {
+        evntBus.$emit('show_mesage', {
+          text: `There is no Customer !`,
+          color: 'error',
+        });
+        return;
+      }
+      if (!this.items.length) {
+        evntBus.$emit('show_mesage', {
+          text: `There is no Items !`,
+          color: 'error',
+        });
+        return;
+      }
+      if (!this.validate()) {
+        return;
+      }
+      this.determine_payment_method(payment_method);
+      const invoice_doc = this.proces_invoice();
+      invoice_doc.customer_info = this.customer_info;
+      evntBus.$emit('send_invoice_doc_payment', invoice_doc);
+    },
+    //to determine what mode_of_payment page to open
+    determine_payment_method(payment_method){
+      if (payment_method === "Cash") return evntBus.$emit('show_payment_cash', 'true')
+      if (payment_method === "Credit Card") return evntBus.$emit('show_payment', 'true')
+      if (payment_method === "Debit Card") return evntBus.$emit('show_payment', 'true')
+      if (payment_method === "Coupon") return evntBus.$emit('show_payment', 'true')
+      return evntBus.$emit('show_payment', 'true')
+    },
     validate() {
       let value = true;
       this.items.forEach((item) => {
