@@ -359,7 +359,7 @@ export default {
     submit_invoice() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.submit_invoice',
+        method: 'posawesome.posawesome.api.custom_posapp.submit_invoice',
         args: {
           data: this.invoice_doc
         },
