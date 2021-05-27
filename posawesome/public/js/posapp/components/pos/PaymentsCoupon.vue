@@ -14,33 +14,39 @@
       <div class="overflow-y-auto px-2 pt-2" style="max-height: 78vh">
         <h2 style="font-weight:bold;" class="px-2 pt-2">Coupon Payment</h2>
         <div v-if="invoice_doc" class="px-1 py-0">
-          <!-- <div class=""> -->
             <v-row>
               <v-col cols="6">
-                <v-container>
-                  <v-text-field
-                      outlined
-                      color="indigo"
-                      label="Coupon Code"
-                      background-color="white"
-                      v-model="invoice_doc.coupon_code"
-                    >
-                  </v-text-field>
-                  <v-text-field
-                      dense
-                      outlined
-                      color="indigo"
-                      :label= "Payment"
-                      background-color="white"
-                      hide-details
-                      v-model="invoice_doc.payment_amount"
-                      type="number"
-                      :prefix="invoice_doc.currency"
-                      @focus="set_rest_amount()"
-                      :readonly="invoice_doc.is_return ? true : false"
-                    >
-                  </v-text-field>
-                </v-container>
+                 <v-row
+                  class="pyments px-1 py-0"
+                  v-for="payment in invoice_doc.payments"
+                  :key="payment.name"
+                >
+                  <v-container v-if="payment.mode_of_payment==='Coupon'">
+                    <v-text-field
+                        outlined
+                        color="indigo"
+                        label="Code Number"
+                        background-color="white"
+                        type="number"
+                        v-model="payment.coupon_code"
+                      >
+                    </v-text-field>
+                    <v-text-field
+                        dense
+                        outlined
+                        color="indigo"
+                        :label= "Payment"
+                        background-color="white"
+                        hide-details
+                        v-model="payment.amount"
+                        type="number"
+                        :prefix="invoice_doc.currency"
+                        @focus="set_rest_amount()"
+                        :readonly="invoice_doc.is_return ? true : false"
+                      >
+                    </v-text-field>
+                  </v-container>
+                 </v-row>
               </v-col>
               <v-col cols="6">
                 <v-container>
@@ -277,8 +283,7 @@ export default {
     is_credit_sale: 0,
     date_menu: false,
     card_number: '',
-    is_credit_transaction: false,
-    card_type: ["Debit", "Credit"]
+    is_credit_transaction: false
   }),
 
   methods: {
@@ -286,9 +291,6 @@ export default {
       evntBus.$emit('show_payment', 'false');
       evntBus.$emit('set_customer_readonly', false);
     },
-    // spacing(cardNumber){
-    //   cardNumber = cardNumber.replace(/\d{4}(?=.)/g, '$& ');
-    // },
     submit() {
 
         this.invoice_doc.payments.forEach((payment) => {
@@ -341,20 +343,25 @@ export default {
         frappe.utils.play_sound('error');
         return;
       }
-      this.invoice_doc.mode_of_payment = "Coupon"
+      
+      this.invoice_doc.payments.forEach((payment) => {
+        payment.card_number_hidden = payment.card_number.replace(/\d(?=\d{4})/g, "*");
+      });
+
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
       this.back_to_invoice();
-      this.card_number = '';
+
+      this.invoice_doc.payments.forEach((payment) => {
+        payment.card_number = "";
+      });
     },
     submit_invoice() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.submit_invoice_card',
+        method: 'posawesome.posawesome.api.posapp.submit_invoice',
         args: {
-          data: this.invoice_doc,
-          cardNumber: this.card_number,
-          cardNumberHid: this.card_number.replace(/\d(?=\d{4})/g, "*")
+          data: this.invoice_doc
         },
         async: true,
         callback: function (r) {
@@ -375,16 +382,15 @@ export default {
       });
     },
     set_rest_amount() {
-      // this.invoice_doc.payments.forEach((payment) => {
+      this.invoice_doc.payments.forEach((payment) => {
         if (
-          // payment.idx == idx &&
-          // payment.amount == 0 &&
-          this.invoice_doc.payment_amount == 0 &&
+          payment.idx == idx &&
+          payment.amount == 0 &&
           this.diff_payment > 0
         ) {
-          this.invoice_doc.payment_amount = this.diff_payment;
+          payment.amount = this.diff_payment;
         }
-      // });
+      });
     },
     load_print_page() {
       const print_format =
@@ -437,10 +443,9 @@ export default {
     
     total_payments() {
       let total = flt(this.invoice_doc.loyalty_amount);
-      // this.invoice_doc.payments.forEach((payment) => {
-      //   total += flt(payment.amount);
-      // });
-      total = flt(this.invoice_doc.payment_amount);
+      this.invoice_doc.payments.forEach((payment) => {
+        total += flt(payment.amount);
+      });
       return total.toFixed(2);
     },
     diff_payment() {
@@ -466,7 +471,7 @@ export default {
       evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
-          (payment) => payment.default == 1
+          (payment) => payment.default == 4
         );
         this.is_credit_sale = 0;
         if (default_payment) {
@@ -514,3 +519,4 @@ export default {
   },
 };
 </script>
+
