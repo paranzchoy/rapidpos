@@ -284,7 +284,7 @@ export default {
      get_bank_names_data() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.get_bank_names_data',
+        method: 'posawesome.posawesome.api.custom_posapp.get_bank_names_data',
         args: {},
         async: true,
         callback: function (r) {
