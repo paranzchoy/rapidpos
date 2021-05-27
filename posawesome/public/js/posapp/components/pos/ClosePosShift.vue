@@ -69,7 +69,7 @@
           <template>
             <div class="tabs">
                 <a v-on:click="activetab='1'" v-bind:class="[ activetab === '1' ? 'active' : '' ]">Tab 1</a>
-                <a v-on:click="activetab='2'" v-bind:class="[ activetab === '2' ? 'active' : '' ]">Tab 2</a>
+                <a v-on:click="activetab='2'" v-bind:class="[ activetab === '2' ? 'active' : '' ]">Cash Breakdown</a>
             </div>
             <div class="content">
               <div v-if="activetab ==='1'" class="tabcontent">
@@ -380,6 +380,22 @@ export default {
         // }
       }
     },
+
+    // GET_DENOMINATIONS METHOD: List all cash denominations
+    get_denominations() {
+      const vm = this;
+        frappe.call({
+          method: "posawesome.posawesome.api.custom_posapp.get_cash_denominations_breakdown",
+           callback: function (r) {
+          if (r.message) {
+            r.message.get_denom.forEach((element) => {
+              vm.denominations.push(element)
+            })
+          }
+        },
+        });
+    },
+
     formtCurrency(value) {
       value = parseFloat(value);
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
@@ -389,6 +405,10 @@ export default {
     evntBus.$on('open_ClosingDialog2', (data) => {
       this.verify_user = true;
       this.dialog_data = data;
+    });
+
+    this.$nextTick(function (){
+      this.get_denominations();
     });
   },
 };
