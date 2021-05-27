@@ -1,0 +1,126 @@
+feature: X-Reading
+description: Head Cashier or Sales Manager is able to print the sales report summary called X-Print
+
+---------------------------------------------------------------------------------------------------
+
+USE CASE:
+
+1. Cashier clicks Menu > X-Reading or press Ctlr+X
+2. System shows the XReading modal:
+3. Head Cashier input username and password and click Print button
+4. System validates username and password                                       [EF1] [EF2]
+5. System calculates X-Reading data
+6. System shows X-Reading Print
+7. User click Print button
+8. System print the X-Reading
+9. System shows POS page
+Use case ends
+
+
+[EF1] Wrong username or password
+System show error message: 
+    - User name or password is not valid
+
+[EF2] Username is not a Head Cashier or Sales Manager
+System show error message:
+    - 'ian.cajes@gmail' is not a head cashier or sales manager
+
+
+---------------------------------------------------------------------------------------------------
+
+
+TODO:
+  [ ] System shows the XReading modal
+        [X] Create initial XReading.vue file (see UI below)
+        [X] Create template: Username & password field
+        [X] Create Ctlr+X shortcut key
+
+  [ ] System validates username and password
+        [ ] Create verify() method in vue file
+        [ ] Create verify() api in posapp.py
+        [ ] Create Head Cashier role and user
+        [ ] Create Sales manager role and user
+        [ ] Test api in console or dev tools
+
+  [ ] System shows the X-Reading print
+        [X] Create XReadingReport print format
+        [ ] Create calculate() api in posapp.py
+            [X] Beginning SI
+            [X] Ending SI
+            [X] Beginning Void SI
+            [X] Ending Void SI
+            [ ] Sales count
+            [X] Void Count
+            [X] Total Transaction
+            [X] Gross Amount
+            [ ] Less
+            [ ] Discount
+            [ ] Senior Discount
+            [ ] PWD Discount
+            [ ] Void
+            [ ] Net Amount
+            [X] Starting Cash on-hand
+            [ ] Paid Ins
+            [X] Paid Outs
+            [ ] Total
+            [X] Cash
+            [ ] Coupons
+            [ ] Gift Cert
+            [ ] Card
+            [ ] Total
+            [ ] Cash Short/Over
+
+
+---------------------------------------------------------------------------------------------------
+
+
+XReading modal UI:
+-------------------------------------------------
+| XReading                                      |
+|                                               |
+|    * Head cashier/Sales Manager only          |
+|                                               |
+|    Username: [franz.duran@live.com ]          |
+|    Password: [***********]                    |
+|                                               |
+|                           [Cancel] [Start]    |
+-------------------------------------------------
+
+
+-----------------------------------------------------
+|  X-READING                                        |
+|                                                   |
+|  Beginning SI No:                 [           ]   |
+|  Ending SI No:                    [           ]   |
+|  Beginning Void No:               [           ]   |
+|  Ending Void No:                  [           ]   |
+|  Sales Count:                     [           ]   |
+|  Void Count:                      [           ]   |
+|  Total Transaction:               [           ]   |
+|  GROSS AMOUNT:                    [           ]   |
+|                                                   |
+|  Less:                                            |                                                  
+|  Discount:                        [           ]   |
+|  Senior Discount:                 [           ]   |
+|  PWD Discounts:                   [           ]   |
+|  Void:                            [           ]   |
+|  NET AMOUNT:                      [           ]   |
+|                                                   |
+|  Starting Cash On-Hand:           [           ]   |
+|  Pad Ins:                         [           ]   |
+|  Paid Outs:                       [           ]   |
+|  Total                            [           ]   |
+|                                                   |
+|  Cash Count Details                               |
+|  Cash:                            [           ]   |
+|  Checks:                          [           ]   |
+|  Coupons:                         [           ]   |
+|  Git Cert:                        [           ]   |
+|  Card:                            [           ]   |
+|  Cash Short/Over:                 [           ]   |
+|                                                   |
+|  Cashier:                                         |        
+|                                                   |       
+|                                                   |       
+|                              [ CANCEL ] [ PRINT ] |  
+-----------------------------------------------------

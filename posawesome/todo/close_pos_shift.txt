@@ -1,0 +1,210 @@
+CLOSE POS SHIFT
+
+
+---------------------------------------------------------------------------------------------------
+DESCRIPTION:
+
+Cashier works from 9AM-5PM, equivalent to one POS Shift
+At the end of the shift, the cashier must close the POS shift
+    By creating a POS Closing shift doctype
+
+---------------------------------------------------------------------------------------------------
+USE CASE:
+
+1. Cashier clicks Menu > Withdrawal or clicks Ctlr+Z                                        [EF1]
+2. System shows ClosingShift modal
+3. Head Cashier or Sales Manager inputs user name and password & clicks the Begin button 
+4. System validates username, password                                                      [EF2]
+5. System validates user role                                                               [EF3]
+6. System shows ClosingShift modal
+7. Cashier inputs cash denomination by quantity
+8. Cashier inputs card purchase 
+9. Cashier inputs coupon information
+10. Cashier clicks the Close button
+11. System saves the following data:
+12. System closes the ClosingShift modal
+13. System prints the ZReading Print
+
+
+---------------------------------------------------------------------------------------------------
+TODO:
+
+1. Cashier clicks Menu > Close Shift or clicks Ctlr+E                                       [EF1]
+    [X] Add Ctlr+E shortcut
+        [X] Add 'Ctlr+E' to Help
+    [X] Add Menu > Close Shift
+    [ ] [EF1] You can not close a POS with no sales. However, you may cancel 
+              this shift. Pls inform your sales admin to cancel the shift.
+        [ ] Create pos_has_sales_invoices() api in custom_posapp.py
+        [ ] Call api from created() method
+        [ ] Show error message
+
+2. System shows ClosingShift modal
+    [X] Create ClosingShift.vue 
+    [X] Show username & password fields
+
+-------------------------------------------------
+| POS Closing Shift                             |
+|                                               |
+|   * Head Cashier or Sales manager only        |
+|                                               |
+|    Username: [              ]                 |
+|    Password: [***********   ]                 |
+|                                               |
+|                   [Cancel] [Begin closing]    |
+-------------------------------------------------
+
+
+3. Head Cashier or Sales Manager inputs user name and password & clicks the Begin button 
+
+4. System validates username, password                                                      [EF2]
+    [X] Create verify_user_for_pos_closing() api
+    [X] Success
+    [X] [EF2] Error message: Wrong username or password
+
+5. System validates user role                                                               [EF3]
+    [ ] Success
+    [ ] [EF3] Error message: 'You are not a Head Cashier or Sales Manager'
+
+6. System shows ClosingShift modal
+    [ ] Cash Tab is shown by default
+    [ ] Cash Tab table has ff columns: 
+        - Denomination
+        - Qtty 
+        - Line total
+    [ ] Show cash_total
+    [ ] Show card_total
+    [ ] Show coupon_total
+
+
+------------------------------------------------------
+| POS Closing Shift                                  |
+|                                                    |
+|   | Sales Details | Cash |                         |
+|   ----------------                                 |
+|                                                    |
+|   Z Counter:                                       |
+|                                                    |
+|   Beginning SI No:                 [           ]   |
+|   Ending SI No:                    [           ]   |
+|   Beginning Void No:               [           ]   |
+|   Ending Void No:                  [           ]   |
+|   Sales Count:                     [           ]   |
+|   Void Count:                      [           ]   |
+|   Total Transaction:               [           ]   |
+|                                                    |
+|   Beginning Balance:               [           ]   |
+|   Ending Balance:                  [           ]   |
+|                                                    |
+-----------------------------------------------------
+|   Gross Amount:                                    |
+|                                                    |
+|   Less:                                            |
+|   Discount:                        [           ]   |
+|   Senior Discount:                 [           ]   |
+|   PWD Discounts:                   [           ]   |
+|   Void:                            [           ]   |
+|   NET AMOUNT:                      [           ]   |
+|                                                    |
+|   Mode of Payments:                                |
+|   Cash:                            [           ]   |      <--- reactive, from cash tab
+|   Checks:                          [           ]   |
+|   Coupons:                         [           ]   |
+|   Git Cert:                        [           ]   |
+|   Card:                            [           ]   |
+|   Cash Short/Over:                 [           ]   |
+|   Total:                           [           ]   |
+|                                                    |
+|   VATable Sales:                   [           ]   |
+|   VAT Amount:                      [           ]   |
+|   VAT Exempt Sales:                [           ]   |
+|   Zero-Rates Sales:                [           ]   |
+|                                                    |       
+|   Accumulated:                                     |        
+|   Grand Total:                                     |        
+|   Reset Counter:                                   |       
+|----------------------------------------------------|
+|   Reprint Count:                                   |       
+|   Global Trans. No:                                |       
+|                                                    |       
+------------------------------------------------------
+
+
+-------------------------------------------------
+| POS Closing Shift                             |
+|                                               |
+|   | Sales Details | Cash |                    |
+|   ----------------                            |
+|                                               |
+|    Denominations        Qtty     Line total   |
+|    ------------------------------             |
+|    1000              [       3]   [  3000]    |
+|     500              [       4]   [  2000]    |
+|     200              [       5]   [  1000]    |
+|     100              [       4]   [   400]    |
+|      50              [       1]   [    50]    | 
+|      20              [       2]   [    40]    |
+|      10              [       1]   [    10]    |
+|       5              [        ]   [      ]    |
+|       1              [        ]   [      ]    |
+|       0.25           [        ]   [      ]    |
+|       0.05           [        ]   [      ]    |
+|                                   --------    |
+|                 Cash onhand Total [  6500]    |           <--- reactive
+|           Previous cash withdrawn [  4000]    |           <--- autopopulated, readonly, sum of all cash withdrawal (see Formula01 below)
+|                                   -------     |
+|                        Total Cash [ 10400]    |           <--- reactive
+|                                               |
+|-----------------------------------------------|
+|                                               |
+|                  Cash             [ 6500 ]    |           <--- reactive, from Cash total
+|                  Card             [ 3400 ]    |           <--- reactive, from Card total
+|                  Coupon           [    0 ]    |           <--- reactive, from Coupon total
+|                                   -------     |
+|                           Total   [ 9900 ]    |           <--- reactive
+|                                               |
+|                                               |
+| [Cancel]                            [Submit]  |
+-------------------------------------------------
+
+
+
+7. Cashier inputs cash denomination by quantity
+    - System autocalculates the total
+
+8. Cashier inputs card purchase 
+    - System autopopulates the data
+
+9. Cashier inputs coupon information
+    - System autopopulates the data
+
+10. Cashier clicks the Close button
+
+11. System saves the following data:
+    - POS Closing Shift
+
+12. System closes the POSClosingShift modal
+
+13. System prints the ZReading Print
+
+Use case ends     
+
+
+
+
+---------------------------------------------------------------------------------------------------
+DATA MODEL
+
+
+
+---------------------------------------------------------------------------------------------------
+FORMULA
+    Total Sales = Total Sales Invoice Amount = Sales Invoice (Cash) + Sales Invoice (Card) + Coupon
+
+    Closing Cash = Opening Cash + Sales Invoice (Cash) - Cash Withdrawal
+
+Formula01: Sum of all cash withdrawal
+
+POS Opening Shift
+    POS Opening Shift Withdrawal
+        POS Opening Shift Withdrawal Cash Details
