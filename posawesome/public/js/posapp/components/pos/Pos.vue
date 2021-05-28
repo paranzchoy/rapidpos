@@ -14,7 +14,8 @@
     <NewCustomer></NewCustomer>
     <OpeningDialog v-if="dialog" :dialog="dialog"></OpeningDialog>
     <v-row v-show="!dialog">
-      <v-col v-show="!payment" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
+      <v-col v-show="!payment&&!payment_cash&&!payment_credit_card&&!payment_debit_card&&!payment_coupon" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
+      <!-- <v-col v-show="!payment" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0"> -->
         <ItemsSelector></ItemsSelector>
       </v-col>
       <v-col v-show="payment" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
@@ -23,6 +24,18 @@
         <PaymentsCreditCard></PaymentsCreditCard>
         <PaymentsDebitCard></PaymentsDebitCard>
         <PaymentsCoupon></PaymentsCoupon> -->
+      </v-col>
+       <v-col v-show="payment_cash" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
+        <PaymentsCash></PaymentsCash>
+      </v-col>
+      <v-col v-show="payment_credit_card" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
+        <PaymentsCreditCard></PaymentsCreditCard>
+      </v-col>
+      <v-col v-show="payment_debit_card" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
+        <PaymentsDebitCard></PaymentsDebitCard>
+      </v-col>
+      <v-col v-show="payment_coupon" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
+        <PaymentsCoupon></PaymentsCoupon>
       </v-col>
       <v-col xl="7" lg="6" md="6" sm="6" cols="12" class="pos">
         <Invoice></Invoice>
@@ -65,6 +78,10 @@ export default {
       item_selector: true,
       payment: false,
       timerCount: 0,
+      payment_cash: false,
+      payment_debit_card: false,
+      payment_credit_card: false,
+      payment_coupon: false
     };
   },
 
@@ -234,6 +251,21 @@ export default {
         this.item_selector = false;
         // evntBus.$emit("update_cur_items_details");
       })
+      
+        //** FOR DIFFERENT PAYMENT METHOD PURPOSES**/
+      evntBus.$on("show_payment_cash", (data) => {
+        this.payment_cash = true ? data ==="true": false;
+      })
+      evntBus.$on("show_payment_cc", (data) => {
+        this.payment_credit_card = true ? data ==="true": false;
+      })
+      evntBus.$on("show_payment_dc", (data) => {
+        this.payment_debit_card = true ? data ==="true": false;
+      })
+      evntBus.$on("show_payment_coupon", (data) => {
+        this.payment_coupon = true ? data ==="true": false;
+      })
+
       evntBus.$on("open_closing_dialog", () => {
         this.get_closing_data()
       })

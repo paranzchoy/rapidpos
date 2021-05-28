@@ -288,7 +288,7 @@ export default {
 
   methods: {
     back_to_invoice() {
-      evntBus.$emit('show_payment', 'false');
+      evntBus.$emit('show_payment_coupon', 'false');
       evntBus.$emit('set_customer_readonly', false);
     },
     submit() {
@@ -359,7 +359,7 @@ export default {
     submit_invoice() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.submit_invoice',
+        method: 'posawesome.posawesome.api.custom_posapp.submit_invoice',
         args: {
           data: this.invoice_doc
         },
