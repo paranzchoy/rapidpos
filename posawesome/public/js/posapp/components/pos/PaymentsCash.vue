@@ -13,8 +13,7 @@
       ></v-progress-linear>
       <h2 style="font-weight:bold;" class="px-2 pt-2">Cash Payment</h2>
       <div class="overflow-y-auto px-2 pt-2" style="max-height: 78vh">
-        <v-row class="px-1 py-0">
-        <!-- <v-row v-if="invoice_doc" class="px-1 py-0"> -->
+        <v-row v-if="invoice_doc" class="px-1 py-0">
           <v-col cols="12">
             <v-text-field
               outlined
@@ -268,7 +267,7 @@ export default {
 
   methods: {
     back_to_invoice() {
-      evntBus.$emit('show_payment', 'false');
+      evntBus.$emit('show_payment_cash', 'false');
       evntBus.$emit('set_customer_readonly', false);
     },
     submit() {
@@ -480,3 +479,4 @@ export default {
   },
 };
 </script>
+
