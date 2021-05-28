@@ -300,9 +300,9 @@
           <v-btn block class="mt-2" large color="primary" dark @click="submit"
             >Submit Payments</v-btn
           >
-           <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
-            >Test Modal</v-btn
-          >
+           <!-- <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
+            >Submit Payments</v-btn
+          > -->
         </v-col>
       </v-row>
     </v-card>
@@ -345,7 +345,7 @@ export default {
       evntBus.$emit("open_confirmation_dialog", this.invoice_doc); //dri ko nagedit last ok?
     },
     back_to_invoice() {
-      evntBus.$emit('show_payment', 'false');
+      evntBus.$emit('show_payment_cc', 'false');
       evntBus.$emit('set_customer_readonly', false);
     },
     submit() {
