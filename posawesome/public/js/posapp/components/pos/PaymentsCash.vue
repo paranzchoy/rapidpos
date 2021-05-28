@@ -30,6 +30,7 @@
                 v-model="payment.amount"
                 :prefix="invoice_doc.currency"
                 @focus="set_full_amount(payment.idx)"
+                autofocus
                 :readonly="invoice_doc.is_return ? true : false"
               ></v-text-field>
             </v-col>
