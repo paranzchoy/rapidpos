@@ -422,7 +422,7 @@ export default {
       });
    },
 
-
+//TEST COMMI
     // CASH_DETAILS METHOD
     cashDetailsMethod(){
       this.denominations.forEach((element) => {

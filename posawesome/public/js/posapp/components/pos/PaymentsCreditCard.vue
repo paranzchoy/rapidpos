@@ -15,71 +15,77 @@
         <h2 style="font-weight:bold;" class="px-2 pt-2">Credit Card Payment</h2>
        <v-row>
               <v-col cols="6">
-                <v-container>
-                  <v-text-field
-                    dense
-                    outlined
-                    color="indigo"
-                    label="Credit Payment"
-                    background-color="white"
-                    hide-details
-                    type="number"
-                    v-model="invoice_doc.payment_amount"
-                    :prefix="invoice_doc.currency"
-                    @focus="set_rest_amount()"
-                    :readonly="invoice_doc.is_return ? true : false"
-                  ></v-text-field>
-                  <br/>
-                  <v-select
-                    outlined
-                    v-model="invoice_doc.card_bank"
-                    color="indigo"
-                    background-color="white"
-                    :items="bank_names"
-                    label="Select Bank..."
-                  ></v-select>
-                  <v-text-field
+                <v-row
+                  class="pyments px-1 py-0"
+                  v-for="payment in invoice_doc.payments"
+                  :key="payment.name"
+                >
+                  <v-container v-if="payment.mode_of_payment==='Credit Card'">
+                    <v-text-field
+                      dense
                       outlined
                       color="indigo"
-                      label="Card Number"
-                      placeholder="XXXX-XXXX-XXXX-XXXX"
+                      label="Credit Payment"
                       background-color="white"
+                      hide-details
                       type="number"
-                      v-model="card_number"
-                    >
-                </v-text-field>
-                  <v-text-field
+                      v-model="payment.amount"
+                      :prefix="invoice_doc.currency"
+                      @focus="set_rest_amount()"
+                      :readonly="invoice_doc.is_return ? true : false"
+                    ></v-text-field>
+                    <br/>
+                    <v-select
+                      outlined
+                      v-model="payment.bank_name"
+                      color="indigo"
+                      background-color="white"
+                      :items="bank_names"
+                      label="Select Bank..."
+                    ></v-select>
+                    <v-text-field
                         outlined
                         color="indigo"
+                        label="Card Number"
+                        placeholder="XXXX-XXXX-XXXX-XXXX"
                         background-color="white"
-                        label="Approval Code"
-                        v-model="invoice_doc.approval_code"
-                  ></v-text-field>
+                        type="number"
+                        v-model="payment.card_number"
+                      >
+                  </v-text-field>
+                    <v-text-field
+                          outlined
+                          color="indigo"
+                          background-color="white"
+                          label="Approval Code"
+                          v-model="payment.approval_code"
+                    ></v-text-field>
 
-                  <v-menu
-                    v-model="menu2"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="auto"
-                  >
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-text-field
-                        v-model="invoice_doc.card_expiry_date"
-                        label="Expiry Date"
-                        prepend-icon="mdi-calendar"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker
-                      v-model="invoice_doc.card_expiry_date"
-                      @input="menu2 = false"
-                    ></v-date-picker>
-                  </v-menu>
-                </v-container>
+                    <v-menu
+                      v-model="menu2"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="payment.card_expiry_date"
+                          label="Expiry Date"
+                          prepend-icon="mdi-calendar"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-model="payment.card_expiry_date"
+                        @input="menu2 = false"
+                      ></v-date-picker>
+                    </v-menu>
+                  </v-container>
+                </v-row>
               </v-col>
               <v-col cols="6">
                 <v-container v-if="invoice_doc">
@@ -291,8 +297,11 @@
           >
         </v-col>
         <v-col cols="12">
-          <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
+          <v-btn block class="mt-2" large color="primary" dark @click="submit"
             >Submit Payments</v-btn
+          >
+           <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
+            >Test Modal</v-btn
           >
         </v-col>
       </v-row>
@@ -320,7 +329,7 @@ export default {
     get_bank_names_data() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.custom_posapp.get_bank_names_data',
+        method: 'posawesome.posawesome.api.posapp.get_bank_names_data',
         args: {},
         async: true,
         callback: function (r) {
@@ -332,17 +341,17 @@ export default {
         },
       });
     },
+    on_confirm_dialog() {
+      evntBus.$emit("open_confirmation_dialog", this.invoice_doc); //dri ko nagedit last ok?
+    },
     back_to_invoice() {
       evntBus.$emit('show_payment', 'false');
       evntBus.$emit('set_customer_readonly', false);
     },
-    on_confirm_dialog() {
-      evntBus.$emit("open_confirmation_dialog");
-    },
     submit() {
 
         this.invoice_doc.payments.forEach((payment) => {
-         if(payment.mode_of_payment=== "Credit Card" && payment.amount != 0 && this.card_number==0||this.card_number==null){
+         if(payment.mode_of_payment=== "Credit Card" && payment.amount != 0 && payment.card_number==0||payment.card_number==null){
               evntBus.$emit('show_mesage', {
               text: `Please enter card number for card transactions.`,
               color: 'error',
@@ -392,26 +401,30 @@ export default {
         return;
       }
 
-      this.invoice_doc.mode_of_payment = "Credit Card"
+      this.invoice_doc.payments.forEach((payment) => {
+        payment.card_number_hidden = payment.card_number.replace(/\d(?=\d{4})/g, "*");
+      });
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
       this.back_to_invoice();
-      this.card_number = '';
+
+      this.invoice_doc.payments.forEach((payment) => {
+        payment.card_number = "";
+      });
     },
     submit_invoice() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.custom_posapp.submit_invoice_card',
+        method: 'posawesome.posawesome.api.posapp.submit_invoice',
         args: {
-          data: this.invoice_doc,
-          cardNumber: this.card_number
+          data: this.invoice_doc
         },
         async: true,
         callback: function (r) {
           if (r.message) {
             vm.load_print_page();
             evntBus.$emit('show_mesage', {
-              text: `Invoice ${r.message.name} is Submited`,
+              text: `Invoice ${r.message.name} is Submitted`,
               color: 'success',
             });
             frappe.utils.play_sound('submit');
@@ -425,13 +438,15 @@ export default {
       });
     },
     set_rest_amount() {
+      this.invoice_doc.payments.forEach((payment) => {
         if (
-          this.invoice_doc.payment_amount == 0 &&
+          payment.idx == idx &&
+          payment.amount == 0 &&
           this.diff_payment > 0
         ) {
-           this.invoice_doc.payment_amount = this.diff_payment;
+          payment.amount = this.diff_payment;
         }
-      // });
+      });
     },
     load_print_page() {
       const print_format =
@@ -484,7 +499,9 @@ export default {
     
     total_payments() {
       let total = flt(this.invoice_doc.loyalty_amount);
-      total = flt(this.invoice_doc.payment_amount);
+      this.invoice_doc.payments.forEach((payment) => {
+        total += flt(payment.amount);
+      });
       return total.toFixed(2);
     },
     diff_payment() {
@@ -510,18 +527,31 @@ export default {
       evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
-          (payment) => payment.default == 1
+          (payment) => payment.default == 2
         );
         this.is_credit_sale = 0;
         if (default_payment) {
           default_payment.amount = invoice_doc.grand_total.toFixed(2);
         }
         this.loyalty_amount = 0;
-      this.get_bank_names_data();
+        this.get_bank_names_data();
       });
       evntBus.$on('register_pos_profile', (data) => {
         this.pos_profile = data.pos_profile;
       });
+      //Another event for calling other payment method
+      evntBus.$on('another_payment_cc', (invoice_doc) => {
+        this.invoice_doc = invoice_doc;
+        const default_payment = this.invoice_doc.payments.find(
+          (payment) => payment.default == 2
+        );
+        this.is_credit_sale = 1;
+        if (default_payment) {
+          default_payment.amount = invoice_doc.grand_total.toFixed(2);
+        }
+        this.loyalty_amount = 0;
+        this.get_bank_names_data();
+      })
     });
     document.addEventListener('keydown', this.shortPay.bind(this));
   },
@@ -559,3 +589,4 @@ export default {
   },
 };
 </script>
+
