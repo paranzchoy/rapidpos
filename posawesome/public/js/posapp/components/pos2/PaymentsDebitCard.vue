@@ -21,7 +21,7 @@
                   :key="payment.name"
                 >
                   <v-container v-if="payment.mode_of_payment==='Debit Card'">
-                    <v-text-field
+                    <v-text-field v-if="!split_payment"
                       dense
                       outlined
                       color="indigo"
@@ -31,7 +31,23 @@
                       type="number"
                       v-model="payment.amount"
                       :prefix="invoice_doc.currency"
-                      @focus="set_rest_amount()"
+                      @focus="set_full_amount(payment.idx)"
+                      autofocus
+                      :readonly="invoice_doc.is_return ? true : false"
+                    ></v-text-field>
+                    <!-- For split payment textfield to display remaining amount to be paid -->
+                    <v-text-field v-if="split_payment"
+                      dense
+                      outlined
+                      color="indigo"
+                      label="Debit Payment"
+                      background-color="white"
+                      hide-details
+                      type="number"
+                      v-model="payment.amount"
+                      :prefix="invoice_doc.currency"
+                      @focus="set_rest_amount(payment.idx)"
+                      autofocus
                       :readonly="invoice_doc.is_return ? true : false"
                     ></v-text-field>
                     <br/>
@@ -277,7 +293,8 @@ export default {
     date_menu: false,
     card_number: '',
     is_credit_transaction: false,
-    bank_names: []
+    bank_names: [],
+    split_payment: false
   }),
 
   methods: {
@@ -301,21 +318,6 @@ export default {
       evntBus.$emit('set_customer_readonly', false);
     },
     submit() {
-
-        this.invoice_doc.payments.forEach((payment) => {
-         if(payment.mode_of_payment=== "Credit Card" && payment.amount != 0 && this.card_number==0||this.card_number==null){
-              evntBus.$emit('show_mesage', {
-              text: `Please enter card number for card transactions.`,
-              color: 'error',
-            });
-            frappe.utils.play_sound('error');
-            this.is_credit_transaction = true;
-          return;
-         }
-         else{
-           this.is_credit_transaction = false;
-         }
-        });
 
       if(this.is_credit_transaction){
         return;
@@ -353,17 +355,13 @@ export default {
         return;
       }
 
-      this.invoice_doc.payments.forEach((payment) => {
-        payment.card_number_hidden = payment.card_number.replace(/\d(?=\d{4})/g, "*");
-      });
-
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
       this.back_to_invoice();
 
-      this.invoice_doc.payments.forEach((payment) => {
-        payment.card_number = "";
-      });
+      // this.invoice_doc.payments.forEach((payment) => {
+      //   payment.card_number = "";
+      // });
     },
     submit_invoice() {
       const vm = this;
@@ -480,7 +478,8 @@ export default {
       evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
-          (payment) => payment.default == 3
+          (payment) => payment.mode_of_payment == "Debit Card"
+          // (payment) => payment.default == 3
         );
         this.is_credit_sale = 0;
         if (default_payment) {
@@ -492,6 +491,20 @@ export default {
       evntBus.$on('register_pos_profile', (data) => {
         this.pos_profile = data.pos_profile;
       });
+      //Another event for calling other payment method
+      evntBus.$on('another_payment_dc', (invoice_doc) => {
+        this.invoice_doc = invoice_doc;
+        const default_payment = this.invoice_doc.payments.find(
+          (payment) => payment.mode_of_payment == "Debit Card"
+        );
+        this.is_credit_sale = 1;
+        if (default_payment) {
+          default_payment.amount = invoice_doc.grand_total.toFixed(2);
+        }
+        this.split_payment = true;
+        this.loyalty_amount = 0;
+        this.get_bank_names_data();
+      })
     });
     document.addEventListener('keydown', this.shortPay.bind(this));
   },

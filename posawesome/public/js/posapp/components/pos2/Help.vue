@@ -183,6 +183,16 @@
             Get Hold
           </v-card>
         </v-col>
+         <v-col cols="2" sm="3" md="2">
+          <v-card class="pa-2" outlinedtile>
+              <div class="font-weight-medium">Ctrl + 1</div>
+          </v-card>
+        </v-col>
+        <v-col cols="4" md="4">
+          <v-card class="pa-2" outlined tile>
+            Cash Payment
+          </v-card>
+        </v-col>
       </v-row>
 
       <v-row no-gutters>
@@ -194,6 +204,16 @@
         <v-col cols="4" md="4">
           <v-card class="pa-2" outlined tile>
             Return
+          </v-card>
+        </v-col>
+         <v-col cols="2" sm="3" md="2">
+          <v-card class="pa-2" outlinedtile>
+              <div class="font-weight-medium">Ctrl + 2</div>
+          </v-card>
+        </v-col>
+        <v-col cols="4" md="4">
+          <v-card class="pa-2" outlined tile>
+            Credit Card Payment
           </v-card>
         </v-col>
       </v-row>
@@ -209,6 +229,16 @@
             Cancel Invoice
           </v-card>
         </v-col>
+        <v-col cols="2" sm="3" md="2">
+          <v-card class="pa-2" outlinedtile>
+              <div class="font-weight-medium">Ctrl + 3</div>
+          </v-card>
+        </v-col>
+        <v-col cols="4" md="4">
+          <v-card class="pa-2" outlined tile>
+            Debit Card Payment
+          </v-card>
+        </v-col>
       </v-row>
 
       <v-row no-gutters>
@@ -220,6 +250,16 @@
         <v-col cols="4" md="4">
           <v-card class="pa-2" outlined tile>
             New Invoice
+          </v-card>
+        </v-col>
+        <v-col cols="2" sm="3" md="2">
+          <v-card class="pa-2" outlinedtile>
+              <div class="font-weight-medium">Ctrl + 4</div>
+          </v-card>
+        </v-col>
+        <v-col cols="4" md="4">
+          <v-card class="pa-2" outlined tile>
+            Coupon Payment
           </v-card>
         </v-col>
       </v-row>
