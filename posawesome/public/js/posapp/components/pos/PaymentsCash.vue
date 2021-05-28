@@ -29,8 +29,7 @@
                 type="number"
                 v-model="payment.amount"
                 :prefix="invoice_doc.currency"
-                @focus="set_rest_amount()"
-                autofocus
+                @focus="set_full_amount(payment.idx)"
                 :readonly="invoice_doc.is_return ? true : false"
               ></v-text-field>
             </v-col>

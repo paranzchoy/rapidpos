@@ -63,19 +63,27 @@ export default {
       this.anotherPayment = true;
     },
     cash_payment_dialog(){
+      this.close_dialog();
+      this.close_payment_dialog();
       this.close_all_payment_dialog();
       evntBus.$emit('show_payment_cash', 'true');
     },
     cc_payment_dialog(){
+      this.close_dialog();
+      this.close_payment_dialog();
       this.close_all_payment_dialog();
       evntBus.$emit('show_payment_cc', 'true');
     },
     dc_payment_dialog(){
+      this.close_dialog();
+      this.close_payment_dialog();
       this.close_all_payment_dialog();
       evntBus.$emit('another_payment_dc', this.invoice_doc);
       evntBus.$emit('show_payment_dc', 'true');
     },
     coupon_payment_dialog(){
+      this.close_dialog();
+      this.close_payment_dialog();
       this.close_all_payment_dialog();
       evntBus.$emit('show_payment_coupon', 'true');
     },
