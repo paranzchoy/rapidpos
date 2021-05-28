@@ -1111,11 +1111,6 @@ def get_denominations():
 	data["get_denom"] = frappe.db.get_list("Breakdown Denomination", fields=["amount","quantity","total"], limit= 20)
 	return data
 
-@frappe.whitelist()
-def get_cash_denominations_breakdown():
-	data = {}
-	data["get_denom"] = frappe.db.get_list("Cash Denominations Breakdown", fields=["amount","quantity","total"], limit= 20)
-	return data
 
 # @frappe.whitelist()
 # def get_denominations():
