@@ -31,7 +31,8 @@
                       type="number"
                       v-model="payment.amount"
                       :prefix="invoice_doc.currency"
-                      @focus="set_rest_amount()"
+                      @focus="set_full_amount(payment.idx)"
+                      autofocus
                       :readonly="invoice_doc.is_return ? true : false"
                     ></v-text-field>
                     <br/>
@@ -297,11 +298,11 @@
           >
         </v-col>
         <v-col cols="12">
-          <v-btn block class="mt-2" large color="primary" dark @click="submit"
+          <!-- <v-btn block class="mt-2" large color="primary" dark @click="submit"
             >Submit Payments</v-btn
-          >
+          > -->
            <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
-            >Test Modal</v-btn
+            >Submit Payments</v-btn
           >
         </v-col>
       </v-row>
@@ -342,10 +343,10 @@ export default {
       });
     },
     on_confirm_dialog() {
-      evntBus.$emit("open_confirmation_dialog", this.invoice_doc); //dri ko nagedit last ok?
+      evntBus.$emit("open_confirmation_dialog", this.invoice_doc);
     },
     back_to_invoice() {
-      evntBus.$emit('show_payment', 'false');
+      evntBus.$emit('show_payment_cc', 'false');
       evntBus.$emit('set_customer_readonly', false);
     },
     submit() {
@@ -527,7 +528,8 @@ export default {
       evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
-          (payment) => payment.default == 2
+          // (payment) => payment.default == 2
+          (payment) => payment.mode_of_payment == "Credit Card"
         );
         this.is_credit_sale = 0;
         if (default_payment) {
@@ -543,12 +545,13 @@ export default {
       evntBus.$on('another_payment_cc', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
-          (payment) => payment.default == 2
+          (payment) => payment.mode_of_payment == "Credit Card"
         );
         this.is_credit_sale = 1;
         if (default_payment) {
           default_payment.amount = invoice_doc.grand_total.toFixed(2);
         }
+        this.split_payment = true;
         this.loyalty_amount = 0;
         this.get_bank_names_data();
       })

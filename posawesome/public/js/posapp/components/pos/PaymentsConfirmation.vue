@@ -21,10 +21,10 @@
         </v-card-title>
         <v-card-actions>
           <v-btn color="error" dark @click="close_payment_dialog">Cancel</v-btn>
-          <v-btn color="success" dark @click="close_payment_dialog">Cash</v-btn>
-          <v-btn color="primary" dark @click="close_payment_dialog">Debit Card</v-btn>
-          <v-btn color="secondary" dark @click="close_payment_dialog">Credit Card</v-btn>
-          <v-btn color="warning" dark @click="close_payment_dialog">Coupon</v-btn>
+          <v-btn color="success" dark @click="cash_payment_dialog">Cash</v-btn>
+          <v-btn color="secondary" dark @click="cc_payment_dialog">Credit Card</v-btn>
+          <v-btn color="primary" dark @click="dc_payment_dialog">Debit Card</v-btn>
+          <v-btn color="warning" dark @click="coupon_payment_dialog">Coupon</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -61,6 +61,29 @@ export default {
     },
     another_payment_dialog(){
       this.anotherPayment = true;
+    },
+    cash_payment_dialog(){
+      this.close_all_payment_dialog();
+      evntBus.$emit('show_payment_cash', 'true');
+    },
+    cc_payment_dialog(){
+      this.close_all_payment_dialog();
+      evntBus.$emit('show_payment_cc', 'true');
+    },
+    dc_payment_dialog(){
+      this.close_all_payment_dialog();
+      evntBus.$emit('another_payment_dc', this.invoice_doc);
+      evntBus.$emit('show_payment_dc', 'true');
+    },
+    coupon_payment_dialog(){
+      this.close_all_payment_dialog();
+      evntBus.$emit('show_payment_coupon', 'true');
+    },
+    close_all_payment_dialog(){
+      evntBus.$emit('show_payment_cash', 'false');
+      evntBus.$emit('show_payment_cc', 'false');
+      evntBus.$emit('show_payment_dc', 'false');
+      evntBus.$emit('show_payment_coupon', 'false');
     },
     back_to_invoice() {
       evntBus.$emit('show_payment', 'false');

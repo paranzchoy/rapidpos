@@ -22,16 +22,7 @@
                   :key="payment.name"
                 >
                   <v-container v-if="payment.mode_of_payment==='Coupon'">
-                    <v-text-field
-                        outlined
-                        color="indigo"
-                        label="Code Number"
-                        background-color="white"
-                        type="number"
-                        v-model="payment.coupon_code"
-                      >
-                    </v-text-field>
-                    <v-text-field
+                     <v-text-field
                         dense
                         outlined
                         color="indigo"
@@ -41,8 +32,19 @@
                         v-model="payment.amount"
                         type="number"
                         :prefix="invoice_doc.currency"
-                        @focus="set_rest_amount()"
+                        @focus="set_full_amount(payment.idx)"
+                        autofocus
                         :readonly="invoice_doc.is_return ? true : false"
+                      >
+                    </v-text-field>
+                    <br/>
+                    <v-text-field
+                        outlined
+                        color="indigo"
+                        label="Code Number"
+                        background-color="white"
+                        type="number"
+                        v-model="payment.coupon_code"
                       >
                     </v-text-field>
                   </v-container>
@@ -288,25 +290,10 @@ export default {
 
   methods: {
     back_to_invoice() {
-      evntBus.$emit('show_payment', 'false');
+      evntBus.$emit('show_payment_coupon', 'false');
       evntBus.$emit('set_customer_readonly', false);
     },
     submit() {
-
-        this.invoice_doc.payments.forEach((payment) => {
-         if(payment.mode_of_payment=== "Credit Card" && payment.amount != 0 && this.card_number==0||this.card_number==null){
-              evntBus.$emit('show_mesage', {
-              text: `Please enter card number for card transactions.`,
-              color: 'error',
-            });
-            frappe.utils.play_sound('error');
-            this.is_credit_transaction = true;
-          return;
-         }
-         else{
-           this.is_credit_transaction = false;
-         }
-        });
 
       if(this.is_credit_transaction){
         return;
@@ -343,18 +330,14 @@ export default {
         frappe.utils.play_sound('error');
         return;
       }
-      
-      this.invoice_doc.payments.forEach((payment) => {
-        payment.card_number_hidden = payment.card_number.replace(/\d(?=\d{4})/g, "*");
-      });
 
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
       this.back_to_invoice();
 
-      this.invoice_doc.payments.forEach((payment) => {
-        payment.card_number = "";
-      });
+      // this.invoice_doc.payments.forEach((payment) => {
+      //   payment.card_number = "";
+      // });
     },
     submit_invoice() {
       const vm = this;
@@ -471,7 +454,8 @@ export default {
       evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
-          (payment) => payment.default == 4
+          // (payment) => payment.default == 4
+          (payment) => payment.mode_of_payment == "Coupon"
         );
         this.is_credit_sale = 0;
         if (default_payment) {

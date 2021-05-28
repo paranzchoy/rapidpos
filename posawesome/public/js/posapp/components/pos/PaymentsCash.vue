@@ -13,6 +13,29 @@
       ></v-progress-linear>
       <h2 style="font-weight:bold;" class="px-2 pt-2">Cash Payment</h2>
       <div class="overflow-y-auto px-2 pt-2" style="max-height: 78vh">
+            <v-row
+          class="pyments px-1 py-0"
+          v-for="payment in invoice_doc.payments"
+          :key="payment.name"
+            >
+            <v-col cols="12" v-if="payment.mode_of_payment==='Cash'">
+              <v-text-field
+                dense
+                outlined
+                color="indigo"
+                label="Cash on Hand"
+                background-color="white"
+                hide-details
+                type="number"
+                v-model="payment.amount"
+                :prefix="invoice_doc.currency"
+                @focus="set_rest_amount()"
+                autofocus
+                :readonly="invoice_doc.is_return ? true : false"
+              ></v-text-field>
+            </v-col>
+
+        </v-row>
         <v-row v-if="invoice_doc" class="px-1 py-0">
           <v-col cols="12">
             <v-text-field
@@ -40,28 +63,6 @@
               dense
             ></v-text-field>
           </v-col>
-        </v-row>
-        <v-row
-          class="pyments px-1 py-0"
-          v-for="payment in invoice_doc.payments"
-          :key="payment.name"
-        >
-            <v-col cols="12" v-if="payment.mode_of_payment==='Cash'">
-              <v-text-field
-                dense
-                outlined
-                color="indigo"
-                label="Cash on Hand"
-                background-color="white"
-                hide-details
-                type="number"
-                v-model="payment.amount"
-                :prefix="invoice_doc.currency"
-                @focus="set_rest_amount()"
-                :readonly="invoice_doc.is_return ? true : false"
-              ></v-text-field>
-            </v-col>
-
         </v-row>
         <v-divider></v-divider>
 
@@ -307,11 +308,10 @@ export default {
         frappe.utils.play_sound('error');
         return;
       }
-      this.invoice_doc.mode_of_payment = "Cash"
+      // this.invoice_doc.mode_of_payment = "Cash"
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
       this.back_to_invoice();
-      this.card_number = '';
     },
     submit_invoice() {
       const vm = this;
