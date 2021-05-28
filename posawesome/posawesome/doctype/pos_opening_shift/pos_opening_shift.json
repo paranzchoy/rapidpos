@@ -20,6 +20,7 @@
   "user",
   "opening_balance_details_section",
   "balance_details",
+  "opening_shift_withdrawal",
   "section_break_9",
   "amended_from"
  ],
@@ -135,11 +136,17 @@
    "fieldtype": "Data",
    "label": "POS Closing Shift",
    "read_only": 1
+  },
+  {
+   "fieldname": "opening_shift_withdrawal",
+   "fieldtype": "Table",
+   "label": "Opening Shift Withdrawal",
+   "options": "POS Opening Shift Withdrawal"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2020-10-01 23:07:04.737704",
+ "modified": "2021-05-27 11:27:27.650117",
  "modified_by": "Administrator",
  "module": "POSAwesome",
  "name": "POS Opening Shift",
