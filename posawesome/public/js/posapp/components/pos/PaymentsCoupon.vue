@@ -288,7 +288,7 @@ export default {
 
   methods: {
     back_to_invoice() {
-      evntBus.$emit('show_payment', 'false');
+      evntBus.$emit('show_payment_coupon', 'false');
       evntBus.$emit('set_customer_readonly', false);
     },
     submit() {
