@@ -861,9 +861,9 @@ export default {
     //to determine what mode_of_payment page to open
     determine_payment_method(payment_method){
       if (payment_method === "Cash") return evntBus.$emit('show_payment_cash', 'true')
-      if (payment_method === "Credit Card") return evntBus.$emit('show_payment', 'true')
-      if (payment_method === "Debit Card") return evntBus.$emit('show_payment', 'true')
-      if (payment_method === "Coupon") return evntBus.$emit('show_payment', 'true')
+      if (payment_method === "Credit Card") return evntBus.$emit('show_payment_cc', 'true')
+      if (payment_method === "Debit Card") return evntBus.$emit('show_payment_dc', 'true')
+      if (payment_method === "Coupon") return evntBus.$emit('show_payment_coupon', 'true')
       return evntBus.$emit('show_payment', 'true')
     },
     validate() {
@@ -974,6 +974,10 @@ export default {
     },
     close_payments() {
       evntBus.$emit('show_payment', 'false');
+      evntBus.$emit('show_payment_cash', 'false');
+      evntBus.$emit('show_payment_cc', 'false');
+      evntBus.$emit('show_payment_dc', 'false');
+      evntBus.$emit('show_payment_coupon', 'false');
     },
     update_items_details(items) {
       if (!items.length > 0) {
@@ -1236,7 +1240,38 @@ export default {
     shortOpenPayment(e) {
       if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
-        this.show_payment();
+        // this.show_payment();
+        this.close_payments();
+        this.show_payment_method("All");
+      }
+    },
+    /**----->FOR PAYMENT PURPOSES<--------**/
+    shortOpenCashPayment(e) {
+      if (e.key === '1' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.close_payments();
+        this.show_payment_method("Cash");
+      }
+    },
+    shortOpenCCPayment(e) {
+      if (e.key === '2' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.close_payments();
+        this.show_payment_method("Credit Card");
+      }
+    },
+    shortOpenDCPayment(e) {
+      if (e.key === '3' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.close_payments();
+        this.show_payment_method("Debit Card");
+      }
+    },
+    shortOpenCouponPayment(e) {
+      if (e.key === '4' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.close_payments();
+        this.show_payment_method("Coupon");
       }
     },
     shortDeleteFirstItem(e) {
@@ -1286,12 +1321,20 @@ export default {
       this.return_doc = data.return_doc;
     });
     document.addEventListener('keydown', this.shortOpenPayment.bind(this));
+    document.addEventListener('keydown', this.shortOpenCashPayment.bind(this));
+    document.addEventListener('keydown', this.shortOpenCCPayment.bind(this));
+    document.addEventListener('keydown', this.shortOpenDCPayment.bind(this));
+    document.addEventListener('keydown', this.shortOpenCouponPayment.bind(this));
     document.addEventListener('keydown', this.shortDeleteFirstItem.bind(this));
     document.addEventListener('keydown', this.shortOpenFirstItem.bind(this));
     document.addEventListener('keydown', this.shortSelectDiscount.bind(this));
   },
   destroyed() {
     document.removeEventListener('keydown', this.shortOpenPayment);
+    document.removeEventListener('keydown', this.shortOpenCashPayment);
+    document.removeEventListener('keydown', this.shortOpenCCPayment);
+    document.removeEventListener('keydown', this.shortOpenDCPayment);
+    document.removeEventListener('keydown', this.shortOpenCouponPayment);
     document.removeEventListener('keydown', this.shortDeleteFirstItem);
     document.removeEventListener('keydown', this.shortOpenFirstItem);
     document.removeEventListener('keydown', this.shortSelectDiscount);
