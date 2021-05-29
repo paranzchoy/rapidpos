@@ -20,10 +20,6 @@
       </v-col>
       <v-col v-show="payment" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
         <Payments></Payments>
-        <!-- <PaymentsCash></PaymentsCash>
-        <PaymentsCreditCard></PaymentsCreditCard>
-        <PaymentsDebitCard></PaymentsDebitCard>
-        <PaymentsCoupon></PaymentsCoupon> -->
       </v-col>
        <v-col v-show="payment_cash" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
         <PaymentsCash></PaymentsCash>
