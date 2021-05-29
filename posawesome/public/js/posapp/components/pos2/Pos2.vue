@@ -14,8 +14,8 @@
     <NewCustomer></NewCustomer>
     <OpeningDialog v-if="dialog" :dialog="dialog"></OpeningDialog>
     <v-row v-show="!dialog">
-      <v-col v-show="!payment&&!payment_cash&&!payment_credit_card&&!payment_debit_card&&!payment_coupon" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
-      <!-- <v-col v-show="!payment" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0"> -->
+      <!-- <v-col v-show="!payment&&!payment_cash&&!payment_credit_card&&!payment_debit_card&&!payment_coupon" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0"> -->
+      <v-col v-show="!payment" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
         <ItemsSelector></ItemsSelector>
       </v-col>
       <v-col v-show="payment" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
@@ -46,17 +46,20 @@
 
 
 <script>
+//Original POSAwesome components
 import { evntBus } from "../../bus";
-import ItemsSelector from "./ItemsSelector.vue";
-import Invoice from "./Invoice.vue";
-import OpeningDialog from "./OpeningDialog.vue";
-import Payments from "./Payments.vue";
+import ItemsSelector from "../pos/ItemsSelector.vue";
+import Invoice from "../pos/Invoice.vue";
+import OpeningDialog from "../pos/OpeningDialog.vue";
+import Payments from "../pos/Payments.vue";
+import Drafts from "../pos/Drafts.vue";
+import ClosingDialog from "../pos/ClosingDialog.vue";
+import NewCustomer from "../pos/NewCustomer.vue";
+import Returns from "../pos/Returns.vue";
+
+//Custom POSAwesome components
 import PaymentsConfirmation from "./PaymentsConfirmation.vue";
-import Drafts from "./Drafts.vue";
-import ClosingDialog from "./ClosingDialog.vue";
 import ClosePosShift from "./ClosePosShift.vue";
-import NewCustomer from "./NewCustomer.vue";
-import Returns from "./Returns.vue";
 import Help from "./Help.vue";
 import PaymentsCash from "./PaymentsCash.vue";
 import PaymentsCreditCard from "./PaymentsCreditCard.vue";

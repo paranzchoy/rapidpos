@@ -300,9 +300,9 @@
           <v-btn block class="mt-2" large color="primary" dark @click="submit"
             >Submit Payments</v-btn
           >
-           <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
-            >Test Modal</v-btn
-          >
+           <!-- <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
+            >Submit Payments</v-btn
+          > -->
         </v-col>
       </v-row>
     </v-card>
@@ -329,7 +329,7 @@ export default {
     get_bank_names_data() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.get_bank_names_data',
+        method: 'posawesome.posawesome.api.custom_posapp.get_bank_names_data',
         args: {},
         async: true,
         callback: function (r) {
@@ -345,7 +345,7 @@ export default {
       evntBus.$emit("open_confirmation_dialog", this.invoice_doc); //dri ko nagedit last ok?
     },
     back_to_invoice() {
-      evntBus.$emit('show_payment', 'false');
+      evntBus.$emit('show_payment_cc', 'false');
       evntBus.$emit('set_customer_readonly', false);
     },
     submit() {
@@ -415,7 +415,7 @@ export default {
     submit_invoice() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.submit_invoice',
+        method: 'posawesome.posawesome.api.custom_posapp.submit_invoice',
         args: {
           data: this.invoice_doc
         },
