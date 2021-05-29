@@ -294,7 +294,8 @@ export default {
     card_number: '',
     is_credit_transaction: false,
     bank_names: [],
-    split_payment: false
+    split_payment: false,
+    remaining_amount: 0
   }),
 
   methods: {
@@ -485,6 +486,7 @@ export default {
         if (default_payment) {
           default_payment.amount = invoice_doc.grand_total.toFixed(2);
         }
+        this.split_payment = false;
         this.loyalty_amount = 0;
         this.get_bank_names_data();
       });
@@ -499,7 +501,11 @@ export default {
         );
         this.is_credit_sale = 1;
         if (default_payment) {
-          default_payment.amount = invoice_doc.grand_total.toFixed(2);
+          this.invoice_doc.payments.forEach((payment) => {
+              this.remaining_amount += payment.amount;
+          });
+          default_payment.amount = (invoice_doc.grand_total - this.remaining_amount).toFixed(2);
+          // default_payment.amount = invoice_doc.grand_total.toFixed(2);
         }
         this.split_payment = true;
         this.loyalty_amount = 0;

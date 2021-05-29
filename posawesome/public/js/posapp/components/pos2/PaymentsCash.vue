@@ -439,6 +439,17 @@ export default {
         }
         this.loyalty_amount = 0;
       });
+       evntBus.$on('another_payment_cash', (invoice_doc) => {
+        this.invoice_doc = invoice_doc;
+        const default_payment = this.invoice_doc.payments.find(
+          (payment) => payment.default == 1
+        );
+        this.is_credit_sale = 0;
+        if (default_payment) {
+          default_payment.amount = invoice_doc.grand_total.toFixed(2);
+        }
+        this.loyalty_amount = 0;
+      });
       evntBus.$on('register_pos_profile', (data) => {
         this.pos_profile = data.pos_profile;
       });
