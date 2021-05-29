@@ -1266,7 +1266,7 @@ export default {
           if (r.message) {
             this.pos_closing_shift = r.message.pos_closing_shift;
             // this.load_print_page();
-            // evntBus.$emit("current_closing_shift", r.message);
+            evntBus.$emit("current_closing_shift", r.message);
             evntBus.$emit("show_mesage", {
               text: message,
               color: "success",
@@ -1322,6 +1322,10 @@ export default {
 
     this.$nextTick(function (){
       this.get_denominations();
+
+      evntBus.$on("submit_closing_pos", (data) => {
+        this.submit_closing_pos(data)
+      })
     });
   },
     destroyed() {
