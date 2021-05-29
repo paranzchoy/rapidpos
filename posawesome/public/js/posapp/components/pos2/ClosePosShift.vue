@@ -1180,7 +1180,8 @@ export default {
       const vm = this;
         frappe.call({
           method: "rapidposcustom.rapidposcustom.api.rapidposcustom.get_cash_denominations_breakdown",
-           callback: function (r) {
+          // method: "posawesome.posawesome.api.custom_posapp.get_denominations",
+            callback: function (r) {
           if (r.message) {
             r.message.get_denom.forEach((element) => {
               vm.denominations.push(element)
@@ -1265,7 +1266,7 @@ export default {
           if (r.message) {
             this.pos_closing_shift = r.message.pos_closing_shift;
             // this.load_print_page();
-            // evntBus.$emit("current_closing_shift", r.message);
+            evntBus.$emit("current_closing_shift", r.message);
             evntBus.$emit("show_mesage", {
               text: message,
               color: "success",
@@ -1320,7 +1321,11 @@ export default {
     document.addEventListener('keydown', this.OpenClosingShift.bind(this));
 
     this.$nextTick(function (){
-      //this.get_denominations();
+      this.get_denominations();
+
+      evntBus.$on("submit_closing_pos", (data) => {
+        this.submit_closing_pos(data)
+      })
     });
   },
     destroyed() {
