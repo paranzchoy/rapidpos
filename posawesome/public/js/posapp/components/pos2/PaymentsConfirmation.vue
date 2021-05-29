@@ -9,7 +9,7 @@
           <v-spacer></v-spacer>
           <v-btn color="error" dark @click="close_dialog">Cancel</v-btn>
           <v-btn color="warning" dark @click="another_payment_dialog">Add another payment</v-btn>
-          <v-btn color="primary" dark @click="submit_dialog">Confirm</v-btn>
+          <v-btn color="primary" dark @click="submit">Confirm</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -45,6 +45,7 @@ export default {
     messages: '',
     dialog_data: {},
     invoice_doc: '',
+    pos_profile: '',
     // opening_shift_name: pos_opening_shift.name,
     pos_opening_shift: "",
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
@@ -97,24 +98,40 @@ export default {
       evntBus.$emit('show_payment_coupon', 'false');
     },
     back_to_invoice() {
-      evntBus.$emit('show_payment', 'false');
+      this.close_all_payment_dialog();
       evntBus.$emit('set_customer_readonly', false);
     },
     submit() {
+      this.invoice_doc.payments.forEach((payment) => {
+         if(payment.mode_of_payment=== "Credit Card" && payment.amount != 0 && payment.card_number==0||payment.card_number==null){
+              evntBus.$emit('show_mesage', {
+              text: `Please enter card number for card transactions.`,
+              color: 'error',
+            });
+            frappe.utils.play_sound('error');
+            // this.is_credit_transaction = true;
+          return;
+         }
+         else{
+          //  this.is_credit_transaction = false;
+         }
+        });
+      this.close_dialog();
+      this.invoice_doc.payments.forEach((payment) => {
+        if(payment.card_number){
+          payment.card_number_hidden = payment.card_number.replace(/\d(?=\d{4})/g, "*");
+        }
+      });
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
       this.back_to_invoice();
-      this.card_number = '';
-
     },
     submit_invoice() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.submit_invoice',
+        method: 'posawesome.posawesome.api.custom_posapp.submit_invoice',
         args: {
-          data: this.invoice_doc,
-          cardNumber: this.card_number,
-          cardNumberHid: this.card_number.replace(/\d(?=\d{4})/g,"*")
+          data: this.invoice_doc
         },
         async: true,
         callback: function (r) {
@@ -128,13 +145,39 @@ export default {
           }
         },
       });
-    }
+    },
+     load_print_page() {
+      const print_format =
+        this.pos_profile.print_format_for_online ||
+        this.pos_profile.print_format;
+      const letter_head = this.pos_profile.letter_head || 0;
+      const url =
+        frappe.urllib.get_base_url() +
+        '/printview?doctype=Sales%20Invoice&name=' +
+        this.invoice_doc.name +
+        '&trigger_print=1' +
+        '&format=' +
+        print_format +
+        '&no_letterhead=' +
+        letter_head;
+      const printWindow = window.open(url, 'Print');
+      printWindow.addEventListener(
+        'load',
+        function () {
+          printWindow.print();
+          // printWindow.close();
+          // NOTE : uncomoent this to auto closing printing window
+        },
+        true
+      );
+    },
   },
 
   created: function () {
     evntBus.$on('open_confirmation_dialog', (data) => {
       this.confirmPayment = true;
       this.invoice_doc = data;
+      this.pos_profile = this.invoice_doc.pos_profile;
     });
     // evntBus.$on('current_opening_shift', (data) => {
     //   this.pos_opening_shift = data.pos_opening_shift;
