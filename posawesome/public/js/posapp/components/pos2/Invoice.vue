@@ -127,7 +127,7 @@
                       label="Discount Percentage"
                       background-color="white"
                       hide-details
-                      v-model.number="item.discount_percentage" 
+                      v-model.number="item.discount_percentage"
                       type="number"
                       @change="calc_prices(item, $event)"
                       id="discount_percentage"
@@ -137,10 +137,7 @@
                           ? true
                           : false || !!invoice_doc.is_return
                       "
-                    ></v-text-field> 
-                <!-- v-model.number="item.discount_percentage" 
-                v-model.number="item.discount_amount"
-                @change="calc_prices(item, $event)"-->
+                    ></v-text-field>
                   </v-col>
                   <v-col cols="4">
                     <v-text-field
@@ -359,35 +356,23 @@
                     :prefix="pos_profile.currency"
                   ></v-text-field>
                 </v-col>
-                <!-- <v-col> -->
-                  <v-col cols="12">
-                    <v-autocomplete
-                      v-model="selectedDiscount"
-                      :items="options"
-                      dense
-                      outlined
-                      label="Select Discount Type"
-                      :disabled="enableDisable"
-                      ref="discount"
-                    ></v-autocomplete>
-                  </v-col>
-                  <!-- <v-col cols="12" sm="7">
-                    <v-text-field
-                      :value="formtCurrency(itemDiscount)"
-                      label="ِAdditional Discount"
-                      outlined
-                      dense
-                      hide-details
-                      type="number"
-                      :prefix="pos_profile.currency"
-                      :disabled="
-                        !pos_profile.posa_allow_user_to_edit_additional_discount
-                          ? true
-                          : false
-                      "
-                    ></v-text-field> 
-                  </v-col> -->
-                <!-- </v-col> -->
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="discount_amount"
+                    label="ِAdditional Discount"
+                    ref="discount"
+                    outlined
+                    dense
+                    hide-details
+                    type="number"
+                    :prefix="pos_profile.currency"
+                    :disabled="
+                      !pos_profile.posa_allow_user_to_edit_additional_discount
+                        ? true
+                        : false
+                    "
+                  ></v-text-field>
+                </v-col>
                 <v-col cols="12">
                   <v-text-field
                     :value="formtCurrency(subtotal)"
@@ -457,7 +442,7 @@
           style="max-height: 25vh; height: 25vh"
           class="cards mb-0 mt-3 py-0"
         >
-          <v-row align="start" style="height: 60%">
+          <v-row align="start" style="height: 52%">
             <v-col cols="6">
               <v-btn
                 block
@@ -466,7 +451,7 @@
                 color="warning"
                 dark
                 @click="get_draft_invoices"
-                >Get Hold (F8)</v-btn
+                >Get Hold</v-btn
               >
             </v-col>
             <v-col cols="6">
@@ -478,7 +463,7 @@
                 color="info"
                 dark
                 @click="open_returns"
-                >Return (F9)</v-btn
+                >Return</v-btn
               >
             </v-col>
             <v-col cols="6">
@@ -489,7 +474,7 @@
                 color="error"
                 dark
                 @click="cancel_invoice"
-                >Cancel (F10)</v-btn
+                >Cancel</v-btn
               >
             </v-col>
             <v-col cols="6">
@@ -500,11 +485,11 @@
                 color="success"
                 dark
                 @click="new_invoice"
-                >New (F11)</v-btn
+                >New</v-btn
               >
             </v-col>
           </v-row>
-          <v-row align="end" style="height: 30%">
+          <v-row align="end" style="height: 54%">
             <v-col cols="12">
               <v-btn
                 block
@@ -513,34 +498,10 @@
                 color="primary"
                 @click="show_payment"
                 dark
-                >Pay</v-btn
+                >PAY</v-btn
               >
             </v-col>
           </v-row>
-          <!-- <v-row align="end" style="height: 30%">
-            <v-col cols="6">
-              <v-btn
-                block
-                class="pa-0"
-                large
-                color="primary"
-                @click="show_payment_cash"
-                dark
-                >Pay cash(F5)</v-btn
-              >
-            </v-col>
-            <v-col cols="6">
-              <v-btn
-                block
-                class="pa-0"
-                large
-                color="primary"
-                @click="show_payment_card"
-                dark
-                >Pay card(F6)</v-btn
-              >
-            </v-col> 
-          </v-row> -->
         </v-card>
       </v-col>
     </v-row>
@@ -568,13 +529,6 @@ export default {
       itemsPerPage: 1000,
       expanded: [],
       singleExpand: true,
-      enableDisable:true,
-      selectedDiscount: '',
-      options: [
-        { text: '0%', value: '0' },
-        { text: 'SRCT', value: '5' },
-        { text: 'PWD', value: '5.0' },
-      ],
       items_headers: [
         {
           text: 'Name',
@@ -604,80 +558,11 @@ export default {
     subtotal() {
       this.close_payments();
       let sum = 0;
-
-      let medical_discount = 0;
-      let food_discount = 0;
-      let no_discount = 0;
-      let medical_sum = 0;
-      let food_sum = 0;
-      let no_sum = 0;
-      let new_medical_discount_amount = 0;
-      let new_food_discount_amount = 0;
-      let new_no_discount_amount = 0;
-      let total_discounted_amount = 0;
-
       this.items.forEach((item) => {
-        // sum += item.qty * item.rate;
-        if (item.item_group == "MEDICAL" && this.selectedDiscount > 0) {
-          medical_sum += item.qty * item.rate;
-          medical_discount = 20;
-        } else if (item.item_group == "FOOD" && this.selectedDiscount > 0){
-          food_sum += item.qty * item.rate;
-          food_discount = 5;
-        } else {
-          no_sum += item.qty * item.rate;
-          no_discount = 0;
-        }
+        sum += item.qty * item.rate;
       });
-      sum = medical_sum+food_sum+no_sum;
-      new_medical_discount_amount = medical_sum * (medical_discount/100);
-      new_food_discount_amount = food_sum * (food_discount/100);
-      new_no_discount_amount = no_sum * (no_discount/100);
-      total_discounted_amount = new_medical_discount_amount+new_food_discount_amount+new_no_discount_amount;
-      // this.discount_amount = sum * (this.selectedDiscount/100);
-      // sum -= flt(this.discount_amount);
-      this.discount_amount = total_discounted_amount;
       sum -= flt(this.discount_amount);
       return flt(sum).toFixed(2);
-    },
-    // additionalDiscount() {
-    //   this.close_payments();
-    //   let selected_discount_amount = 0;
-    //   let sum = 0;
-    //   this.items.forEach((item) => {
-    //     sum += item.qty * item.rate;
-    //   });
-    //   selected_discount_amount = sum * (this.selectedDiscount/100);
-    //   return flt(selected_discount_amount).toFixed(2);
-    // },
-    itemDiscount() {
-      let medical_discount = 0;
-      let food_discount = 0;
-      let no_discount = 0;
-      let medical_sum = 0;
-      let food_sum = 0;
-      let no_sum = 0;
-      let new_medical_discount_amount = 0;
-      let new_food_discount_amount = 0;
-      let new_no_discount_amount = 0;
-      let total_discounted_amount = 0;
-      this.items.forEach((item) => {
-        if (item.item_group == "MEDICAL" && this.selectedDiscount > 0) {
-          medical_sum += item.qty * item.rate;
-          medical_discount = 20;
-        } else if (item.item_group == "FOOD" && this.selectedDiscount > 0){
-          food_sum += item.qty * item.rate;
-          food_discount = 5;
-        } else {
-          no_sum += item.qty * item.rate;
-          no_discount = 0;
-        }
-      });
-      new_medical_discount_amount = medical_sum * (medical_discount/100);
-      new_food_discount_amount = food_sum * (food_discount/100);
-      new_no_discount_amount = no_sum * (no_discount/100);
-      total_discounted_amount = new_medical_discount_amount+new_food_discount_amount+new_no_discount_amount;
-      return flt(total_discounted_amount).toFixed(2);
     },
     total_items_discount_amount() {
       let sum = 0;
@@ -800,8 +685,6 @@ export default {
       this.return_doc = '';
       this.discount_amount = 0;
       evntBus.$emit('set_customer_readonly', false);
-      this.selectedDiscount = null;
-      this.enableDisable = true;
     },
     new_invoice(data = {}) {
       evntBus.$emit('set_customer_readonly', false);
@@ -908,7 +791,6 @@ export default {
         payments.push({
           amount: 0,
           mode_of_payment: payment.mode_of_payment,
-          card_number: payment.card_number,
           default: payment.default,
           account: '',
         });
@@ -949,7 +831,7 @@ export default {
       }
       if (!this.items.length) {
         evntBus.$emit('show_mesage', {
-          text: `There is no Item !`,
+          text: `There is no Items !`,
           color: 'error',
         });
         return;
@@ -961,10 +843,9 @@ export default {
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;
       evntBus.$emit('send_invoice_doc_payment', invoice_doc);
-      this.enableDisable = true;
     },
-
-    show_payment_card() {
+    /**NEW SHOW_PAYMENT() METHOD FOR ALL MODE OF PAYMENTS */
+    show_payment_method(payment_method) {
       if (!this.customer) {
         evntBus.$emit('show_mesage', {
           text: `There is no Customer !`,
@@ -974,7 +855,7 @@ export default {
       }
       if (!this.items.length) {
         evntBus.$emit('show_mesage', {
-          text: `There is no Item !`,
+          text: `There is no Items !`,
           color: 'error',
         });
         return;
@@ -982,37 +863,19 @@ export default {
       if (!this.validate()) {
         return;
       }
-      evntBus.$emit('show_payment_card', 'true');
+      this.determine_payment_method(payment_method);
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;
       evntBus.$emit('send_invoice_doc_payment', invoice_doc);
-      this.enableDisable = true;
     },
-    show_payment_cash() {
-      if (!this.customer) {
-        evntBus.$emit('show_mesage', {
-          text: `There is no Customer !`,
-          color: 'error',
-        });
-        return;
-      }
-      if (!this.items.length) {
-        evntBus.$emit('show_mesage', {
-          text: `There is no Item !`,
-          color: 'error',
-        });
-        return;
-      }
-      if (!this.validate()) {
-        return;
-      }
-      evntBus.$emit('show_payment', 'true');
-      const invoice_doc = this.proces_invoice();
-      invoice_doc.customer_info = this.customer_info;
-      evntBus.$emit('send_invoice_doc_payment', invoice_doc);
-      this.enableDisable = true;
+    //to determine what mode_of_payment page to open
+    determine_payment_method(payment_method){
+      if (payment_method === "Cash") return evntBus.$emit('show_payment_cash', 'true')
+      if (payment_method === "Credit Card") return evntBus.$emit('show_payment_cc', 'true')
+      if (payment_method === "Debit Card") return evntBus.$emit('show_payment_dc', 'true')
+      if (payment_method === "Coupon") return evntBus.$emit('show_payment_coupon', 'true')
+      return evntBus.$emit('show_payment', 'true')
     },
-
     validate() {
       let value = true;
       this.items.forEach((item) => {
@@ -1020,13 +883,13 @@ export default {
           this.pos_profile.update_stock &&
           this.stock_settings.allow_negative_stock != 1
         ) {
-          // if (item.is_stock_item && item.stock_qty > item.actual_qty) {
-          //   evntBus.$emit('show_mesage', {
-          //     text: `The existing quantity of item ${item.item_name} is not enough`,
-          //     color: 'error',
-          //   });
-          //   value = false;
-          // }
+          if (item.is_stock_item && item.stock_qty > item.actual_qty) {
+            evntBus.$emit('show_mesage', {
+              text: `The existing quantity of item ${item.item_name} is not enough`,
+              color: 'error',
+            });
+            value = false;
+          }
         }
         if (item.has_serial_no) {
           if (
@@ -1034,7 +897,7 @@ export default {
             item.stock_qty != item.serial_no_selected.length
           ) {
             evntBus.$emit('show_mesage', {
-              text: `Selected serial numbers of item ${item.item_name} is incorrect`,
+              text: `Selcted serial numbers of item ${item.item_name} is incorrect`,
               color: 'error',
             });
             value = false;
@@ -1124,6 +987,10 @@ export default {
     },
     close_payments() {
       evntBus.$emit('show_payment', 'false');
+      evntBus.$emit('show_payment_cash', 'false');
+      evntBus.$emit('show_payment_cc', 'false');
+      evntBus.$emit('show_payment_dc', 'false');
+      evntBus.$emit('show_payment_coupon', 'false');
     },
     update_items_details(items) {
       if (!items.length > 0) {
@@ -1258,22 +1125,6 @@ export default {
         });
       }
     },
-    calc_discount_amount() {
-      // let discount_amount = 0;
-      // let sum = 0;
-      // sum = item.qty * item.rate;
-      // discount_amount = sum * (this.selectedDiscount/100);
-      // return flt(discount_amount).toFixed(2);
-
-      item.rate = (
-            flt(item.price_list_rate) -
-            (flt(item.price_list_rate) * flt(this.selectedDiscount)) / 100
-          ).toFixed(2);
-          discount_amount = (
-            flt(item.price_list_rate) - flt(item.rate)
-          )
-      return flt(discount_amount).toFixed(2);
-    },
     calc_prices(item, value, $event) {
       if (event.target.id === 'rate') {
         item.discount_percentage = 0;
@@ -1399,20 +1250,43 @@ export default {
       value = parseFloat(value);
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
-    // gotoSearchItems(e) {
-    //   if (e.key === 'i' && (e.ctrlKey || e.metaKey)) {
-    //     e.preventDefault();
-    //     // this.search_field.set_focus();
-    //     console.log("Ctlr+i was pressed!");
-    //   }
-    // }, 
-
-    // shortOpenPayment(e) {
-    //   if (e.key === 'F5' ) {
-    //     e.preventDefault();
-    //     this.show_payment();
-    //   }
-    // },
+    shortOpenPayment(e) {
+      if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        // this.show_payment();
+        this.close_payments();
+        this.show_payment_method("All");
+      }
+    },
+    /**----->FOR PAYMENT PURPOSES<--------**/
+    shortOpenCashPayment(e) {
+      if (e.key === '1' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.close_payments();
+        this.show_payment_method("Cash");
+      }
+    },
+    shortOpenCCPayment(e) {
+      if (e.key === '2' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.close_payments();
+        this.show_payment_method("Credit Card");
+      }
+    },
+    shortOpenDCPayment(e) {
+      if (e.key === '3' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.close_payments();
+        this.show_payment_method("Debit Card");
+      }
+    },
+    shortOpenCouponPayment(e) {
+      if (e.key === '4' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.close_payments();
+        this.show_payment_method("Coupon");
+      }
+    },
     shortDeleteFirstItem(e) {
       if (e.key === 'd' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
@@ -1420,57 +1294,18 @@ export default {
       }
     },
     shortOpenFirstItem(e) {
-      if (e.key === 'o' && (e.ctrlKey || e.metaKey)) {
+      if (e.key === 'a' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.expanded = [];
         this.expanded.push(this.items[0]);
       }
     },
-    shortOpenCash(e) {
-      if (e.key === 'F5') {
+    shortSelectDiscount(e) {
+      if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
-        this.show_payment_cash();
+        this.$refs.discount.focus();
       }
     },
-    shortOpenCard(e) {
-      if (e.key === 'F6') {
-        e.preventDefault();
-        this.show_payment_card();
-      }
-    },
-    // shortSelectDiscount(e) {
-    //   if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
-    //     e.preventDefault();
-    //     this.$refs.discount.focus();
-    //   }
-    // },
-
-    GetHoldKey(e) {
-      if (e.key === 'F8') {
-        e.preventDefault();
-        this.get_draft_invoices();
-      }
-    },
-    ReturnKey(e) {
-      if (e.key === 'F9') {
-        e.preventDefault();
-        this.open_returns();
-      }
-    },
-    NewInvoiceKey(e) {
-      if (e.key === 'F11') {
-        e.preventDefault();
-        this.new_invoice();
-      }
-    },
-    CancelKey(e) {
-      // if (e.key === 'x' && (e.ctrlKey || e.metaKey)) {
-      if (e.key === 'F10') {
-        e.preventDefault();
-        this.cancel_invoice();
-      }
-    },
-
   },
   created() {
     evntBus.$on('register_pos_profile', (data) => {
@@ -1484,10 +1319,6 @@ export default {
     });
     evntBus.$on('update_customer', (customer) => {
       this.customer = customer;
-
-      /// CUSTOM
-      this.fetch_customer_details(); 
-      console.log(`Customer updated: ${customer}`);
     });
     evntBus.$on('new_invoice', () => {
       this.invoice_doc = '';
@@ -1498,35 +1329,31 @@ export default {
     });
     evntBus.$on('load_return_invoice', (data) => {
       this.new_invoice(data.invoice_doc);
+      this.discount_amount = -data.return_doc.discount_amount;
+      console.log(data);
       this.return_doc = data.return_doc;
     });
     evntBus.$on("submit_discount_authentication", (data) => {
         this.submit_discount_authentication(data)
     });
-    // document.addEventListener('keydown', this.shortOpenPayment.bind(this));
+    document.addEventListener('keydown', this.shortOpenPayment.bind(this));
+    document.addEventListener('keydown', this.shortOpenCashPayment.bind(this));
+    document.addEventListener('keydown', this.shortOpenCCPayment.bind(this));
+    document.addEventListener('keydown', this.shortOpenDCPayment.bind(this));
+    document.addEventListener('keydown', this.shortOpenCouponPayment.bind(this));
     document.addEventListener('keydown', this.shortDeleteFirstItem.bind(this));
     document.addEventListener('keydown', this.shortOpenFirstItem.bind(this));
-    // document.addEventListener('keydown', this.shortSelectDiscount.bind(this));
-    document.addEventListener('keydown', this.GetHoldKey.bind(this));
-    document.addEventListener('keydown', this.NewInvoiceKey.bind(this));
-    document.addEventListener('keydown', this.ReturnKey.bind(this));
-    document.addEventListener('keydown', this.CancelKey.bind(this));
-    document.addEventListener('keydown', this.shortOpenCard.bind(this));
-    document.addEventListener('keydown', this.shortOpenCash.bind(this));
-
+    document.addEventListener('keydown', this.shortSelectDiscount.bind(this));
   },
   destroyed() {
-    // document.removeEventListener('keydown', this.shortOpenPayment);
+    document.removeEventListener('keydown', this.shortOpenPayment);
+    document.removeEventListener('keydown', this.shortOpenCashPayment);
+    document.removeEventListener('keydown', this.shortOpenCCPayment);
+    document.removeEventListener('keydown', this.shortOpenDCPayment);
+    document.removeEventListener('keydown', this.shortOpenCouponPayment);
     document.removeEventListener('keydown', this.shortDeleteFirstItem);
     document.removeEventListener('keydown', this.shortOpenFirstItem);
-    // document.removeEventListener('keydown', this.shortSelectDiscount);
-    document.removeEventListener('keydown', this.GetHoldKey);
-    document.removeEventListener('keydown', this.NewInvoiceKey);
-    document.removeEventListener('keydown', this.ReturnKey);
-    document.removeEventListener('keydown', this.CancelKey);
-    document.removeEventListener('keydown', this.shortOpenCard);
-    document.removeEventListener('keydown', this.shortOpenCash);
-
+    document.removeEventListener('keydown', this.shortSelectDiscount);
   },
   watch: {
     customer() {
