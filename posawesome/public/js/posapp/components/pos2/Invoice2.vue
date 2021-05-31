@@ -613,6 +613,13 @@ export default {
     enableDiscount() {		
         this.disableDiscount = false;
     },
+    submit_discount_authentication() {
+      this.enableDiscount()
+      evntBus.$emit("show_mesage", {
+            text: `Additional Discount enabled`,
+            color: "success",
+          });
+    },
 
     remove_item(item) {
       const index = this.items.findIndex((el) => el === item);
@@ -1016,6 +1023,11 @@ export default {
         },
       });
     },
+
+    get_discount_authentication() {
+      evntBus.$emit('open_discount_authentication');
+    },
+    
     open_returns() {
       evntBus.$emit('open_returns', this.pos_profile.company);
     },
@@ -1367,6 +1379,11 @@ export default {
       console.log(data);
       this.return_doc = data.return_doc;
     });
+
+    evntBus.$on("submit_discount_authentication", (data) => {
+        this.submit_discount_authentication(data)
+    });
+
     document.addEventListener('keydown', this.shortOpenPayment.bind(this));
     document.addEventListener('keydown', this.shortOpenCashPayment.bind(this));
     document.addEventListener('keydown', this.shortOpenCCPayment.bind(this));

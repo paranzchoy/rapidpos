@@ -1,5 +1,6 @@
 <template>
   <div fluid>
+    <EnabledDiscount></EnabledDiscount>
     <ClosingDialog></ClosingDialog>
     <CashWithdrawal></CashWithdrawal>
     <ResumeUser></ResumeUser>
@@ -67,6 +68,7 @@ import ReprintInvoice from "./ReprintInvoice.vue";
 import XReading from "./XReading.vue";
 import ZReading from "./ZReading.vue";
 import Invoice2 from "./Invoice2.vue";
+import EnabledDiscount from "./EnableDiscount.vue";
 
 export default {
   data: function () {
@@ -107,7 +109,8 @@ export default {
     PaymentsDebitCard,
     PaymentsCoupon,
     CashWithdrawal,
-    Invoice2
+    Invoice2,
+    EnabledDiscount
   },
 
   watch: {
