@@ -35,7 +35,7 @@
         <PaymentsCoupon></PaymentsCoupon>
       </v-col>
       <v-col xl="7" lg="6" md="6" sm="6" cols="12" class="pos">
-        <Invoice2></Invoice2>
+        <Invoice></Invoice>
       </v-col>
     </v-row>
   </div>
@@ -67,7 +67,7 @@ import ResumeUser from "./ResumeUser.vue";
 import ReprintInvoice from "./ReprintInvoice.vue";
 import XReading from "./XReading.vue";
 import ZReading from "./ZReading.vue";
-import Invoice2 from "./Invoice2.vue";
+import Invoice from "./Invoice.vue";
 import EnabledDiscount from "./EnableDiscount.vue";
 
 export default {
@@ -89,7 +89,6 @@ export default {
 
   components: {
     ItemsSelector,
-    // Invoice,
     OpeningDialog,
     Payments,
     PaymentsConfirmation,
@@ -109,7 +108,7 @@ export default {
     PaymentsDebitCard,
     PaymentsCoupon,
     CashWithdrawal,
-    Invoice2,
+    Invoice,
     EnabledDiscount
   },
 
