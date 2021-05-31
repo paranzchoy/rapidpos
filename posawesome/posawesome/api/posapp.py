@@ -268,21 +268,21 @@ def save_draft_invoice(data):
             tax.included_in_print_rate = 1
     invoice_doc.save()
     
-    # append_opening_shift = frappe.get_doc("POS Opening Shift",
-    #     invoice_doc.posa_pos_opening_shift
-    # )
-    # append_opening_shift.no_of_invoices+=1
+    append_opening_shift = frappe.get_doc("POS Opening Shift",
+        invoice_doc.posa_pos_opening_shift
+    )
+    append_opening_shift.no_of_invoices+=1
 
-    # if(len(append_opening_shift.sales_invoices)==0):
-    #     append_opening_shift.first_sales_invoice = invoice_doc.name
+    if(len(append_opening_shift.sales_invoices)==0):
+        append_opening_shift.first_sales_invoice = invoice_doc.name
         
-    # append_opening_shift.append("sales_invoices", {
-    #     "sales_invoice": invoice_doc.name,
-    #     "posting_date": invoice_doc.posting_date,
-    #     "customer": invoice_doc.customer,
-    #     "grand_total": invoice_doc.grand_total
-    # })
-    # append_opening_shift.submit()
+    append_opening_shift.append("sales_invoices", {
+        "sales_invoice": invoice_doc.name,
+        "posting_date": invoice_doc.posting_date,
+        "customer": invoice_doc.customer,
+        "grand_total": invoice_doc.grand_total
+    })
+    append_opening_shift.submit()
     return invoice_doc
 
 
@@ -303,14 +303,14 @@ def update_invoice(data):
             tax.included_in_print_rate = 1
 
     invoice_doc.save()
-    # append_opening_shift = frappe.get_doc("POS Opening Shift",
-    #     invoice_doc.posa_pos_opening_shift
-    # )
-    # for item in append_opening_shift.sales_invoices:
-    #     if invoice_doc.name == item.sales_invoice:
-    #         item.customer = invoice_doc.customer
+    append_opening_shift = frappe.get_doc("POS Opening Shift",
+        invoice_doc.posa_pos_opening_shift
+    )
+    for item in append_opening_shift.sales_invoices:
+        if invoice_doc.name == item.sales_invoice:
+            item.customer = invoice_doc.customer
 
-    # append_opening_shift.submit()
+    append_opening_shift.submit()
     return invoice_doc
 
 
