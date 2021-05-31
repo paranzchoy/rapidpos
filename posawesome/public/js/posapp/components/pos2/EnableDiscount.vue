@@ -124,6 +124,10 @@ export default {
         e.preventDefault();
         this.enabledDiscountDialog = true;
       }
+      if (e.key === 'd' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.enabledDiscountDialog = true;
+      }
       if (e.key === 'x' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.enabledDiscountDialog = false;
