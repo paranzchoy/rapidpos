@@ -356,7 +356,36 @@
                     :prefix="pos_profile.currency"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12">
+                <!-- ADDITIONAL DISCOUNT -->
+                <v-col cols="12" sm="5">
+                    <v-autocomplete
+                      v-model="selectedDiscount"
+                      :items="discountOptions"
+                      dense
+                      outlined
+                      label="Select %"
+                      :disabled="disableDiscount"
+                      ref="discount"
+                    ></v-autocomplete>
+                  </v-col>
+                  <v-col cols="12" sm="7">
+                    <v-text-field
+                      :value="formtCurrency(itemDiscount)"
+                      label="ِAdditional Discount"
+                      outlined
+                      dense
+                      hide-details
+                      type="number"
+                      :prefix="pos_profile.currency"
+                      :disabled="
+                        !pos_profile.posa_allow_user_to_edit_additional_discount
+                          ? true
+                          : false
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                <!-- <v-col cols="12">
                   <v-text-field
                     v-model="discount_amount"
                     label="ِAdditional Discount 2"
@@ -372,7 +401,7 @@
                         : false
                     "
                   ></v-text-field>
-                </v-col>
+                </v-col> -->
                 <v-col cols="12">
                   <v-text-field
                     :value="formtCurrency(subtotal)"
@@ -541,6 +570,14 @@ export default {
         { text: 'Rate', value: 'rate', align: 'center' },
         { text: 'Amount', value: 'amount', align: 'center' },
       ],
+
+      disableDiscount:true,
+      selectedDiscount: '',
+      discountOptions: [
+        { text: '0%', value: '0' },
+        { text: 'SRCT', value: '5' },
+        { text: 'PWD', value: '5.0' },
+      ],
     };
   },
   components: {
@@ -573,6 +610,10 @@ export default {
     },
   },
   methods: {
+    enableDiscount() {		
+        this.disableDiscount = false;
+    },
+
     remove_item(item) {
       const index = this.items.findIndex((el) => el === item);
       this.items.splice(index, 1);
@@ -675,6 +716,8 @@ export default {
       this.return_doc = '';
       this.discount_amount = 0;
       evntBus.$emit('set_customer_readonly', false);
+
+      this.disableDiscount = true;
     },
     new_invoice(data = {}) {
       evntBus.$emit('set_customer_readonly', false);
@@ -833,6 +876,8 @@ export default {
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;
       evntBus.$emit('send_invoice_doc_payment', invoice_doc);
+
+      this.disableDiscount = true;
     },
     /**NEW SHOW_PAYMENT() METHOD FOR ALL MODE OF PAYMENTS */
     show_payment_method(payment_method) {
@@ -857,6 +902,8 @@ export default {
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;
       evntBus.$emit('send_invoice_doc_payment', invoice_doc);
+
+      this.disableDiscount = true;
     },
     //to determine what mode_of_payment page to open
     determine_payment_method(payment_method){
