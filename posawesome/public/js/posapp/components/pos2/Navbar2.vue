@@ -1,13 +1,13 @@
 <template>
   <nav>
-    <v-app-bar app height="40" class="elevation-2">
+    <v-app-bar app height="40" class="elevation-2" style="background-image: linear-gradient(to right, white, #f2ce2c);">
       <v-app-bar-nav-icon
         @click.stop="mini = !mini"
         class="grey--text"
       ></v-app-bar-nav-icon>
       <v-toolbar-title class="text-uppercase indigo--text">
-        <span>RapidSignal</span>
-        <span class="font-weight-light">Electronics</span>
+        <span><img src="/assets/erpnext/images/Jacobs-removebg-preview.png"  class="brand-image" style="max-width: 100px; max-height: 100px;"></span>
+        <span class="font-weight-light"><img src="/assets/erpnext/images/Breadnuts-removebg-preview.png"  class="brand-image" style="max-width: 200px; max-height: 100px;"></span>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -169,6 +169,7 @@
       :mini-variant.sync="mini"
       app
       class="indigo margen-top"
+      style="background-image: linear-gradient(#a4de1d, #ffffff);"
     >
       <v-list dark>
         <v-list-item class="px-2">
