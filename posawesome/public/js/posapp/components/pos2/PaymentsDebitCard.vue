@@ -363,46 +363,11 @@ export default {
 
     },
     submit() {
-
-      if(this.is_credit_transaction){
-        return;
+      if (this.validation() !== false){
+        this.submit_invoice();
+        evntBus.$emit('new_invoice', 'false');
+        this.back_to_invoice();
       }
-
-      if (!this.invoice_doc.is_return && this.total_payments < 0) {
-        evntBus.$emit('show_mesage', {
-          text: `Payments not correct`,
-          color: 'error',
-        });
-        frappe.utils.play_sound('error');
-        return;
-      }
-      if (
-        !this.pos_profile.posa_allow_partial_payment &&
-        this.total_payments < this.invoice_doc.grand_total
-      ) {
-        evntBus.$emit('show_mesage', {
-          text: `The amount paid is not complete`,
-          color: 'error',
-        });
-        frappe.utils.play_sound('error');
-        return;
-      }
-      if (
-        this.pos_profile.posa_allow_partial_payment &&
-        !this.pos_profile.posa_allow_credit_sale &&
-        this.total_payments == 0
-      ) {
-        evntBus.$emit('show_mesage', {
-          text: `Please enter the amount paid`,
-          color: 'error',
-        });
-        frappe.utils.play_sound('error');
-        return;
-      }
-
-      this.submit_invoice();
-      evntBus.$emit('new_invoice', 'false');
-      this.back_to_invoice();
     },
     submit_invoice() {
       const vm = this;
@@ -546,7 +511,7 @@ export default {
         }
       
         this.split_payment = true;
-        this.loyalty_amount = 0;
+        this.loyalty_amount = this.invoice_doc.loyalty_amount;
         this.get_bank_names_data();
       })
     });
