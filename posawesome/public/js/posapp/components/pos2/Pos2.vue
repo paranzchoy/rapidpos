@@ -34,7 +34,7 @@
         <PaymentsCoupon></PaymentsCoupon>
       </v-col>
       <v-col xl="7" lg="6" md="6" sm="6" cols="12" class="pos">
-        <Invoice></Invoice>
+        <Invoice2></Invoice2>
       </v-col>
     </v-row>
   </div>
@@ -45,7 +45,7 @@
 //Original POSAwesome components
 import { evntBus } from "../../bus";
 import ItemsSelector from "../pos/ItemsSelector.vue";
-import Invoice from "../pos/Invoice.vue";
+// import Invoice from "../pos/Invoice.vue";
 import OpeningDialog from "../pos/OpeningDialog.vue";
 import Payments from "../pos/Payments.vue";
 import Drafts from "../pos/Drafts.vue";
@@ -66,6 +66,7 @@ import ResumeUser from "./ResumeUser.vue";
 import ReprintInvoice from "./ReprintInvoice.vue";
 import XReading from "./XReading.vue";
 import ZReading from "./ZReading.vue";
+import Invoice2 from "./Invoice2.vue";
 
 export default {
   data: function () {
@@ -86,7 +87,7 @@ export default {
 
   components: {
     ItemsSelector,
-    Invoice,
+    // Invoice,
     OpeningDialog,
     Payments,
     PaymentsConfirmation,
@@ -105,7 +106,8 @@ export default {
     PaymentsCreditCard,
     PaymentsDebitCard,
     PaymentsCoupon,
-    CashWithdrawal
+    CashWithdrawal,
+    Invoice2
   },
 
   watch: {
