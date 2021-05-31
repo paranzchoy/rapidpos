@@ -14,17 +14,17 @@
       </v-card>
     </v-dialog>
 
-     <v-dialog v-model="anotherPayment" max-width="500px">
+     <v-dialog v-model="anotherPayment" max-width="625px">
       <v-card>
         <v-card-title>
           <span class="headline indigo--text">Add a Payment?</span>
         </v-card-title>
         <v-card-actions>
-          <v-btn color="error" dark @click="close_payment_dialog">Cancel</v-btn>
-          <v-btn color="success" dark @click="cash_payment_dialog">Cash</v-btn>
-          <v-btn color="secondary" dark @click="cc_payment_dialog">Credit Card</v-btn>
-          <v-btn color="primary" dark @click="dc_payment_dialog">Debit Card</v-btn>
-          <v-btn color="warning" dark @click="coupon_payment_dialog">Coupon</v-btn>
+          <v-btn color="error" dark @click="close_payment_dialog">(←)Cancel</v-btn>
+          <v-btn color="success" dark @click="cash_payment_dialog">(1) Cash</v-btn>
+          <v-btn color="secondary" dark @click="cc_payment_dialog">(2) Credit Card</v-btn>
+          <v-btn color="primary" dark @click="dc_payment_dialog">(3) Debit Card</v-btn>
+          <v-btn color="warning" dark @click="coupon_payment_dialog">(4) Coupon</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -171,6 +171,25 @@ export default {
         true
       );
     },
+    shortPay(e) {
+      e.preventDefault();
+      if (e.key === 'Backspace'){
+        this.close_payment_dialog();
+      }
+      if (e.key === '1'){
+        this.cash_payment_dialog();
+      }
+      if (e.key === '2'){
+        this.cc_payment_dialog();
+      }
+       if (e.key === '3'){
+        this.dc_payment_dialog();
+      }
+       if (e.key === '4'){
+        this.coupon_payment_dialog();
+      }
+      
+    }
   },
 
   created: function () {
@@ -182,6 +201,11 @@ export default {
     // evntBus.$on('current_opening_shift', (data) => {
     //   this.pos_opening_shift = data.pos_opening_shift;
     // });
+    // document.addEventListener('keydown', this.shortPay.bind(this));
   },
+
+  // destroyed() {
+  //   document.removeEventListener('keydown', this.shortPay);
+  // },
 };
 </script>
