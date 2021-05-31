@@ -1207,9 +1207,9 @@ def submit_invoice(data):
                         i.bank_name = payment["bank_name"]
                         i.approval_code = payment["approval_code"]
                         i.card_expiry_date = payment["card_expiry_date"]
-                    elif (payment["mode_of_payment"] == "Debit Card"):
+                    if (payment["mode_of_payment"] == "Debit Card"):
                         i.bank_name = payment["bank_name"]
-                    elif (payment["mode_of_payment"] == "Coupon"):
+                    if (payment["mode_of_payment"] == "Coupon"):
                         i.coupon_code = payment["coupon_code"]
                     payments.append(i)
                 break

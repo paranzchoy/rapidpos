@@ -272,7 +272,7 @@
           >
         </v-col>
         <v-col cols="12">
-          <v-btn block class="mt-2" large color="primary" dark @click="submit"
+          <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
             >Submit Payments</v-btn
           >
         </v-col>
@@ -314,9 +314,52 @@ export default {
         },
       });
     },
+    on_confirm_dialog() {
+      if(this.validation() !== false){
+        evntBus.$emit("open_confirmation_dialog", this.invoice_doc);
+      }
+    },
     back_to_invoice() {
       evntBus.$emit('show_payment_dc', 'false');
       evntBus.$emit('set_customer_readonly', false);
+    },
+    validation(){
+        if(this.is_credit_transaction){
+        return false;
+        }
+
+      if (!this.invoice_doc.is_return && this.total_payments < 0) {
+        evntBus.$emit('show_mesage', {
+          text: `Payments not correct`,
+          color: 'error',
+        });
+        frappe.utils.play_sound('error');
+        return false;
+      }
+      if (
+        !this.pos_profile.posa_allow_partial_payment &&
+        this.total_payments < this.invoice_doc.grand_total
+      ) {
+        evntBus.$emit('show_mesage', {
+          text: `The amount paid is not complete`,
+          color: 'error',
+        });
+        frappe.utils.play_sound('error');
+        return false;
+      }
+      if (
+        this.pos_profile.posa_allow_partial_payment &&
+        !this.pos_profile.posa_allow_credit_sale &&
+        this.total_payments == 0
+      ) {
+        evntBus.$emit('show_mesage', {
+          text: `Please enter the amount paid`,
+          color: 'error',
+        });
+        frappe.utils.play_sound('error');
+        return false;
+      }
+
     },
     submit() {
 
@@ -496,16 +539,17 @@ export default {
       //Another event for calling other payment method
       evntBus.$on('another_payment_dc', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
+        console.log(this.invoice_doc);
         const default_payment = this.invoice_doc.payments.find(
           (payment) => payment.mode_of_payment == "Debit Card"
         );
         this.is_credit_sale = 1;
         if (default_payment) {
-          this.invoice_doc.payments.forEach((payment) => {
-              this.remaining_amount += payment.amount;
-          });
-          default_payment.amount = (invoice_doc.grand_total - this.remaining_amount).toFixed(2);
-          // default_payment.amount = invoice_doc.grand_total.toFixed(2);
+          // this.invoice_doc.payments.forEach((payment) => {
+          //     this.remaining_amount += payment.amount;
+          // });
+          // default_payment.amount = (invoice_doc.grand_total - this.remaining_amount).toFixed(2);
+          default_payment.amount = invoice_doc.grand_total.toFixed(2);
         }
         this.split_payment = true;
         this.loyalty_amount = 0;

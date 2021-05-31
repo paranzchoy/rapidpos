@@ -49,8 +49,7 @@ export default {
     // opening_shift_name: pos_opening_shift.name,
     pos_opening_shift: "",
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
-    pagination: {},
-    payments:[] //this is where a list of payment transaction for a single invoice will be list at
+    pagination: {}
   }),
   watch: {},
   methods: {
@@ -103,7 +102,7 @@ export default {
     },
     submit() {
       this.invoice_doc.payments.forEach((payment) => {
-         if(payment.mode_of_payment=== "Credit Card" && payment.amount != 0 && payment.card_number==0||payment.card_number==null){
+         if(payment.mode_of_payment=== "Credit Card" && payment.amount !== 0 && payment.card_number===0||payment.card_number===null){
               evntBus.$emit('show_mesage', {
               text: `Please enter card number for card transactions.`,
               color: 'error',
@@ -122,6 +121,7 @@ export default {
           payment.card_number_hidden = payment.card_number.replace(/\d(?=\d{4})/g, "*");
         }
       });
+      console.log(this.invoice_doc);
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
       this.back_to_invoice();

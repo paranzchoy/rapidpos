@@ -344,6 +344,7 @@ export default {
     },
     on_confirm_dialog() {
       evntBus.$emit("open_confirmation_dialog", this.invoice_doc);
+      console.log(this.invoice_doc);
     },
     back_to_invoice() {
       evntBus.$emit('show_payment_cc', 'false');
@@ -529,18 +530,6 @@ export default {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
           // (payment) => payment.default == 2
-          (payment) => payment.mode_of_payment == "Credit Card"
-        );
-        this.is_credit_sale = 0;
-        if (default_payment) {
-          default_payment.amount = invoice_doc.grand_total.toFixed(2);
-        }
-        this.loyalty_amount = 0;
-        this.get_bank_names_data();
-      });
-      evntBus.$on('another_payment_cc', (invoice_doc) => {
-        this.invoice_doc = invoice_doc;
-        const default_payment = this.invoice_doc.payments.find(
           (payment) => payment.mode_of_payment == "Credit Card"
         );
         this.is_credit_sale = 0;
