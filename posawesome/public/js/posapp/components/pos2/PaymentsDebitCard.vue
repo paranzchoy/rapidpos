@@ -272,7 +272,7 @@
           >
         </v-col>
         <v-col cols="12">
-          <v-btn block class="mt-2" large color="primary" dark @click="submit"
+          <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
             >Submit Payments</v-btn
           >
         </v-col>
@@ -314,9 +314,53 @@ export default {
         },
       });
     },
+    on_confirm_dialog() {
+      if(this.validation() !== false){
+        console.log(this.invoice_doc);
+        evntBus.$emit("open_confirmation_dialog", this.invoice_doc);
+      }
+    },
     back_to_invoice() {
       evntBus.$emit('show_payment_dc', 'false');
       evntBus.$emit('set_customer_readonly', false);
+    },
+    validation(){
+        if(this.is_credit_transaction){
+        return false;
+        }
+
+      if (!this.invoice_doc.is_return && this.total_payments < 0) {
+        evntBus.$emit('show_mesage', {
+          text: `Payments not correct`,
+          color: 'error',
+        });
+        frappe.utils.play_sound('error');
+        return false;
+      }
+      if (
+        !this.pos_profile.posa_allow_partial_payment &&
+        this.total_payments < this.invoice_doc.grand_total
+      ) {
+        evntBus.$emit('show_mesage', {
+          text: `The amount paid is not complete`,
+          color: 'error',
+        });
+        frappe.utils.play_sound('error');
+        return false;
+      }
+      if (
+        this.pos_profile.posa_allow_partial_payment &&
+        !this.pos_profile.posa_allow_credit_sale &&
+        this.total_payments == 0
+      ) {
+        evntBus.$emit('show_mesage', {
+          text: `Please enter the amount paid`,
+          color: 'error',
+        });
+        frappe.utils.play_sound('error');
+        return false;
+      }
+
     },
     submit() {
 
@@ -359,10 +403,6 @@ export default {
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
       this.back_to_invoice();
-
-      // this.invoice_doc.payments.forEach((payment) => {
-      //   payment.card_number = "";
-      // });
     },
     submit_invoice() {
       const vm = this;
@@ -395,9 +435,10 @@ export default {
           payment.idx == idx &&
           payment.amount == 0 &&
           this.diff_payment > 0
-        ) {
-          payment.amount = this.diff_payment;
-        }
+        ) 
+          {
+            payment.amount = this.diff_payment;
+          }
       });
     },
     load_print_page() {
@@ -480,7 +521,6 @@ export default {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
           (payment) => payment.mode_of_payment == "Debit Card"
-          // (payment) => payment.default == 3
         );
         this.is_credit_sale = 0;
         if (default_payment) {
@@ -496,17 +536,15 @@ export default {
       //Another event for calling other payment method
       evntBus.$on('another_payment_dc', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
+        console.log(this.invoice_doc);
         const default_payment = this.invoice_doc.payments.find(
           (payment) => payment.mode_of_payment == "Debit Card"
         );
-        this.is_credit_sale = 1;
+        this.is_credit_sale = 0;
         if (default_payment) {
-          this.invoice_doc.payments.forEach((payment) => {
-              this.remaining_amount += payment.amount;
-          });
-          default_payment.amount = (invoice_doc.grand_total - this.remaining_amount).toFixed(2);
-          // default_payment.amount = invoice_doc.grand_total.toFixed(2);
+          default_payment.amount = invoice_doc.grand_total.toFixed(2);
         }
+      
         this.split_payment = true;
         this.loyalty_amount = 0;
         this.get_bank_names_data();

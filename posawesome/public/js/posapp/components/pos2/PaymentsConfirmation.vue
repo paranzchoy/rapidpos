@@ -14,17 +14,17 @@
       </v-card>
     </v-dialog>
 
-     <v-dialog v-model="anotherPayment" max-width="500px">
+     <v-dialog v-model="anotherPayment" max-width="625px">
       <v-card>
         <v-card-title>
           <span class="headline indigo--text">Add a Payment?</span>
         </v-card-title>
         <v-card-actions>
-          <v-btn color="error" dark @click="close_payment_dialog">Cancel</v-btn>
-          <v-btn color="success" dark @click="cash_payment_dialog">Cash</v-btn>
-          <v-btn color="secondary" dark @click="cc_payment_dialog">Credit Card</v-btn>
-          <v-btn color="primary" dark @click="dc_payment_dialog">Debit Card</v-btn>
-          <v-btn color="warning" dark @click="coupon_payment_dialog">Coupon</v-btn>
+          <v-btn color="error" dark @click="close_payment_dialog">(←)Cancel</v-btn>
+          <v-btn color="success" dark @click="cash_payment_dialog">(1) Cash</v-btn>
+          <v-btn color="secondary" dark @click="cc_payment_dialog">(2) Credit Card</v-btn>
+          <v-btn color="primary" dark @click="dc_payment_dialog">(3) Debit Card</v-btn>
+          <v-btn color="warning" dark @click="coupon_payment_dialog">(4) Coupon</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -49,8 +49,7 @@ export default {
     // opening_shift_name: pos_opening_shift.name,
     pos_opening_shift: "",
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
-    pagination: {},
-    payments:[] //this is where a list of payment transaction for a single invoice will be list at
+    pagination: {}
   }),
   watch: {},
   methods: {
@@ -103,7 +102,7 @@ export default {
     },
     submit() {
       this.invoice_doc.payments.forEach((payment) => {
-         if(payment.mode_of_payment=== "Credit Card" && payment.amount != 0 && payment.card_number==0||payment.card_number==null){
+         if(payment.mode_of_payment=== "Credit Card" && payment.amount !== 0 && payment.card_number===0||payment.card_number===null){
               evntBus.$emit('show_mesage', {
               text: `Please enter card number for card transactions.`,
               color: 'error',
@@ -122,6 +121,7 @@ export default {
           payment.card_number_hidden = payment.card_number.replace(/\d(?=\d{4})/g, "*");
         }
       });
+      console.log(this.invoice_doc);
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
       this.back_to_invoice();
@@ -171,6 +171,25 @@ export default {
         true
       );
     },
+    shortPay(e) {
+      e.preventDefault();
+      if (e.key === 'Backspace'){
+        this.close_payment_dialog();
+      }
+      if (e.key === '1'){
+        this.cash_payment_dialog();
+      }
+      if (e.key === '2'){
+        this.cc_payment_dialog();
+      }
+       if (e.key === '3'){
+        this.dc_payment_dialog();
+      }
+       if (e.key === '4'){
+        this.coupon_payment_dialog();
+      }
+      
+    }
   },
 
   created: function () {
@@ -182,6 +201,11 @@ export default {
     // evntBus.$on('current_opening_shift', (data) => {
     //   this.pos_opening_shift = data.pos_opening_shift;
     // });
+    // document.addEventListener('keydown', this.shortPay.bind(this));
   },
+
+  // destroyed() {
+  //   document.removeEventListener('keydown', this.shortPay);
+  // },
 };
 </script>
