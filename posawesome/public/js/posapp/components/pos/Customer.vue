@@ -7,7 +7,7 @@
         auto-select-first
         outlined
         color="indigo"
-        label="Customer"
+        label="Customer (F4)"
         v-model="customer"
         :items="customers"
         item-text="customer_name"
@@ -17,6 +17,7 @@
         hide-details
         :filter="customFilter"
         :disabled="readonly"
+        ref="customer_field"
       >
         <template v-slot:item="data">
           <template>
@@ -109,6 +110,24 @@ export default {
         textFifth.indexOf(searchText) > -1
       );
     },
+
+    gotoCustomerField(e) {
+      if (e.key === 'F4') {
+        e.preventDefault();
+
+        console.log({ e });
+        this.$refs.customer_field.focus();
+      }
+    },
+    openNewCustomer(e) {
+      // if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
+      if (e.key === 'F12') {
+        e.preventDefault();
+        console.log({ e });
+
+        this.new_customer();
+      }
+    },
   },
 
   computed: {},
@@ -129,8 +148,17 @@ export default {
         this.readonly = value;
       });
     });
+
+     //document.addEventListener('keydown', this.KeyCustomer.bind(this));
+      document.addEventListener('keydown', this.gotoCustomerField.bind(this));
+      document.addEventListener('keydown', this.openNewCustomer.bind(this));    
   },
 
+  destroyed() {
+      //document.removeEventListener('keydown', this.KeyCustomer);
+      document.removeEventListener('keydown', this.gotoCustomerField);
+      document.removeEventListener('keydown', this.openNewCustomer);
+    },
   watch: {
     customer() {
       evntBus.$emit('update_customer', this.customer);
