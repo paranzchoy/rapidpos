@@ -357,7 +357,16 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
-                  <v-text-field
+                  <v-autocomplete
+                      v-model="selectedDiscount"
+                      :items="options"
+                      dense
+                      outlined
+                      label="Select Discount Type"
+                      :disabled="enableDisable"
+                      ref="discount"
+                    ></v-autocomplete>
+                  <!-- <v-text-field
                     v-model="discount_amount"
                     label="ِAdditional Discount"
                     ref="discount"
@@ -371,7 +380,7 @@
                         ? true
                         : false
                     "
-                  ></v-text-field>
+                  ></v-text-field> -->
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
@@ -529,6 +538,13 @@ export default {
       itemsPerPage: 1000,
       expanded: [],
       singleExpand: true,
+      enableDisable:true,
+      selectedDiscount: '',
+      options: [
+        { text: '0%', value: '0' },
+        { text: 'SRCT', value: '5' },
+        { text: 'PWD', value: '5.0' },
+      ],
       items_headers: [
         {
           text: 'Name',
@@ -555,12 +571,50 @@ export default {
       });
       return flt(qty).toFixed(2);
     },
+    // subtotal() {
+    //   this.close_payments();
+    //   let sum = 0;
+    //   this.items.forEach((item) => {
+    //     sum += item.qty * item.rate;
+    //   });
+    //   sum -= flt(this.discount_amount);
+    //   return flt(sum).toFixed(2);
+    // },
     subtotal() {
       this.close_payments();
       let sum = 0;
+      let medical_discount = 0;
+      let food_discount = 0;
+      let no_discount = 0;
+      let medical_sum = 0;
+      let food_sum = 0;
+      let no_sum = 0;
+      let new_medical_discount_amount = 0;
+      let new_food_discount_amount = 0;
+      let new_no_discount_amount = 0;
+      let total_discounted_amount = 0;
       this.items.forEach((item) => {
         sum += item.qty * item.rate;
+        // sum += item.qty * item.rate;
+        if (item.item_group == "MEDICAL" && this.selectedDiscount > 0) {
+          medical_sum += item.qty * item.rate;
+          medical_discount = 20;
+        } else if (item.item_group == "FOOD" && this.selectedDiscount > 0){
+          food_sum += item.qty * item.rate;
+          food_discount = 5;
+        } else {
+          no_sum += item.qty * item.rate;
+          no_discount = 0;
+        }
       });
+      sum = medical_sum+food_sum+no_sum;
+      new_medical_discount_amount = medical_sum * (medical_discount/100);
+      new_food_discount_amount = food_sum * (food_discount/100);
+      new_no_discount_amount = no_sum * (no_discount/100);
+      total_discounted_amount = new_medical_discount_amount+new_food_discount_amount+new_no_discount_amount;
+      // this.discount_amount = sum * (this.selectedDiscount/100);
+      // sum -= flt(this.discount_amount);
+      this.discount_amount = total_discounted_amount;
       sum -= flt(this.discount_amount);
       return flt(sum).toFixed(2);
     },
@@ -685,6 +739,9 @@ export default {
       this.return_doc = '';
       this.discount_amount = 0;
       evntBus.$emit('set_customer_readonly', false);
+
+      this.selectedDiscount = null;
+      this.enableDisable = true;
     },
     new_invoice(data = {}) {
       evntBus.$emit('set_customer_readonly', false);
@@ -843,6 +900,8 @@ export default {
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;
       evntBus.$emit('send_invoice_doc_payment', invoice_doc);
+
+      this.enableDisable = true;
     },
     /**NEW SHOW_PAYMENT() METHOD FOR ALL MODE OF PAYMENTS */
     show_payment_method(payment_method) {
@@ -867,6 +926,8 @@ export default {
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;
       evntBus.$emit('send_invoice_doc_payment', invoice_doc);
+
+      this.enableDisable = true;
     },
     //to determine what mode_of_payment page to open
     determine_payment_method(payment_method){
