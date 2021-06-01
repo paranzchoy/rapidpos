@@ -519,7 +519,8 @@
 
 <script>
 import { evntBus } from '../../bus';
-import Customer from '../pos/Customer.vue';
+import Customer from './Customer.vue';
+// import Customer from '../pos/Customer.vue';
 export default {
   // props: ["pos_profile"],
   data() {
