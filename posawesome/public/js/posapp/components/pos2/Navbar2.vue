@@ -262,7 +262,7 @@ export default {
     },
     // CASH WITHDRAWAL
     cash_withdrawal() {
-      evntBus.$emit('open_withdrawal');
+      evntBus.$emit('open_withdrawal_2');
     },
     // CASH WITHDRAWAL Shortcut Key
     withdraw(e) {
