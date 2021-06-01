@@ -520,7 +520,7 @@ export default {
       console.log({cash_withdrawal_temp});
 
       frappe
-        .call("posawesome.posawesome.api.custom_posapp.submit_pos_opening_shift_withdrawal2", {
+        .call("rapidposcustom.rapidposcustom.api.rapidposcustom.submit_pos_opening_shift_withdrawal2", {
           withdrawal: this.cash_withdrawal,
         })
         .then((r) => {
@@ -567,10 +567,10 @@ export default {
   created: function () {
     evntBus.$on("open_withdrawal", (data) => {
       if(this.isTesting) {
-        this.withdrawalDialog = true;
-        this.verify_user = false;
-      } else {
+        this.withdrawalDialog = false;
         this.verify_user = true;
+      } else {
+        this.verify_user = false;
       }
 
       this.cash_withdrawal.posa_opening_shift = data.name
