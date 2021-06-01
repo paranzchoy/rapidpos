@@ -1,7 +1,8 @@
 {
  "absolute_value": 0,
- "align_labels_right": 1,
+ "align_labels_right": 0,
  "creation": "2021-05-31 14:49:45.967373",
+ "css": ".print-format table, .print-format tr, \r\n\t.print-format td, .print-format div, .print-format p {\r\n\t\tfont-family: Monospace;\r\n\t\tline-height: 100%;\r\n\t\tvertical-align: middle;\r\n\t}\r\n\t@media screen {\r\n\t\t.print-format {\r\n\t\t\twidth: 4.5in;\r\n\t\t\tpadding: 0.0in;\r\n\t\t\tmin-height: 8in;\r\n\t\t}\r\n\t}",
  "custom_format": 0,
  "default_print_language": "en",
  "disabled": 0,
@@ -9,10 +10,10 @@
  "docstatus": 0,
  "doctype": "Print Format",
  "font": "Default",
- "format_data": "[{\"fieldname\": \"print_heading_template\", \"fieldtype\": \"Custom HTML\", \"options\": \"<div class=\\\"print-heading\\\">\\t\\t\\t\\t<h2><div>POS Opening Shift</div><br><small class=\\\"sub-heading\\\">{{ doc.name }}</small>\\t\\t\\t\\t</h2></div>\"}, {\"fieldtype\": \"Section Break\", \"label\": \"\"}, {\"fieldtype\": \"Column Break\"}, {\"fieldname\": \"period_start_date\", \"print_hide\": 0, \"label\": \"Period Start Date\"}, {\"fieldname\": \"period_end_date\", \"print_hide\": 0, \"label\": \"Period End Date\"}, {\"fieldname\": \"status\", \"print_hide\": 0, \"label\": \"Status\"}, {\"fieldtype\": \"Column Break\"}, {\"fieldname\": \"posting_date\", \"print_hide\": 0, \"label\": \"Posting Date\"}, {\"fieldname\": \"set_posting_date\", \"print_hide\": 0, \"label\": \"Set Posting Date\"}, {\"fieldtype\": \"Section Break\", \"label\": \"\"}, {\"fieldtype\": \"Column Break\"}, {\"fieldname\": \"company\", \"print_hide\": 0, \"label\": \"Company\"}, {\"fieldname\": \"pos_profile\", \"print_hide\": 0, \"label\": \"POS Profile\"}, {\"fieldname\": \"pos_closing_shift\", \"print_hide\": 0, \"label\": \"POS Closing Shift\"}, {\"fieldtype\": \"Column Break\"}, {\"fieldname\": \"user\", \"print_hide\": 0, \"label\": \"Cashier\"}, {\"fieldtype\": \"Section Break\", \"label\": \"\"}, {\"fieldtype\": \"Column Break\"}, {\"fieldname\": \"balance_details\", \"print_hide\": 0, \"label\": \"Opening Balance Details\", \"visible_columns\": [{\"fieldname\": \"mode_of_payment\", \"print_width\": \"\", \"print_hide\": 0}, {\"fieldname\": \"amount\", \"print_width\": \"\", \"print_hide\": 0}]}]",
+ "format_data": "[{\"fieldname\": \"print_heading_template\", \"fieldtype\": \"Custom HTML\", \"options\": \"<p class=\\\"text-center\\\">\\r\\n    <!-- <center><h4 style=\\\"text-transform: uppercase;\\\">{{ doc.company }}</h4></center><br> -->\\r\\n    <font size=\\\"+1\\\"><b>{{ _(\\\"JACOB'S BREADNUTS\\\") }}</b></font><br>\\r\\n    <!-- <center>{{ doc.company_address_display }}</center> -->\\r\\n    {{ _(\\\"GENERALS COMPLEX BLDG, ROXAS AVENUE\\\") }}<br>\\r\\n    {{ _(\\\"GEN. SANTOS CITY, 9500\\\") }}<br>\\r\\n\\r\\n<p class=\\\"text-center\\\">\\r\\n    {{ _(\\\"Mobile:09663585238\\\") }}<br>\\r\\n    {{ _(\\\"Telephone:083-887-5164\\\") }}<br>\\r\\n    {{ _(\\\"jacobsbreadnuts@ygmail.com\\\") }}<br>\\r\\n    {{ _(\\\"NON VAT Reg. TIN 000-000-000-000\\\") }}<br>\\r\\n</p>\\r\\n<br>\\r\\n\\r\\n<p class=\\\"text-center\\\">\\r\\n\\r\\n\\t{% if doc.docstatus == 0 %}\\r\\n\\t\\t<font size=\\\"+1\\\"><b>{{ doc.status + \\\" \\\" + (doc.select_print_heading or _(\\\"POS Closing Shift\\\")) }}</b></font><br>\\r\\n\\t{% else %}\\r\\n\\t\\t<font size=\\\"+2\\\"><b>{{ doc.select_print_heading or _(\\\"Z Reading\\\") }}</b></font><br>\\r\\n\\t{% endif %}\\r\\n\\t<font size=\\\"+1\\\"><b>{{ _(\\\"# \\\") }}{{ doc.name[14:] }}</b></font><br>\\r\\n</p>\\r\\n\\r\\n\"}, {\"fieldtype\": \"Section Break\", \"label\": \"\"}, {\"fieldtype\": \"Column Break\"}, {\"fieldname\": \"period_start_date\", \"print_hide\": 0, \"label\": \"Period Start Date\"}, {\"fieldname\": \"period_end_date\", \"print_hide\": 0, \"label\": \"Period End Date\"}, {\"fieldname\": \"status\", \"print_hide\": 0, \"label\": \"Status\"}, {\"fieldtype\": \"Column Break\"}, {\"fieldname\": \"posting_date\", \"print_hide\": 0, \"label\": \"Posting Date\"}, {\"fieldname\": \"set_posting_date\", \"print_hide\": 0, \"label\": \"Set Posting Date\"}, {\"fieldtype\": \"Section Break\", \"label\": \"\"}, {\"fieldtype\": \"Column Break\"}, {\"fieldname\": \"company\", \"print_hide\": 0, \"label\": \"Company\"}, {\"fieldname\": \"pos_profile\", \"print_hide\": 0, \"label\": \"POS Profile\"}, {\"fieldname\": \"pos_closing_shift\", \"print_hide\": 0, \"label\": \"POS Closing Shift\"}, {\"fieldtype\": \"Column Break\"}, {\"fieldname\": \"user\", \"print_hide\": 0, \"label\": \"Cashier\"}, {\"fieldtype\": \"Section Break\", \"label\": \"\"}, {\"fieldtype\": \"Column Break\"}, {\"fieldname\": \"balance_details\", \"print_hide\": 0, \"label\": \"Opening Balance Details\", \"visible_columns\": [{\"fieldname\": \"mode_of_payment\", \"print_width\": \"\", \"print_hide\": 0}, {\"fieldname\": \"amount\", \"print_width\": \"\", \"print_hide\": 0}]}]",
  "idx": 0,
- "line_breaks": 1,
- "modified": "2021-05-31 14:50:00.381944",
+ "line_breaks": 0,
+ "modified": "2021-06-01 09:50:38.471410",
  "modified_by": "Administrator",
  "module": "POSAwesome",
  "name": "Z-Reading",
@@ -20,6 +21,6 @@
  "print_format_builder": 0,
  "print_format_type": "Jinja",
  "raw_printing": 0,
- "show_section_headings": 1,
+ "show_section_headings": 0,
  "standard": "Yes"
 }
