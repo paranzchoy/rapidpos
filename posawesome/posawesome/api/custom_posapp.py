@@ -1406,7 +1406,7 @@ def submit_total_opening_readings(opening_shift):
         for item in invoice_get.payments:
             if(item.mode_of_payment == "Cash"):
                 total_cash = total_cash + item.amount
-            if(item.mode_of_payment == "Credit Card"):
+            if(item.mode_of_payment == "Credit Card" or item.mode_of_payment == "Debit Card"):
                 total_card = total_card + item.amount
  
     for item in opening_shift_doc.opening_shift_withdrawal:
@@ -1455,7 +1455,7 @@ def submit_total_closing_readings(closing_shift):
         for item in invoice_get.payments:
             if(item.mode_of_payment == "Cash"):
                 total_cash = total_cash + item.amount
-            if(item.mode_of_payment == "Credit Card"):
+            if(item.mode_of_payment == "Credit Card" or item.mode_of_payment == "Debit Card"):
                 total_card = total_card + item.amount
  
 

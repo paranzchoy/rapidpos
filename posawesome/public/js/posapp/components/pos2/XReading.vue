@@ -148,7 +148,8 @@ export default {
               }
             }
           })
-          this.load_print_page();
+          // this.load_print_page();
+          this.print_page();
           this.xReading = false;
           // this.inputUsername = null;
           // this.inputPassword = null;
