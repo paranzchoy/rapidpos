@@ -134,12 +134,12 @@ export default {
     set_default_customer() {
       this.$nextTick(function () {
         const defaultCustomerName = 'WalkIn';
-        console.log(`# of Customers: ${this.customers.length}`);
+        // console.log(`# of Customers: ${this.customers.length}`);
         
         const defaultCustomer = this.customers.find(c => c.customer_name === defaultCustomerName);
         if(defaultCustomer)
         {
-          console.log(`Default customer: ${defaultCustomer.customer_name}`);        
+          // console.log(`Default customer: ${defaultCustomer.customer_name}`);        
           evntBus.$emit("update_customer", defaultCustomer.customer_name);
         }
       });
