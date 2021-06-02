@@ -227,7 +227,7 @@
             </v-col>
           </v-row>
         </template>
-<!-- TEST COMMIT1 -->
+
         <template>
           <v-row no-gutters class="ml-5 mr-5 pa-0" style="height: 0%; margin-left: 5px;">
             <v-col cols="3">
@@ -262,7 +262,7 @@
             </v-col>
             <v-col cols="3">
               <v-text-field
-                :value="1200"
+                v-model="total_denom_amount = TotalDenomAmount"
                 label="TOTAL"
                 outlined
                 dense
@@ -343,8 +343,9 @@ export default {
     card_invoices: [],
     selected_card_invoices: [],
     singleSelect: false,
-    headers: [{text:'Card #', value:'card_number_hidden'},{text:'Invoice', value:'name'}, {text:'Amount', value:'amount'}],
+    headers: [{text:'Card Type', value:'mode_of_payment'}, {text:'Card #', value:'card_number_hidden'},{text:'Invoice', value:'name'}, {text:'Amount', value:'amount'}],
     total_card_amount: 0,
+    total_denom_amount: 0,
     isTesting: true,                                        /** SET TO FALSE FOR PRODUCTION **/
 
 
@@ -587,6 +588,13 @@ export default {
       return this.denominations.reduce(function(totalSum, item){
 
         return totalSum + (item.amount * item.quantity);
+      },0);
+    },
+    TotalDenomAmount: function(){
+
+      return this.denominations.reduce(function(totalSum, item){
+
+        return totalSum + (item.cash_amount * item.card_amount);
       },0);
     }
     // card_amount() {
