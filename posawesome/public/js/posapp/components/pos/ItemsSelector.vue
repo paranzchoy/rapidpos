@@ -44,6 +44,7 @@
             ref="search_items_field"
           ></v-text-field>
         </v-col>
+        
         <v-col cols="12" class="pt-0 mt-0">
           <div fluid class="items" v-if="items_view == 'card'">
             <v-row dense class="overflow-y-auto" style="max-height: 67vh">
@@ -244,11 +245,11 @@ export default {
         return;
       }
 
-    // let qty = this.get_item_qty(this.first_search);
-    // if(this.item_qtty)
-    // {
-    //   qty = this.item_qtty;
-    // }
+    let qty = this.get_item_qty(this.first_search);
+    if(this.item_qtty)
+    {
+      qty = this.item_qtty;
+    }
 
       // const qty = this.get_item_qty(this.first_search);
       const new_item = { ...this.filtred_items[0] };
@@ -262,7 +263,7 @@ export default {
       this.search = null;
       this.first_search = null;
       this.debounce_search = null;
-      // this.item_qtty = null;
+      this.item_qtty = null;
 
     },
     get_item_qty(first_search) {
@@ -364,21 +365,21 @@ export default {
   },
 
     gotoQuantityField(e) {
-        if (e.key === 'F2') {
-          e.preventDefault();
+      if (e.key === 'F2') {
+        e.preventDefault();
 
-          console.log({ e });
-          this.$refs.quantity_field.focus();
-        }
-      },
-      gotoSearchItemsField(e) {
-        if (e.key === 'F3') {
-          e.preventDefault();
+        console.log({ e });
+        this.$refs.quantity_field.focus();
+      }
+    },
+    gotoSearchItemsField(e) {
+      if (e.key === 'F3') {
+        e.preventDefault();
 
-          console.log({ e });
-          this.$refs.search_items_field.focus();
-        }
-      }, 
+        console.log({ e });
+        this.$refs.search_items_field.focus();
+      }
+    },
   computed: {
     filtred_items() {
       this.search = this.get_search(this.first_search);
