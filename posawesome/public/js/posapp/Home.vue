@@ -11,7 +11,7 @@
 
 <script>
 import Navbar from "./components/Navbar.vue";
-import POS from "./components/pos/Pos.vue";
+import POS from "./components/pos2/Pos2.vue";
 
 export default {
   data: function () {
