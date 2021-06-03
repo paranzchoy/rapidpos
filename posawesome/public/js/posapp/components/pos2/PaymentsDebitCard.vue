@@ -366,6 +366,7 @@ export default {
       if (this.validation() !== false){
         this.submit_invoice();
         evntBus.$emit('new_invoice', 'false');
+        evntBus.$emit('set_customer_default');
         this.back_to_invoice();
       }
     },

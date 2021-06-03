@@ -132,17 +132,7 @@ export default {
       }
     },
     set_default_customer() {
-      this.$nextTick(function () {
-        const defaultCustomerName = 'WalkIn';
-        // console.log(`# of Customers: ${this.customers.length}`);
-        
-        const defaultCustomer = this.customers.find(c => c.customer_name === defaultCustomerName);
-        if(defaultCustomer)
-        {
-          // console.log(`Default customer: ${defaultCustomer.customer_name}`);        
-          evntBus.$emit("update_customer", defaultCustomer.customer_name);
-        }
-      });
+      evntBus.$emit("set_customer_default");
     }  
   },
 
@@ -162,6 +152,18 @@ export default {
       });
       evntBus.$on('set_customer_readonly', (value) => {
         this.readonly = value;
+      });
+      evntBus.$on('set_customer_default', () => {
+        const defaultCustomerName = 'WalkIn';
+        // console.log(`# of Customers: ${this.customers.length}`);
+        
+        const defaultCustomer = this.customers.find(c => c.customer_name === defaultCustomerName);
+        if(defaultCustomer)
+        {
+          // console.log(`Default customer: ${defaultCustomer.customer_name}`);        
+          evntBus.$emit("update_customer", defaultCustomer.customer_name);
+        }
+
       });
     });
 
