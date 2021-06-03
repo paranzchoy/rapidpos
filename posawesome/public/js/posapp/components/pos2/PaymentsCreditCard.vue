@@ -82,7 +82,6 @@
                       </template>
                       <v-date-picker
                         v-model="payment.card_expiry_date"
-                        type="month"
                         @input="menu2 = false"
                       ></v-date-picker>
                     </v-menu>

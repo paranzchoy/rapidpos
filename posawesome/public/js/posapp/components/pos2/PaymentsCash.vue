@@ -341,20 +341,21 @@ export default {
       });
     },
     set_rest_amount() {
-      // this.invoice_doc.payments.forEach((payment) => {
+      this.invoice_doc.payments.forEach((payment) => {
         if (
-          // payment.idx == idx &&
-         this.invoice_doc.cash_amount == 0 &&
+          payment.idx == idx &&
+          payment.amount == 0 &&
           this.diff_payment > 0
         ) {
-          this.invoice_doc.cash_amount = this.diff_payment;
+          payment.amount = this.diff_payment;
         }
-      // });
+      });
     },
     load_print_page() {
       const print_format =
         this.pos_profile.print_format_for_online ||
         this.pos_profile.print_format;
+      // const print_format = "Sales Invoice Cash"
       const letter_head = this.pos_profile.letter_head || 0;
       const url =
         frappe.urllib.get_base_url() +
