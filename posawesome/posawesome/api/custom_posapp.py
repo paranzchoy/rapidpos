@@ -1470,3 +1470,35 @@ def submit_total_closing_readings(closing_shift):
     closing_shift_doc.last_sales_invoice = last_invoice
     closing_shift_doc.first_sales_invoice = first_invoice
     closing_shift_doc.submit()
+
+@frappe.whitelist()
+def create_customer(customer_name, tax_id, mobile_no, email_id, customer_group, territory):
+    if not frappe.db.exists("Customer", {"customer_name": customer_name}):
+        customer = frappe.get_doc(
+            {
+                "doctype": "Customer",
+                "customer_name": customer_name,
+                "tax_id": tax_id,
+                "mobile_no": mobile_no,
+                "email_id": email_id,
+                "customer_group": customer_group,
+                "territory": territory,
+            }
+        ).insert(ignore_permissions=True)
+        return customer
+
+@frappe.whitelist()
+def get_territory_data():
+    territory_list = []
+    get_territory = frappe.get_list("Territory", fields=["name"], order_by='name')
+    for i in get_territory:
+        territory_list.append(i.name)
+    return territory_list
+
+@frappe.whitelist()
+def get_customer_group_data():
+    customer_group_list = []
+    get_customer_group = frappe.get_list("Customer Group", fields=["name"], order_by='name')
+    for i in get_customer_group:
+        customer_group_list.append(i.name)
+    return customer_group_list

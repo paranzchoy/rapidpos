@@ -51,7 +51,7 @@ import OpeningDialog from "../pos/OpeningDialog.vue";
 import Payments from "../pos/Payments.vue";
 import Drafts from "../pos/Drafts.vue";
 import ClosingDialog from "../pos/ClosingDialog.vue";
-import NewCustomer from "../pos/NewCustomer.vue";
+// import NewCustomer from "../pos/NewCustomer.vue";
 import Returns from "../pos/Returns.vue";
 
 //Custom POSAwesome components
@@ -69,6 +69,7 @@ import XReading from "./XReading.vue";
 import ZReading from "./ZReading.vue";
 import Invoice from "./Invoice.vue";
 import EnabledDiscount from "./EnableDiscount.vue";
+import NewCustomer from "./NewCustomer.vue";
 
 export default {
   data: function () {
