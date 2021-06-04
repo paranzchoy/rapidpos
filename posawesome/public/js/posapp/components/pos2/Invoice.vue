@@ -926,8 +926,22 @@ export default {
       this.determine_payment_method(payment_method);
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;
-      evntBus.$emit('send_invoice_doc_payment', invoice_doc);
-
+      // evntBus.$emit('send_invoice_doc_payment', invoice_doc);
+      if(payment_method==="Cash"){
+        evntBus.$emit('send_invoice_doc_cash', invoice_doc);
+      }
+      else if (payment_method==="Credit Card"){
+        evntBus.$emit('send_invoice_doc_cc', invoice_doc);
+      }
+      else if (payment_method==="Debit Card"){
+        evntBus.$emit('send_invoice_doc_dc', invoice_doc);
+      }
+      else if (payment_method==="Coupon"){
+        evntBus.$emit('send_invoice_doc_coupon', invoice_doc);
+      }
+      else{
+       evntBus.$emit('send_invoice_doc_payment', invoice_doc);
+      }
       this.enableDisable = true;
     },
     //to determine what mode_of_payment page to open
