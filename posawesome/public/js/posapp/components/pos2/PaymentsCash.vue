@@ -311,6 +311,7 @@ export default {
       // this.invoice_doc.mode_of_payment = "Cash"
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
+      evntBus.$emit('set_customer_default');
       this.back_to_invoice();
     },
     submit_invoice() {
