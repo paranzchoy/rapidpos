@@ -507,10 +507,6 @@ export default {
           (payment) => payment.mode_of_payment == "Debit Card"
         );
         this.is_credit_sale = 0;
-        if (default_payment) {
-          default_payment.amount = invoice_doc.grand_total.toFixed(2);
-        }
-      
         this.split_payment = true;
         this.loyalty_amount = this.invoice_doc.loyalty_amount;
         this.get_bank_names_data();

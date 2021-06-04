@@ -14,7 +14,7 @@
       </v-card>
     </v-dialog>
 
-     <v-dialog v-model="anotherPayment" max-width="625px">
+     <v-dialog v-model="anotherPayment" max-width="500px">
       <v-card>
         <v-card-title>
           <span class="headline indigo--text">Add a Payment?</span>
