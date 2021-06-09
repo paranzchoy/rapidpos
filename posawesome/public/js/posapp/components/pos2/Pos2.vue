@@ -46,15 +46,13 @@
 //Original POSAwesome components
 import { evntBus } from "../../bus";
 import ItemsSelector from "../pos/ItemsSelector.vue";
-// import Invoice from "../pos/Invoice.vue";
-import OpeningDialog from "../pos/OpeningDialog.vue";
 import Payments from "../pos/Payments.vue";
 import Drafts from "../pos/Drafts.vue";
 import ClosingDialog from "../pos/ClosingDialog.vue";
-// import NewCustomer from "../pos/NewCustomer.vue";
 import Returns from "../pos/Returns.vue";
 
 //Custom POSAwesome components
+import OpeningDialog from "./OpeningDialog.vue";
 import PaymentsConfirmation from "./PaymentsConfirmation.vue";
 import ClosePosShift from "./ClosePosShift.vue";
 import Help from "./Help.vue";

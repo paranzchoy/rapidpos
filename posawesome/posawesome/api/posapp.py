@@ -65,8 +65,7 @@ def create_opening_voucher(pos_profile, company, balance_details):
             "posting_date": frappe.utils.getdate(),
             "user": frappe.session.user,
             "pos_profile": pos_profile,
-            "company": company,
-            # "checkout_counter":pos_checkout_counter
+            "company": company
         }
     )
     new_pos_opening.set("balance_details", balance_details)
