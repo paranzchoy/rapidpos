@@ -70,7 +70,6 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" dark @click="submit_dialog">Submit</v-btn>
-          <v-btn color="primary" dark @click="test">test</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -193,10 +192,6 @@ export default {
             vm.close_opening_dialog();
           }
         });
-    },
-    test(){
-      console.log(this.pos_checkout_counters);
-      console.log(this.pos_profiles);
     },
     formtCurrency(value) {
       value = parseFloat(value);
