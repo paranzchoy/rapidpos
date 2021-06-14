@@ -116,7 +116,7 @@ export default {
     calculate_totals() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.submit_total_opening_readings',
+        method: 'posawesome.posawesome.api.custom_posapp.submit_total_opening_readings',
         args: {
           opening_shift:this.pos_opening_shift.name
         },
@@ -148,7 +148,8 @@ export default {
               }
             }
           })
-          this.load_print_page();
+          // this.load_print_page();
+          this.print_page();
           this.xReading = false;
           // this.inputUsername = null;
           // this.inputPassword = null;

@@ -104,7 +104,7 @@ export default {
     calculate_totals() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.submit_total_closing_readings',
+        method: 'posawesome.posawesome.api.custom_posapp.submit_total_closing_readings',
         args: {
           closing_shift:this.pos_closing_shift
         },

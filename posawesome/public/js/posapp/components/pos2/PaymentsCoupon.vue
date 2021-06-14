@@ -333,6 +333,7 @@ export default {
 
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
+      evntBus.$emit('set_customer_default');
       this.back_to_invoice();
 
       // this.invoice_doc.payments.forEach((payment) => {
@@ -415,7 +416,7 @@ export default {
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
     shortPay(e) {
-      if (e.key === 'x' && (e.ctrlKey || e.metaKey)) {
+      if (e.key === 'p' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.submit();
       }
@@ -451,7 +452,7 @@ export default {
 
   created: function () {
     this.$nextTick(function () {
-      evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
+      evntBus.$on('send_invoice_doc_coupon', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
           // (payment) => payment.default == 4
