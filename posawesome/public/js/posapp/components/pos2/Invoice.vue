@@ -581,6 +581,9 @@ export default {
     //   sum -= flt(this.discount_amount);
     //   return flt(sum).toFixed(2);
     // },
+    calculate_discount() {
+
+    },
     subtotal() {
       this.close_payments();
       let sum = 0;
@@ -619,11 +622,16 @@ export default {
       sum -= flt(this.discount_amount);
       return flt(sum).toFixed(2);
     },
+    // total_items_discount_amount() {
+    //   let sum = 0;
+    //   this.items.forEach((item) => {
+    //     sum += item.qty * item.discount_amount;
+    //   });
+    //   return flt(sum).toFixed(2);
+    // },
     total_items_discount_amount() {
       let sum = 0;
-      this.items.forEach((item) => {
-        sum += item.qty * item.discount_amount;
-      });
+      sum -= flt(this.discount_amount);
       return flt(sum).toFixed(2);
     },
   },

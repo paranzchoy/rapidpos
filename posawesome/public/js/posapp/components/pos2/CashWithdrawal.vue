@@ -184,7 +184,7 @@
 
 
         <!-- Total summary -->
-        <template>
+        <!-- <template>
           <v-row justify="end" dense>
             <v-col
               cols="12"
@@ -226,11 +226,11 @@
             ></v-text-field>
             </v-col>
           </v-row>
-        </template>
+        </template> -->
 
         <template>
           <v-row no-gutters class="ml-5 mr-5 pa-0" style="height: 0%; margin-left: 5px;">
-            <v-col cols="3">
+            <v-col cols="4">
               <v-text-field
                 v-model="cash_withdrawal.cash_amount = totalAmount"
                 label="Cash"
@@ -240,7 +240,7 @@
                 hide-details
               ></v-text-field>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <v-text-field
                 :value="formtSumCardInvoices(this.total_card_amount)"
                 label="Card"
@@ -250,7 +250,7 @@
                 hide-details
               ></v-text-field>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <v-text-field
                 :value="1200"
                 label="Coupon"
@@ -260,7 +260,7 @@
                 hide-details
               ></v-text-field>
             </v-col>
-            <v-col cols="3">
+            <!-- <v-col cols="3">
               <v-text-field
                 v-model="total_denom_amount = TotalDenomAmount"
                 label="TOTAL"
@@ -269,7 +269,7 @@
                 readonly
                 hide-details
               ></v-text-field>
-            </v-col>
+            </v-col> -->
           </v-row> 
         </template>
 <!-- TEST -->
