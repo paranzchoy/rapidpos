@@ -44,7 +44,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" dark @click="close_dialog">Cancel</v-btn>
+          <v-btn color="error" dark @click="close_verify_user">Cancel</v-btn>
           <v-btn color="primary" @click="configure_modal">Verify</v-btn>
         </v-card-actions>
       </v-card>
@@ -65,12 +65,55 @@
             <div class="tabs">
                 <a v-on:click="activetab='1'" v-bind:class="[ activetab === '1' ? 'active' : '' ]">Details</a>
                 <a v-on:click="activetab='2'" v-bind:class="[ activetab === '2' ? 'active' : '' ]">Cash</a>
-                <a v-on:click="activetab='3'" v-bind:class="[ activetab === '3' ? 'active' : '' ]">Test</a>
             </div>
-            <div>
-               <v-text-field v-model="pos_closing_shift">
-               </v-text-field>
-
+            <div class="content">
+                <div v-if="activetab ==='1'" class="tabcontent">
+                  <template>
+                        <v-simple-table
+                          fixed-header
+                          height="300px"
+                        >
+                            <template v-slot:default>
+                                <thead>
+                                  <tr>
+                                    <th class="text-left">
+                                      Name
+                                    </th>
+                                    <th class="text-left">
+                                      Value
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr
+                                    v-for="item in sample_items"
+                                    :key="item.name">
+                                    <td>{{ item.name }}</td>
+                                    <td>{{ item.value }}</td>
+                                  </tr>
+                                </tbody>
+                            </template>
+                        </v-simple-table>
+                  </template>
+                </div>
+                <div v-if="activetab ==='2'" class="tabcontent2">
+                    <template>
+                        <div>
+                           <v-data-table
+                            dense
+                            :headers="denomHeaders"
+                            :items="denominations"
+                            :items-per-page="5"
+                            class="elevation-1"
+                            hide-default-footer 
+                            disable-pagination
+                            v-model="pos_closing_shift_data.cash_details"
+                            height="373px"
+                            >
+                           </v-data-table>
+                        </div>
+                    </template>
+                </div>
             </div>
           </template>
         </v-card-text>
@@ -114,6 +157,7 @@ export default {
     cash_details_push: [],
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
     pagination: {},
+    sample_items: []
   }),
   watch: {},
   methods: {
@@ -123,16 +167,25 @@ export default {
     close_dialog() {
       this.closingShiftDialog = false;
     },
+    close_verify_user() {
+      this.verify_user = false;
+    },
     calculate_totals() {
       const vm = this;
+      vm.sample_items.splice(0);
       frappe.call({
-        method: 'posawesome.posawesome.api.custom_posapp.submit_total_closing_readings',
+        method: 'posawesome.posawesome.api.custom_posapp.view_opening_shift_details',
         args: {
-          closing_shift:this.pos_closing_shift.name
+          opening_shift_name:"POSA-OS-21-0000016"
         },
         async: true,
         callback: function (r) {
-          //do nothing
+          if(r.message){
+            r.message.forEach((element) => {
+              vm.sample_items.push(element)
+              // console.log(element);
+            })
+          }
         },
       });
     },
@@ -140,13 +193,12 @@ export default {
     get_denominations() {
       const vm = this;
         frappe.call({
-
           method: "rapidposcustom.rapidposcustom.api.rapidposcustom.get_cash_denominations_breakdown",
             callback: function (r) {
-          if (r.message) {
-            r.message.get_denom.forEach((element) => {
-              vm.denominations.push(element)
-            })
+              if (r.message) {
+                r.message.get_denom.forEach((element) => {
+                  vm.denominations.push(element)
+                })
           }
         },
         });
@@ -167,6 +219,7 @@ export default {
         })
       } else {
         if (this.inputUsername === this.user && this.inputPassword) {
+          this.calculate_totals();
           frappe.call({
             method: "posawesome.posawesome.api.custom_posapp.verify_user",
             args: {
@@ -179,10 +232,8 @@ export default {
               }
             }
           })
-
           this.closingShiftDialog = true;
           this.verify_user = false;
-          this.calculate_totals();
           this.inputUsername = null;
           this.inputPassword = null;
          } else {
@@ -257,10 +308,9 @@ export default {
   },
 
   created: function () {
-    evntBus.$on('current_closing_shift', (data) => {
-      this.pos_closing_shift = data.pos_closing_shift;
-    });
-    this.calculate_totals();
+    // evntBus.$on('current_closing_shift', (data) => {
+    //   this.pos_closing_shift = data.pos_closing_shift;
+    // });
     evntBus.$on('open_ClosingDialog2', (data) => {
       this.verify_user = true;
       this.dialog_data = data;
