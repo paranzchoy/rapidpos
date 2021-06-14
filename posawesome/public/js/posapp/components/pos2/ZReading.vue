@@ -136,7 +136,7 @@ export default {
         this.pos_closing_shift +
         '&trigger_print=1' +
         '&format=' +
-        'Z Reading Report' +
+        'Z Reading 2' +
         '&no_letterhead=' +
         'letter_head';
       const printWindow = window.open(url, 'Print');
