@@ -44,7 +44,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" dark @click="close_dialog">Cancel</v-btn>
+          <v-btn color="error" dark @click="close_verify_dialog">Cancel</v-btn>
           <v-btn color="primary" @click="configure_modal">Verify</v-btn>
         </v-card-actions>
       </v-card>
@@ -123,6 +123,12 @@ export default {
     close_dialog() {
       this.closingShiftDialog = false;
     },
+
+    close_verify_dialog() {
+      this.verify_user = false;
+    },
+
+    
     calculate_totals() {
       const vm = this;
       frappe.call({
