@@ -1592,3 +1592,24 @@ def update_opening_shift_data(data, pos_profile):
     )
     data["stock_settings"] = {}
     data["stock_settings"].update({"allow_negative_stock": allow_negative_stock})
+
+@frappe.whitelist()
+def view_opening_shift_details(opening_shift_name):
+	get_op_shift = frappe.get_doc("POS Opening Shift", opening_shift_name)
+
+	data = [{'name': "Z-Counter", 'value': get_op_shift.checkout_counter}, {'name': "Beginning SI No", 'value': get_op_shift.first_sales_invoice},
+	{'name': "Ending SI No", 'value': get_op_shift.last_sales_invoice}, {'name': "Beginning Void No", 'value': get_op_shift.first_void_no},
+	{'name': "Ending Void No", 'value': get_op_shift.last_void_no}, {'name': "Sales Count", 'value': get_op_shift.no_of_invoices-get_op_shift.void_count},
+	{'name': "Void Count", 'value': get_op_shift.void_count}, {'name': "Total Transactions", 'value': get_op_shift.no_of_invoices},
+	{'name': "Beginning Balance", 'value': "000,019,275,409.19"}, {'name': "Ending Balance", 'value': "000,019,333,397.47"},
+	{'name': "Gross Amount", 'value': get_op_shift.gross_amount}, {'name': "Less", 'value': get_op_shift.gross_amount},
+	{'name': "Discount", 'value': "0"}, {'name': "Senior Discount", 'value': get_op_shift.senior_discount}, 
+	{'name': "PWD Discount", 'value': get_op_shift.pwd_discount}, {'name': "Void", 'value': "0"},
+	{'name': "Net Amount", 'value': "0"}, {'name': "Cash", 'value': get_op_shift.total_cash}, {'name': "Checks", 'value': "0"},
+	{'name': "Coupons", 'value': get_op_shift.total_coupon}, {'name': "Gift Certificate", 'value': "0"},
+	{'name': "Card", 'value': get_op_shift.total_card}, {'name': "Mode of Payment Total", 'value': "0"},
+	{'name': "VATable Sales", 'value': "0"}, {'name': "VAT Amount", 'value': "0"}, {'name': "VAT Exempt Sales", 'value': "0"},
+	{'name': "Zero-Rated Sales", 'value': "0"}, {'name': "Accumulated Grand Total", 'value': "0"}, {'name': "Reset Counter", 'value': "0"},
+	{'name': "Global Transaction", 'value': "0"}]
+
+	return data
