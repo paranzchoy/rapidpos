@@ -364,7 +364,7 @@ export default {
         this.invoice_doc.name +
         '&trigger_print=1' +
         '&format=' +
-        print_format +
+        "Sales Invoice Cash" +
         '&no_letterhead=' +
         letter_head;
       const printWindow = window.open(url, 'Print');

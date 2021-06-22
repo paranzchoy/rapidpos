@@ -46,7 +46,7 @@
 //Original POSAwesome components
 import { evntBus } from "../../bus";
 import ItemsSelector from "../pos/ItemsSelector.vue";
-import Payments from "../pos/Payments.vue";
+// import Payments from "../pos/Payments.vue";
 import Drafts from "../pos/Drafts.vue";
 import ClosingDialog from "../pos/ClosingDialog.vue";
 import Returns from "../pos/Returns.vue";
@@ -54,6 +54,8 @@ import Returns from "../pos/Returns.vue";
 //Custom POSAwesome components
 import OpeningDialog from "./OpeningDialog.vue";
 import PaymentsConfirmation from "./PaymentsConfirmation.vue";
+// import ClosePosShift from "./ClosePosShiftTest.vue";
+import Payments from "./Payments.vue";
 import ClosePosShift from "./ClosePosShift.vue";
 import Help from "./Help.vue";
 import PaymentsCash from "./PaymentsCash.vue";
