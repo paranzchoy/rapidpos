@@ -54,9 +54,9 @@ import Returns from "../pos/Returns.vue";
 //Custom POSAwesome components
 import OpeningDialog from "./OpeningDialog.vue";
 import PaymentsConfirmation from "./PaymentsConfirmation.vue";
-// import ClosePosShift from "./ClosePosShiftTest.vue";
+import ClosePosShift from "./ClosePosShift2.vue";
 import Payments from "./Payments.vue";
-import ClosePosShift from "./ClosePosShift.vue";
+// import ClosePosShift from "./ClosePosShift.vue";
 import Help from "./Help.vue";
 import PaymentsCash from "./PaymentsCash.vue";
 import PaymentsCreditCard from "./PaymentsCreditCard.vue";
@@ -188,9 +188,9 @@ export default {
           }
         });
     },
-    get_withdrawal_data() {
-      evntBus.$emit('open_withdrawal', this.pos_opening_shift);
-    },
+    // get_withdrawal_data() {
+    //   evntBus.$emit('open_withdrawal', this.pos_opening_shift);
+    // },
     submit_closing_pos(data){
       frappe
         .call("posawesome.posawesome.doctype.pos_closing_shift.pos_closing_shift.submit_closing_shift", {
@@ -276,9 +276,9 @@ export default {
       evntBus.$on("open_closing_dialog2", () => {
         this.get_closing_data2()
       })
-       evntBus.$on("open_withdrawal_2", () => {
-      // this.withdrawalDialog = true;
-        this.get_withdrawal_data()
+      evntBus.$on("open_withdrawal_2", () => {
+        // this.get_withdrawal_data()
+        evntBus.$emit('open_withdrawal', this.pos_opening_shift);
       })
 
       evntBus.$on("submit_closing_pos", (data) => {
