@@ -198,7 +198,6 @@ export default {
         .then((r) => {
           if (r.message) {
             this.pos_closing_shift = r.message.pos_closing_shift;
-            evntBus.$emit("current_closing_shift", r.message);
             evntBus.$emit("show_mesage", {
               text: `POS Shift Closed`,
               color: "success",
@@ -284,6 +283,9 @@ export default {
       })
       evntBus.$on("submit_closing_pos", (data) => {
         this.submit_closing_pos(data)
+      })
+      evntBus.$on("check_opening_entry", () => {
+        this.check_opening_entry();
       })
     });
   },
