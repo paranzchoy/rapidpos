@@ -350,7 +350,7 @@ export default {
       this.verify_user = false;
     },
 
-    calculate_totals() {
+    view_opening_shift_details() {
       const vm = this;
       vm.sample_items.splice(0);
       frappe.call({
@@ -400,7 +400,7 @@ export default {
         })
       } else {
         if (this.inputUsername === this.user && this.inputPassword) {
-          this.calculate_totals();
+          this.view_opening_shift_details();
           frappe.call({
             method: "posawesome.posawesome.api.custom_posapp.verify_user",
             args: {
@@ -439,16 +439,16 @@ export default {
         })
         .then((r) => {
           if (r.message) {
-            this.pos_closing_shift = r.message.pos_closing_shift;
+            this.pos_closing_shift = r.message;
             this.load_print_page();
             // evntBus.$emit("current_closing_shift", r.message);
-            this.close_dialog();
-            this.close_verify_user();
             evntBus.$emit("show_mesage", {
-              text: message,
+              text: `POS Shift Closed`,
               color: "success",
             });
-            this.check_opening_entry();
+            // this.check_opening_entry();
+            this.close_dialog();
+            evntBus.$emit("check_opening_entry");
           } else {
             console.log(r)
           }

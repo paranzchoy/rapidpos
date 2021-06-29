@@ -151,7 +151,6 @@ export default {
             this.pos_profile = r.message.pos_profile;
             this.pos_opening_shift = r.message.pos_opening_shift;
             evntBus.$emit("register_pos_profile", r.message);
-            evntBus.$emit("current_opening_shift", r.message);
             evntBus.$emit("set_company", r.message.company);
             console.log("LoadPosProfile");
           } else {
@@ -199,12 +198,11 @@ export default {
         .then((r) => {
           if (r.message) {
             this.pos_closing_shift = r.message.pos_closing_shift;
-            evntBus.$emit("current_closing_shift", r.message);
             evntBus.$emit("show_mesage", {
               text: `POS Shift Closed`,
               color: "success",
             });
-            this.check_opening_entry()
+            this.check_opening_entry();
           } else {
             console.log(r)
           }
@@ -280,9 +278,14 @@ export default {
         // this.get_withdrawal_data()
         evntBus.$emit('open_withdrawal', this.pos_opening_shift);
       })
-
+      evntBus.$on("open_xreading_dialog", () => {
+        evntBus.$emit('open_xreading', this.pos_opening_shift);
+      })
       evntBus.$on("submit_closing_pos", (data) => {
         this.submit_closing_pos(data)
+      })
+      evntBus.$on("check_opening_entry", () => {
+        this.check_opening_entry();
       })
     });
   },
