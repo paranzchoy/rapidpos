@@ -147,7 +147,7 @@
               <div v-if="activetab ==='tabCard'" class="tabcontent">
                 <template>
                   <v-data-table
-                    :value="formtSumCardInvoices(this.total_card_amount)"
+                    v-model="cash_withdrawal.card_details"
                     :headers="headers"
                     :items="card_invoices"
                     :single-select="singleSelect"
@@ -347,7 +347,8 @@ export default {
     headers: [{text:'Card Type', value:'mode_of_payment'}, {text:'Card #', value:'card_number_hidden'},{text:'Invoice', value:'name'}, {text:'Amount', value:'amount'}],
     total_card_amount: 0,
     total_denom_amount: 0,
-    isTesting: true,                                        /** SET TO FALSE FOR PRODUCTION **/
+    isTesting: true,                                      /** SET TO FALSE FOR PRODUCTION **/
+    cash_withdrawal_name:'',
 
 
     // COUPON DATA
@@ -447,7 +448,7 @@ export default {
       value = parseFloat(value);
       if(this.cash_withdrawal.card_details!=null){
          this.cash_withdrawal.card_details.forEach((element) => {
-         value = value + element.amount;
+          value = value + element.amount;
          })
         // this.total_card_amount = value;
       }
@@ -529,13 +530,12 @@ export default {
         })
         .then((r) => {
           if (r.message) {
+            this.cash_withdrawal_name = r.message;
+            this.load_print_page();
             evntBus.$emit("show_mesage", {
               text: `Withdrawal created successfully.`,
               color: "success",
             });
-            console.log(r.message);
-            // this.check_opening_entry();
-            // this.load_print_page();
           } else {
             console.log(r)
           }
@@ -545,16 +545,14 @@ export default {
       value = parseFloat(value);
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
-  },
-
-  load_print_page() {
+    load_print_page() {
       const url =
         frappe.urllib.get_base_url() +
-        '/printview?doctype=Print%20Format&name=' +
-        'Withdrawal' +
+        '/printview?doctype=POS%20Opening%20Shift%20Withdrawal%20Details&name=' +
+        this.cash_withdrawal_name +
         '&trigger_print=1' +
         '&format=' +
-        'Withdrawal2' +
+        'Cash Withdrawal Report' +
         '&no_letterhead=' +
         'letter_head';
       const printWindow = window.open(url, 'Print');
@@ -567,7 +565,10 @@ export default {
         },
         true
       );
-    },
+    }
+  },
+
+ 
   created: function () {
     evntBus.$on("open_withdrawal", (data) => {
       if(this.isTesting) {
@@ -599,15 +600,7 @@ export default {
 
         return totalSum + (item.cash_amount * item.card_amount);
       },0);
-    }
-    // card_amount() {
-    //   let value = parseFloat(this.total_card_amount);
-    //   this.cash_withdrawal.card_details.forEach((element) => {
-    //      value = value + element.amount;
-    //   });
-    //   return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-    // }
-
+    },
   }
 };
 </script>
