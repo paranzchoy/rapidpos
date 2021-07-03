@@ -572,58 +572,66 @@ export default {
       });
       return flt(qty).toFixed(2);
     },
-    // subtotal() {
-    //   this.close_payments();
-    //   let sum = 0;
-    //   this.items.forEach((item) => {
-    //     sum += item.qty * item.rate;
-    //   });
-    //   sum -= flt(this.discount_amount);
-    //   return flt(sum).toFixed(2);
-    // },
     subtotal() {
       this.close_payments();
       let sum = 0;
-      let medical_discount = 0;
-      let food_discount = 0;
-      let no_discount = 0;
-      let medical_sum = 0;
-      let food_sum = 0;
-      let no_sum = 0;
-      let new_medical_discount_amount = 0;
-      let new_food_discount_amount = 0;
-      let new_no_discount_amount = 0;
-      let total_discounted_amount = 0;
       this.items.forEach((item) => {
         sum += item.qty * item.rate;
-        // sum += item.qty * item.rate;
-        if (item.item_group == "MEDICAL" && this.selectedDiscount > 0) {
-          medical_sum += item.qty * item.rate;
-          medical_discount = 20;
-        } else if (item.item_group == "FOOD" && this.selectedDiscount > 0){
-          food_sum += item.qty * item.rate;
-          food_discount = 5;
-        } else {
-          no_sum += item.qty * item.rate;
-          no_discount = 0;
-        }
       });
-      sum = medical_sum+food_sum+no_sum;
-      new_medical_discount_amount = medical_sum * (medical_discount/100);
-      new_food_discount_amount = food_sum * (food_discount/100);
-      new_no_discount_amount = no_sum * (no_discount/100);
-      total_discounted_amount = new_medical_discount_amount+new_food_discount_amount+new_no_discount_amount;
-      // this.discount_amount = sum * (this.selectedDiscount/100);
       // sum -= flt(this.discount_amount);
-      this.discount_amount = total_discounted_amount;
-      sum -= flt(this.discount_amount);
+      sum -= flt(this.calculate_discount());
       return flt(sum).toFixed(2);
     },
+    
+    // subtotal() {
+    //   this.close_payments();
+    //   let sum = 0;
+    //   let medical_discount = 0;
+    //   let food_discount = 0;
+    //   let no_discount = 0;
+    //   let medical_sum = 0;
+    //   let food_sum = 0;
+    //   let no_sum = 0;
+    //   let new_medical_discount_amount = 0;
+    //   let new_food_discount_amount = 0;
+    //   let new_no_discount_amount = 0;
+    //   let total_discounted_amount = 0;
+    //   this.items.forEach((item) => {
+    //     sum += item.qty * item.rate;
+    //     // sum += item.qty * item.rate;
+    //     if (item.item_group == "MEDICAL" && this.selectedDiscount > 0) {
+    //       medical_sum += item.qty * item.rate;
+    //       medical_discount = 20;
+    //     } else if (item.item_group == "FOOD" && this.selectedDiscount > 0){
+    //       food_sum += item.qty * item.rate;
+    //       food_discount = 5;
+    //     } else {
+    //       no_sum += item.qty * item.rate;
+    //       no_discount = 0;
+    //     }
+    //   });
+    //   sum = medical_sum+food_sum+no_sum;
+    //   new_medical_discount_amount = medical_sum * (medical_discount/100);
+    //   new_food_discount_amount = food_sum * (food_discount/100);
+    //   new_no_discount_amount = no_sum * (no_discount/100);
+    //   total_discounted_amount = new_medical_discount_amount+new_food_discount_amount+new_no_discount_amount;
+    //   // this.discount_amount = sum * (this.selectedDiscount/100);
+    //   // sum -= flt(this.discount_amount);
+    //   this.discount_amount = total_discounted_amount;
+    //   sum -= flt(this.discount_amount);
+    //   return flt(sum).toFixed(2);
+    // },
+
+    // total_items_discount_amount() {
+    //   let sum = 0;
+    //   this.items.forEach((item) => {
+    //     sum += item.qty * item.discount_amount;
+    //   });
+    //   return flt(sum).toFixed(2);
+    // },
     total_items_discount_amount() {
       let sum = 0;
-      this.items.forEach((item) => {
-        sum += item.qty * item.discount_amount;
-      });
+      sum += flt(this.discount_amount);
       return flt(sum).toFixed(2);
     },
   },
@@ -631,6 +639,30 @@ export default {
     enableDiscount() {		
         this.enableDisable = false;
     },
+
+    calculate_discount() {
+      let consumable_sum = 0;
+      let consumable_discount_percent = 0;
+      let consumable_discount = 0;
+      let medical_sum = 0;
+      let medical_discount_percent = 0;
+      let medical_discount = 0;
+      this.items.forEach((item) => {
+        if (item.item_group == "FOOD" && this.selectedDiscount > 0) {
+          consumable_sum += item.qty * item.rate;
+          consumable_discount_percent = 5/100;
+        }
+        if (item.item_group == "MEDICAL" && this.selectedDiscount > 0) {
+          medical_sum += item.qty * item.rate;
+          medical_discount_percent = 20/100;
+        }
+      });
+      consumable_discount = consumable_sum * consumable_discount_percent;
+      medical_discount = medical_sum * medical_discount_percent;
+      this.discount_amount = consumable_discount + medical_discount;
+      return this.discount_amount;
+    },
+
     submit_discount_authentication() {
       this.enableDiscount()
       evntBus.$emit("show_mesage", {
@@ -926,8 +958,22 @@ export default {
       this.determine_payment_method(payment_method);
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;
-      evntBus.$emit('send_invoice_doc_payment', invoice_doc);
-
+      // evntBus.$emit('send_invoice_doc_payment', invoice_doc);
+      if(payment_method==="Cash"){
+        evntBus.$emit('send_invoice_doc_cash', invoice_doc);
+      }
+      else if (payment_method==="Credit Card"){
+        evntBus.$emit('send_invoice_doc_cc', invoice_doc);
+      }
+      else if (payment_method==="Debit Card"){
+        evntBus.$emit('send_invoice_doc_dc', invoice_doc);
+      }
+      else if (payment_method==="Coupon"){
+        evntBus.$emit('send_invoice_doc_coupon', invoice_doc);
+      }
+      else{
+       evntBus.$emit('send_invoice_doc_payment', invoice_doc);
+      }
       this.enableDisable = true;
     },
     //to determine what mode_of_payment page to open

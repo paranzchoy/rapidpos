@@ -46,15 +46,13 @@
 //Original POSAwesome components
 import { evntBus } from "../../bus";
 import ItemsSelector from "../pos/ItemsSelector.vue";
-// import Invoice from "../pos/Invoice.vue";
-import OpeningDialog from "../pos/OpeningDialog.vue";
 import Payments from "../pos/Payments.vue";
 import Drafts from "../pos/Drafts.vue";
 import ClosingDialog from "../pos/ClosingDialog.vue";
-import NewCustomer from "../pos/NewCustomer.vue";
 import Returns from "../pos/Returns.vue";
 
 //Custom POSAwesome components
+import OpeningDialog from "./OpeningDialog.vue";
 import PaymentsConfirmation from "./PaymentsConfirmation.vue";
 import ClosePosShift from "./ClosePosShift.vue";
 import Help from "./Help.vue";
@@ -69,6 +67,7 @@ import XReading from "./XReading.vue";
 import ZReading from "./ZReading.vue";
 import Invoice from "./Invoice.vue";
 import EnabledDiscount from "./EnableDiscount.vue";
+import NewCustomer from "./NewCustomer.vue";
 
 export default {
   data: function () {
@@ -150,7 +149,7 @@ export default {
             this.pos_profile = r.message.pos_profile;
             this.pos_opening_shift = r.message.pos_opening_shift;
             evntBus.$emit("register_pos_profile", r.message);
-            // evntBus.$emit("current_opening_shift", r.message);
+            evntBus.$emit("current_opening_shift", r.message);
             evntBus.$emit("set_company", r.message.company);
             console.log("LoadPosProfile");
           } else {

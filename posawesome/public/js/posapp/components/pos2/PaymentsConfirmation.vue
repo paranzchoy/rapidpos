@@ -14,17 +14,17 @@
       </v-card>
     </v-dialog>
 
-     <v-dialog v-model="anotherPayment" max-width="625px">
+     <v-dialog v-model="anotherPayment" max-width="500px">
       <v-card>
         <v-card-title>
           <span class="headline indigo--text">Add a Payment?</span>
         </v-card-title>
         <v-card-actions>
-          <v-btn color="error" dark @click="close_payment_dialog">(←)Cancel</v-btn>
-          <v-btn color="success" dark @click="cash_payment_dialog">(1) Cash</v-btn>
-          <v-btn color="secondary" dark @click="cc_payment_dialog">(2) Credit Card</v-btn>
-          <v-btn color="primary" dark @click="dc_payment_dialog">(3) Debit Card</v-btn>
-          <v-btn color="warning" dark @click="coupon_payment_dialog">(4) Coupon</v-btn>
+          <v-btn color="error" dark @click="close_payment_dialog">Cancel</v-btn>
+          <v-btn color="success" dark @click="cash_payment_dialog">Cash</v-btn>
+          <v-btn color="secondary" dark @click="cc_payment_dialog">Credit Card</v-btn>
+          <v-btn color="primary" dark @click="dc_payment_dialog">Debit Card</v-btn>
+          <v-btn color="warning" dark @click="coupon_payment_dialog">Coupon</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -124,6 +124,7 @@ export default {
       console.log(this.invoice_doc);
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
+      evntBus.$emit('set_customer_default');
       this.back_to_invoice();
     },
     submit_invoice() {
