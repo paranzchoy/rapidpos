@@ -114,19 +114,137 @@
                             v-model="pos_closing_shift_data.cash_details"
                             height="373px"
                             >
+                              <template v-slot:item.quantity="props">
+                                <v-col sm="7">
+                                  <v-text-field
+                                      v-model="pos_closing_shift_data.cash_details = props.item.quantity"
+                                      :rules="[max25chars]"
+                                      label="Edit"
+                                      single-line
+                                      type="number"
+                                      min=0 oninput="validity.valid||(value='');"
+                                      dense
+                                  ></v-text-field>
+                                </v-col>
+                              </template>
+                              <template v-slot:item.total="{ item }">{{
+                                  (item.total = 
+                                      item.amount * item.quantity
+                                  )
+                                  }}
+                              </template>
                            </v-data-table>
+                           <template>
+                              <v-row justify="end" no-gutters class="ma-0 pa-0" height="5px">
+                                <v-col cols="12"
+                                  sm="9"
+                                  class="text-right">
+                                  Cash On Hand:
+                                </v-col>
+                                <v-col cols="12"
+                                  sm="3"
+                                  class="text-right">
+                                  {{totalAmount}}
+                                </v-col>
+                                  <v-col cols="12"
+                                  sm="9"
+                                  class="text-right">
+                                  Prev. Cash Withdrawn:
+                                </v-col>
+                                <v-col cols="12"
+                                  sm="3"
+                                  class="text-right">
+                                  1200
+                                </v-col>
+                                <v-col cols="12"
+                                  sm="9"
+                                  class="text-right">
+                                  Total Cash:
+                                </v-col>
+                                <v-col cols="12"
+                                  sm="3"
+                                  class="text-right">
+                                  {{totalAmount+1200}}
+                                </v-col>
+                              </v-row>
+                            </template>
                         </div>
                     </template>
                 </div>
             </div>
           </template>
         </v-card-text>
-        
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" dark @click="close_dialog">Close</v-btn>
-          <v-btn color="primary" dark @click="submit_dialog">Submit</v-btn>
-        </v-card-actions>
+        <v-card-text>
+           <template>
+              <v-data-table
+                :headers="headers"
+                :items="dialog_data.payment_reconciliation"
+                item-key="mode_of_payment"
+                class="elevation-1"
+                :items-per-page="itemsPerPage"
+                hide-default-footer
+              >
+                  <template v-slot:item.closing_amount="props">
+                      <template v-if="props.item.mode_of_payment === 'Cash'">{{
+                          (
+                            props.item.closing_amount = (totalAmount)
+                          )
+                        }}
+                      </template>
+                      <template v-else-if="props.item.mode_of_payment === 'Credit Card'">
+                        <v-edit-dialog
+                        :return-value.sync="props.item.closing_amount"
+                        >
+                          {{ formtCurrency(props.item.closing_amount) }}
+                            <template v-slot:input>
+                                <v-text-field
+                                  v-model="props.item.closing_amount"
+                                  :rules="[max25chars]"
+                                  label="Edit"
+                                  single-line
+                                  counter
+                                  type="number"
+                                ></v-text-field>
+                            </template>
+                        </v-edit-dialog>
+                      </template>
+                  </template>
+
+                  <template v-slot:item.difference="{ item }">{{
+                    (item.difference = formtCurrency(
+                      item.expected_amount - item.closing_amount
+                    ))
+                  }}</template>
+                  <template v-slot:item.opening_amount="{ item }">{{
+                    formtCurrency(item.opening_amount)
+                  }}</template>
+                  <template v-slot:item.expected_amount="{ item }">{{
+                    formtCurrency(item.expected_amount)
+                  }}</template>
+              </v-data-table>
+
+          <v-row justify="end" no-gutters class="ma-0" style="height: 0%">
+            <v-col
+              cols="12"
+              sm="9"
+              class="text-right">
+              TOTAL
+            </v-col>
+            <v-col
+              cols="12"
+              sm="3"
+              class="text-right">
+              1200
+            </v-col>
+          </v-row>
+        </template>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="error" dark @click="close_dialog">Close</v-btn>
+        <v-btn color="primary" dark @click="submit_dialog">Submit</v-btn>
+      </v-card-actions>
 
       </v-card>
 
@@ -161,7 +279,64 @@ export default {
     cash_details_push: [],
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
     pagination: {},
-    sample_items: []
+    sample_items: [],
+    headers: [
+      {
+        text: 'Mode of Payment',
+        value: 'mode_of_payment',
+        align: 'start',
+        sortable: true,
+      },
+      {
+        text: 'Opening Amount',
+        align: 'end',
+        sortable: true,
+        value: 'opening_amount',
+      },
+      {
+        text: 'Closing Amount',
+        value: 'closing_amount',
+        align: 'end',
+        sortable: true,
+      },
+      {
+        text: 'Expected Amount',
+        value: 'expected_amount',
+        align: 'end',
+        sortable: false,
+      },
+      {
+        text: 'Difference',
+        value: 'difference',
+        align: 'end',
+        sortable: false,
+      },
+    ],
+    denomHeaders: [
+      {
+        text: 'DENOMINATION',
+        align: 'end',
+        sortable: false,
+        value: 'amount',
+        width: '25%',
+      },
+      {
+        text: 'QTY',
+        align: 'center',
+        sortable: false,
+        value: 'quantity',
+        width: '50%',
+      },
+       {
+        text: 'Total',
+        align: 'end',
+        sortable: false,
+        value: 'total',
+        width: '25%',
+      },
+    ],
+    max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
+    pagination: {},
   }),
   watch: {},
   methods: {
@@ -171,21 +346,17 @@ export default {
     close_dialog() {
       this.closingShiftDialog = false;
     },
-    // close_verify_dialog() {
-    //   this.verify_user = false;
-    // },
-
     close_verify_user() {
       this.verify_user = false;
     },
 
-    calculate_totals() {
+    view_opening_shift_details() {
       const vm = this;
       vm.sample_items.splice(0);
       frappe.call({
         method: 'posawesome.posawesome.api.custom_posapp.view_opening_shift_details',
         args: {
-          opening_shift_name:"POSA-OS-21-0000016"
+          opening_shift_name: this.dialog_data.pos_opening_shift
         },
         async: true,
         callback: function (r) {
@@ -211,6 +382,7 @@ export default {
           }
         },
         });
+        console.log(vm.denominations);
     },
     // CASH_DETAILS METHOD
     cashDetailsMethod(){
@@ -228,7 +400,7 @@ export default {
         })
       } else {
         if (this.inputUsername === this.user && this.inputPassword) {
-          this.calculate_totals();
+          this.view_opening_shift_details();
           frappe.call({
             method: "posawesome.posawesome.api.custom_posapp.verify_user",
             args: {
@@ -267,18 +439,41 @@ export default {
         })
         .then((r) => {
           if (r.message) {
-            this.pos_closing_shift = r.message.pos_closing_shift;
-            // this.load_print_page();
-            evntBus.$emit("current_closing_shift", r.message);
+            this.pos_closing_shift = r.message;
+            this.load_print_page();
+            // evntBus.$emit("current_closing_shift", r.message);
             evntBus.$emit("show_mesage", {
-              text: message,
+              text: `POS Shift Closed`,
               color: "success",
             });
-            this.check_opening_entry()
+            // this.check_opening_entry();
+            this.close_dialog();
+            evntBus.$emit("check_opening_entry");
           } else {
             console.log(r)
           }
         });
+    },
+    load_print_page() {
+      const url =
+        frappe.urllib.get_base_url() +
+        '/printview?doctype=POS%20Closing%20Shift&name=' +
+        this.pos_closing_shift +
+        '&trigger_print=1' +
+        '&format=' +
+        "Z Reading 2" +
+        '&no_letterhead=' +
+        'letter_head';
+      const printWindow = window.open(url, 'Print');
+      printWindow.addEventListener(
+        'load',
+        function () {
+          printWindow.print();
+          // printWindow.close();
+          // NOTE : uncomoent this to auto closing printing window
+        },
+        true
+      );
     },
     formtCurrency(value) {
       value = parseFloat(value);
@@ -328,7 +523,6 @@ export default {
 
     this.$nextTick(function (){
       this.get_denominations();
-
       evntBus.$on("submit_closing_pos", (data) => {
         this.submit_closing_pos(data)
       })

@@ -1595,6 +1595,7 @@ def update_opening_shift_data(data, pos_profile):
 
 @frappe.whitelist()
 def view_opening_shift_details(opening_shift_name):
+	submit_total_opening_readings(opening_shift_name)
 	get_op_shift = frappe.get_doc("POS Opening Shift", opening_shift_name)
 
 	data = [{'name': "Z-Counter", 'value': get_op_shift.checkout_counter}, {'name': "Beginning SI No", 'value': get_op_shift.first_sales_invoice},

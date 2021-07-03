@@ -46,7 +46,7 @@
 //Original POSAwesome components
 import { evntBus } from "../../bus";
 import ItemsSelector from "../pos/ItemsSelector.vue";
-import Payments from "../pos/Payments.vue";
+// import Payments from "../pos/Payments.vue";
 import Drafts from "../pos/Drafts.vue";
 import ClosingDialog from "../pos/ClosingDialog.vue";
 import Returns from "../pos/Returns.vue";
@@ -54,7 +54,9 @@ import Returns from "../pos/Returns.vue";
 //Custom POSAwesome components
 import OpeningDialog from "./OpeningDialog.vue";
 import PaymentsConfirmation from "./PaymentsConfirmation.vue";
-import ClosePosShift from "./ClosePosShift.vue";
+import ClosePosShift from "./ClosePosShift2.vue";
+import Payments from "./Payments.vue";
+// import ClosePosShift from "./ClosePosShift.vue";
 import Help from "./Help.vue";
 import PaymentsCash from "./PaymentsCash.vue";
 import PaymentsCreditCard from "./PaymentsCreditCard.vue";
@@ -149,7 +151,6 @@ export default {
             this.pos_profile = r.message.pos_profile;
             this.pos_opening_shift = r.message.pos_opening_shift;
             evntBus.$emit("register_pos_profile", r.message);
-            evntBus.$emit("current_opening_shift", r.message);
             evntBus.$emit("set_company", r.message.company);
             console.log("LoadPosProfile");
           } else {
@@ -186,9 +187,9 @@ export default {
           }
         });
     },
-    get_withdrawal_data() {
-      evntBus.$emit('open_withdrawal', this.pos_opening_shift);
-    },
+    // get_withdrawal_data() {
+    //   evntBus.$emit('open_withdrawal', this.pos_opening_shift);
+    // },
     submit_closing_pos(data){
       frappe
         .call("posawesome.posawesome.doctype.pos_closing_shift.pos_closing_shift.submit_closing_shift", {
@@ -197,12 +198,11 @@ export default {
         .then((r) => {
           if (r.message) {
             this.pos_closing_shift = r.message.pos_closing_shift;
-            evntBus.$emit("current_closing_shift", r.message);
             evntBus.$emit("show_mesage", {
               text: `POS Shift Closed`,
               color: "success",
             });
-            this.check_opening_entry()
+            this.check_opening_entry();
           } else {
             console.log(r)
           }
@@ -274,13 +274,18 @@ export default {
       evntBus.$on("open_closing_dialog2", () => {
         this.get_closing_data2()
       })
-       evntBus.$on("open_withdrawal_2", () => {
-      // this.withdrawalDialog = true;
-        this.get_withdrawal_data()
+      evntBus.$on("open_withdrawal_2", () => {
+        // this.get_withdrawal_data()
+        evntBus.$emit('open_withdrawal', this.pos_opening_shift);
       })
-
+      evntBus.$on("open_xreading_dialog", () => {
+        evntBus.$emit('open_xreading', this.pos_opening_shift);
+      })
       evntBus.$on("submit_closing_pos", (data) => {
         this.submit_closing_pos(data)
+      })
+      evntBus.$on("check_opening_entry", () => {
+        this.check_opening_entry();
       })
     });
   },
