@@ -272,7 +272,7 @@
             </v-col>
           </v-row> 
         </template>
-<!-- TEST -->
+<!-- TEST --><p>{{ role }}</p>
         <!-- Buttons -->
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -338,6 +338,7 @@ export default {
       'Card',
     ],
     user: frappe.session.user,
+    role: frappe.user_roles,
     inputUsername: null,
     inputPassword: null,
     card_invoices: [],
@@ -454,7 +455,9 @@ export default {
       // return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');;
     },
   configure_modal() {
-      if (!this.inputUsername || !this.inputPassword) {
+      const checks = this.role;
+      var check_role = checks.includes("Head Cashier");
+      if (!this.inputUsername || !this.inputPassword && check_role) {
         evntBus.$emit("show_mesage", {
           text: `Please complete the required fields`,
           color: "warning",
