@@ -354,7 +354,7 @@ export default {
     submit() {
 
         this.invoice_doc.payments.forEach((payment) => {
-         if(payment.mode_of_payment=== "Credit Card" && payment.amount != 0 && payment.card_number==0||payment.card_number==null){
+         if(payment.mode_of_payment=== "Credit Card" && payment.amount > 0 && payment.card_number===0||payment.card_number===""){
               evntBus.$emit('show_mesage', {
               text: `Please enter card number for card transactions.`,
               color: 'error',
@@ -362,6 +362,14 @@ export default {
             frappe.utils.play_sound('error');
             this.is_credit_transaction = true;
           return;
+         }
+         if (payment.mode_of_payment=== "Credit Card" && payment.card_number.length > 16){
+              evntBus.$emit('show_mesage', {
+              text: `Card Number can't exceed 16 numbers.`,
+              color: 'error',
+            });
+            frappe.utils.play_sound('error');
+            this.is_credit_transaction = true;
          }
          else{
            this.is_credit_transaction = false;
