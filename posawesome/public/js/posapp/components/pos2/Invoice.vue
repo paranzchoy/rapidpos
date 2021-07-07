@@ -868,6 +868,7 @@ export default {
       doc.items = this.get_invoice_items();
       doc.total = this.subtotal;
       doc.discount_amount = flt(this.discount_amount);
+      doc.discount_type = this.selectedDiscount;
       doc.posa_pos_opening_shift = this.pos_opening_shift.name;
       doc.payments = this.get_payments();
       doc.taxes = [];
