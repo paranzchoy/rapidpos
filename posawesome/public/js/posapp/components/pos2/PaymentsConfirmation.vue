@@ -24,7 +24,7 @@
           <v-btn color="success" dark @click="cash_payment_dialog">Cash</v-btn>
           <v-btn color="secondary" dark @click="cc_payment_dialog">Credit Card</v-btn>
           <v-btn color="primary" dark @click="dc_payment_dialog">Debit Card</v-btn>
-          <v-btn color="warning" dark @click="coupon_payment_dialog">Coupon</v-btn>
+          <!-- <v-btn color="warning" dark @click="coupon_payment_dialog">Coupon</v-btn> -->
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -46,6 +46,7 @@ export default {
     dialog_data: {},
     invoice_doc: '',
     pos_profile: '',
+    validation_identifier: false,
     // opening_shift_name: pos_opening_shift.name,
     pos_opening_shift: "",
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
@@ -60,7 +61,10 @@ export default {
       this.anotherPayment = false;
     },
     another_payment_dialog(){
-      this.anotherPayment = true;
+      this.validate();
+      if (!this.validation_identifier){
+        this.anotherPayment = true;
+      }
     },
     cash_payment_dialog(){
       this.close_dialog();
@@ -101,8 +105,17 @@ export default {
       evntBus.$emit('set_customer_readonly', false);
     },
     submit() {
-      this.validate();      
-      if(!this.is_credit_transaction){
+      this.validate();
+      if (!this.pos_profile.posa_allow_partial_payment && this.total_payments < this.invoice_doc.grand_total) {
+        evntBus.$emit('show_mesage', {
+          text: `The amount paid is not complete`,
+          color: 'error',
+        });
+        frappe.utils.play_sound('error');
+        this.validation_identifier = true;
+        return;
+      }      
+      if(!this.validation_identifier){
         this.close_dialog();
         this.invoice_doc.payments.forEach((payment) => {
           if(payment.card_number){
@@ -119,22 +132,22 @@ export default {
     validate(){
         this.invoice_doc.payments.forEach((payment) => {
         if(payment.mode_of_payment === 'Credit Card' && payment.amount !== 0){
-            if(payment.card_number==='0'||payment.card_number===null){
+            if(payment.card_number==='0'||payment.card_number==null){
                 evntBus.$emit('show_mesage', {
                   text: `Please enter card number for card transactions.`,
                   color: 'error',
                 });
                 frappe.utils.play_sound('error');
-                this.is_credit_transaction = true;
+                this.validation_identifier = true;
                 return;
             }
-            else if(payment.approval_code===null || payment.card_expiry_date===null || payment.bank_name === null){
+            else if(payment.approval_code==null || payment.card_expiry_date==null || payment.bank_name == null){
                 evntBus.$emit('show_mesage', {
                   text: `Please complete the form before submitting.`,
                   color: 'error',
                 });
                 frappe.utils.play_sound('error');
-                this.is_credit_transaction = true;
+                this.validation_identifier = true;
                 return;
             }
             else if (payment.card_number.length > 16){
@@ -143,30 +156,27 @@ export default {
               color: 'error',
               });
               frappe.utils.play_sound('error');
-              this.is_credit_transaction = true;
+              this.validation_identifier = true;
               return;
             }
             else{
-                this.is_credit_transaction = false;
+                this.validation_identifier = false;
             }
         }
         else if(payment.mode_of_payment === 'Debit Card' && payment.amount !== 0) {
-          if(payment.bank_name === null){
+          if(payment.bank_name == null){
                evntBus.$emit('show_mesage', {
                   text: `Please input bank name.`,
                   color: 'error',
                 });
                 frappe.utils.play_sound('error');
-                this.is_credit_transaction = true;
+                this.validation_identifier = true;
                 return;
           }
           else{
-                this.is_credit_transaction = false;
+                this.validation_identifier = false;
           }
         }
-        // else{
-        //   this.is_credit_transaction = false;
-        // }
       });
 
       if (!this.invoice_doc.is_return && this.total_payments < 0) {
@@ -175,19 +185,7 @@ export default {
           color: 'error',
         });
         frappe.utils.play_sound('error');
-        this.is_credit_transaction = true;
-        return;
-      }
-      if (
-        !this.pos_profile.posa_allow_partial_payment &&
-        this.total_payments < this.invoice_doc.grand_total
-      ) {
-        evntBus.$emit('show_mesage', {
-          text: `The amount paid is not complete`,
-          color: 'error',
-        });
-        frappe.utils.play_sound('error');
-        this.is_credit_transaction = true;
+        this.validation_identifier = true;
         return;
       }
       if (
@@ -200,7 +198,7 @@ export default {
           color: 'error',
         });
         frappe.utils.play_sound('error');
-        this.is_credit_transaction = true;
+        this.validation_identifier = true;
         return;
       }
 
@@ -289,10 +287,6 @@ export default {
     evntBus.$on('register_pos_profile', (data) => {
         this.pos_profile = data.pos_profile;
     });
-    // evntBus.$on('current_opening_shift', (data) => {
-    //   this.pos_opening_shift = data.pos_opening_shift;
-    // });
-    // document.addEventListener('keydown', this.shortPay.bind(this));
   },
 
   // destroyed() {
