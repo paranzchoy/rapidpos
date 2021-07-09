@@ -252,7 +252,7 @@
             New Invoice
           </v-card>
         </v-col>
-        <v-col cols="2" sm="3" md="2">
+        <!-- <v-col cols="2" sm="3" md="2">
           <v-card class="pa-2" outlinedtile>
               <div class="font-weight-medium">Ctrl + 4</div>
           </v-card>
@@ -261,7 +261,7 @@
           <v-card class="pa-2" outlined tile>
             Coupon Payment
           </v-card>
-        </v-col>
+        </v-col> -->
       </v-row>
 
       <v-row no-gutters>

@@ -21,7 +21,7 @@
                   :key="payment.name"
                 >
                   <v-container v-if="payment.mode_of_payment==='Credit Card'">
-                    <v-text-field
+                    <v-text-field v-if="!split_payment"
                       dense
                       outlined
                       color="indigo"
@@ -32,6 +32,20 @@
                       v-model="payment.amount"
                       :prefix="invoice_doc.currency"
                       @focus="set_full_amount(payment.idx)"
+                      autofocus
+                      :readonly="invoice_doc.is_return ? true : false"
+                    ></v-text-field>
+                    <v-text-field v-if="split_payment"
+                      dense
+                      outlined
+                      color="indigo"
+                      label="Credit Payment"
+                      background-color="white"
+                      hide-details
+                      type="number"
+                      v-model="payment.amount"
+                      :prefix="invoice_doc.currency"
+                      @focus="set_rest_amount(payment.idx)"
                       autofocus
                       :readonly="invoice_doc.is_return ? true : false"
                     ></v-text-field>
@@ -345,7 +359,6 @@ export default {
     },
     on_confirm_dialog() {
       evntBus.$emit("open_confirmation_dialog", this.invoice_doc);
-      console.log(this.invoice_doc);
     },
     back_to_invoice() {
       evntBus.$emit('show_payment_cc', 'false');
@@ -542,6 +555,7 @@ export default {
           // (payment) => payment.default == 2
           (payment) => payment.mode_of_payment == "Credit Card"
         );
+        this.split_payment = false;
         this.is_credit_sale = 0;
         if (default_payment) {
           default_payment.amount = invoice_doc.grand_total.toFixed(2);
@@ -559,11 +573,11 @@ export default {
           (payment) => payment.mode_of_payment == "Credit Card"
         );
         this.is_credit_sale = 1;
-        if (default_payment) {
-          default_payment.amount = invoice_doc.grand_total.toFixed(2);
-        }
+        // if (default_payment) {
+        //   default_payment.amount = invoice_doc.grand_total.toFixed(2);
+        // }
         this.split_payment = true;
-        this.loyalty_amount = 0;
+        this.loyalty_amount = this.invoice_doc.loyalty_amount;;
         this.get_bank_names_data();
       })
     });
