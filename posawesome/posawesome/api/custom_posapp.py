@@ -1369,54 +1369,6 @@ def submit_total_opening_readings(opening_shift):
     opening_shift_doc.submit()
 
 @frappe.whitelist()
-def submit_total_closing_readings(closing_shift):
-    total_cash=0
-    total_card=0
-    first_invoice = ""
-    last_invoice = ""
-    first_void=""
-    void_count_array = []
-    total = 0
-    gross_amount = 0
-
-    closing_shift_doc=frappe.get_doc("POS Closing Shift", closing_shift)
-    array_length = len(closing_shift_doc.pos_transactions)
-    for i in closing_shift_doc.pos_transactions:
-        total+=1
-        gross_amount= gross_amount + i.grand_total
-
-        invoice_get=frappe.get_doc("Sales Invoice", i.sales_invoice)
-
-        if(invoice_get.status=="Draft"):
-            if(len(void_count_array)==0):
-                first_void = invoice_get.name
-            void_count_array.append(invoice_get.name)
-
-        if(total == 1):
-            first_invoice = invoice_get.name
-        if(total==array_length): 
-            last_invoice = invoice_get.name
-
-        for item in invoice_get.payments:
-            if(item.mode_of_payment == "Cash"):
-                total_cash = total_cash + item.amount
-            if(item.mode_of_payment == "Credit Card" or item.mode_of_payment == "Debit Card"):
-                total_card = total_card + item.amount
- 
-
-    closing_shift_doc.first_void_no = first_void
-    if(len(void_count_array)!=0):
-        closing_shift_doc.last_void_no = void_count_array[-1]
-    closing_shift_doc.void_count = len(void_count_array)
-    closing_shift_doc.gross_amount = gross_amount
-    closing_shift_doc.no_of_invoices = total
-    closing_shift_doc.total_cash = total_cash
-    closing_shift_doc.total_card = total_card
-    closing_shift_doc.last_sales_invoice = last_invoice
-    closing_shift_doc.first_sales_invoice = first_invoice
-    closing_shift_doc.submit()
-
-@frappe.whitelist()
 def create_customer(customer_name, tax_id, mobile_no, email_id, customer_group, territory):
     if not frappe.db.exists("Customer", {"customer_name": customer_name}):
         customer = frappe.get_doc(

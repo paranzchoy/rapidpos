@@ -189,11 +189,12 @@ def make_closing_shift_from_opening(opening_shift):
 #     return closing_shift_doc.name
 
 @frappe.whitelist()
-def submit_closing_shift(closing_shift, closing_cash):
+def submit_closing_shift(closing_shift, closing_cash, checkout_counter):
     cash_details = []
     closing_cash = json.loads(closing_cash)
     closing_shift = json.loads(closing_shift)    
     closing_shift_doc = frappe.get_doc(closing_shift)
+    closing_shift_doc.checkout_counter = checkout_counter
     closing_cash_withdrawal = frappe.get_doc({
         'doctype': 'POS Closing Shift'
     })

@@ -278,6 +278,7 @@ export default {
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
     pagination: {},
     sample_items: [],
+    checkout_counter:'',
     // headers: [
     //   {
     //     text: 'Mode of Payment',
@@ -387,6 +388,9 @@ export default {
           if(r.message){
             r.message.forEach((element) => {
               vm.sample_items.push(element)
+              if (element.name === "Z-Counter"){
+                this.checkout_counter = element.value;
+              }
               // console.log(element);
             })
           }
@@ -460,6 +464,7 @@ export default {
         .call("posawesome.posawesome.doctype.pos_closing_shift.custom_pos_closing_shift.submit_closing_shift", {
           closing_shift: this.dialog_data,
           closing_cash: this.pos_closing_shift_data,
+          checkout_counter: this.checkout_counter
         })
         .then((r) => {
           if (r.message) {
