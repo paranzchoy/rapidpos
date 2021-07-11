@@ -338,7 +338,7 @@ export default {
       'Card',
     ],
     user: frappe.session.user,
-    role: frappe.user_roles,
+    role: "Head Cashier",
     inputUsername: null,
     inputPassword: null,
     card_invoices: [],
@@ -458,19 +458,23 @@ export default {
   configure_modal() {
       const checks = this.role;
       var check_role = checks.includes("Head Cashier");
+
+      // Validation
       if (!this.inputUsername || !this.inputPassword && check_role) {
         evntBus.$emit("show_mesage", {
           text: `Please complete the required fields`,
           color: "warning",
         })
-      } 
+      }
+       
       else {
-        if (this.inputUsername === this.user && this.inputPassword) {
+        if (this.inputUsername && this.inputPassword && this.role) {
           frappe.call({
-            method: "posawesome.posawesome.api.custom_posapp.verify_password",
+            method: "posawesome.posawesome.api.custom_posapp.verify_user",
             args: {
               username: this.inputUsername,
-              password: this.inputPassword
+              password: this.inputPassword,
+              role: this.role
             },
             callback: function(r) {
               if(!r.exc) {
