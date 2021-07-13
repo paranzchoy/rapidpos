@@ -21,7 +21,7 @@
                   :key="payment.name"
                 >
                   <v-container v-if="payment.mode_of_payment==='Debit Card'">
-                    <v-text-field
+                    <v-text-field v-if="!split_payment"
                       dense
                       outlined
                       color="indigo"
@@ -31,7 +31,23 @@
                       type="number"
                       v-model="payment.amount"
                       :prefix="invoice_doc.currency"
-                      @focus="set_rest_amount()"
+                      @focus="set_full_amount(payment.idx)"
+                      autofocus
+                      :readonly="invoice_doc.is_return ? true : false"
+                    ></v-text-field>
+                    <!-- For split payment textfield to display remaining amount to be paid -->
+                    <v-text-field v-if="split_payment"
+                      dense
+                      outlined
+                      color="indigo"
+                      label="Debit Payment"
+                      background-color="white"
+                      hide-details
+                      type="number"
+                      v-model="payment.amount"
+                      :prefix="invoice_doc.currency"
+                      @focus="set_rest_amount(payment.idx)"
+                      autofocus
                       :readonly="invoice_doc.is_return ? true : false"
                     ></v-text-field>
                     <br/>
@@ -256,7 +272,7 @@
           >
         </v-col>
         <v-col cols="12">
-          <v-btn block class="mt-2" large color="primary" dark @click="submit"
+          <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
             >Submit Payments</v-btn
           >
         </v-col>
@@ -277,7 +293,9 @@ export default {
     date_menu: false,
     card_number: '',
     is_credit_transaction: false,
-    bank_names: []
+    bank_names: [],
+    split_payment: false,
+    remaining_amount: 0
   }),
 
   methods: {
@@ -296,30 +314,20 @@ export default {
         },
       });
     },
+    on_confirm_dialog() {
+      if(this.validation() !== false){
+        console.log(this.invoice_doc);
+        evntBus.$emit("open_confirmation_dialog", this.invoice_doc);
+      }
+    },
     back_to_invoice() {
       evntBus.$emit('show_payment_dc', 'false');
       evntBus.$emit('set_customer_readonly', false);
     },
-    submit() {
-
-        this.invoice_doc.payments.forEach((payment) => {
-         if(payment.mode_of_payment=== "Credit Card" && payment.amount != 0 && this.card_number==0||this.card_number==null){
-              evntBus.$emit('show_mesage', {
-              text: `Please enter card number for card transactions.`,
-              color: 'error',
-            });
-            frappe.utils.play_sound('error');
-            this.is_credit_transaction = true;
-          return;
-         }
-         else{
-           this.is_credit_transaction = false;
-         }
-        });
-
-      if(this.is_credit_transaction){
-        return;
-      }
+    validation(){
+        if(this.is_credit_transaction){
+        return false;
+        }
 
       if (!this.invoice_doc.is_return && this.total_payments < 0) {
         evntBus.$emit('show_mesage', {
@@ -327,7 +335,7 @@ export default {
           color: 'error',
         });
         frappe.utils.play_sound('error');
-        return;
+        return false;
       }
       if (
         !this.pos_profile.posa_allow_partial_payment &&
@@ -338,7 +346,7 @@ export default {
           color: 'error',
         });
         frappe.utils.play_sound('error');
-        return;
+        return false;
       }
       if (
         this.pos_profile.posa_allow_partial_payment &&
@@ -350,20 +358,17 @@ export default {
           color: 'error',
         });
         frappe.utils.play_sound('error');
-        return;
+        return false;
       }
 
-      this.invoice_doc.payments.forEach((payment) => {
-        payment.card_number_hidden = payment.card_number.replace(/\d(?=\d{4})/g, "*");
-      });
-
-      this.submit_invoice();
-      evntBus.$emit('new_invoice', 'false');
-      this.back_to_invoice();
-
-      this.invoice_doc.payments.forEach((payment) => {
-        payment.card_number = "";
-      });
+    },
+    submit() {
+      if (this.validation() !== false){
+        this.submit_invoice();
+        evntBus.$emit('new_invoice', 'false');
+        evntBus.$emit('set_customer_default');
+        this.back_to_invoice();
+      }
     },
     submit_invoice() {
       const vm = this;
@@ -396,9 +401,10 @@ export default {
           payment.idx == idx &&
           payment.amount == 0 &&
           this.diff_payment > 0
-        ) {
-          payment.amount = this.diff_payment;
-        }
+        ) 
+          {
+            payment.amount = this.diff_payment;
+          }
       });
     },
     load_print_page() {
@@ -412,7 +418,7 @@ export default {
         this.invoice_doc.name +
         '&trigger_print=1' +
         '&format=' +
-        print_format +
+        "Sales Invoice Cash" +
         '&no_letterhead=' +
         letter_head;
       const printWindow = window.open(url, 'Print');
@@ -441,7 +447,7 @@ export default {
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
     shortPay(e) {
-      if (e.key === 'x' && (e.ctrlKey || e.metaKey)) {
+      if (e.key === 'p' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.submit();
       }
@@ -477,21 +483,34 @@ export default {
 
   created: function () {
     this.$nextTick(function () {
-      evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
+      evntBus.$on('send_invoice_doc_dc', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
-          (payment) => payment.default == 3
+          (payment) => payment.mode_of_payment == "Debit Card"
         );
         this.is_credit_sale = 0;
         if (default_payment) {
           default_payment.amount = invoice_doc.grand_total.toFixed(2);
         }
+        this.split_payment = false;
         this.loyalty_amount = 0;
         this.get_bank_names_data();
       });
       evntBus.$on('register_pos_profile', (data) => {
         this.pos_profile = data.pos_profile;
       });
+      //Another event for calling other payment method
+      evntBus.$on('another_payment_dc', (invoice_doc) => {
+        this.invoice_doc = invoice_doc;
+        console.log(this.invoice_doc);
+        const default_payment = this.invoice_doc.payments.find(
+          (payment) => payment.mode_of_payment == "Debit Card"
+        );
+        this.is_credit_sale = 0;
+        this.split_payment = true;
+        this.loyalty_amount = this.invoice_doc.loyalty_amount;
+        this.get_bank_names_data();
+      })
     });
     document.addEventListener('keydown', this.shortPay.bind(this));
   },

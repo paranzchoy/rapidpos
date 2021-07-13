@@ -12,22 +12,39 @@
         color="deep-purple accent-4"
       ></v-progress-linear>
       <v-row class="items px-2 py-1">
-        <v-col cols="12" class="pb-0 mb-2">
+        <!-- QTY Filter -->
+        <v-col cols="3" class="pb-0 mb-2">
+          <v-text-field
+            dense
+            clearable
+            outlined
+            color="indigo"
+            label="Qtty (F2)"
+            background-color="white"
+            hide-details
+            v-model="item_qtty"
+            ref="quantity_field"
+          ></v-text-field>
+        </v-col> 
+        <!-- Search Item Filter -->
+        <v-col cols="9" class="pb-0 mb-2">
           <v-text-field
             dense
             clearable
             autofocus
             outlined
             color="indigo"
-            label="Search Items"
+            label="Search Items (F3)"
             hint="Search by item code, serial number, batch no or barcode"
             background-color="white"
             hide-details
             v-model="debounce_search"
             @keydown.esc="esc_event"
             @keydown.enter="enter_event"
+            ref="search_items_field"
           ></v-text-field>
         </v-col>
+        
         <v-col cols="12" class="pt-0 mt-0">
           <div fluid class="items" v-if="items_view == 'card'">
             <v-row dense class="overflow-y-auto" style="max-height: 67vh">
@@ -148,6 +165,7 @@ export default {
     items_group: ['ALL'],
     items: [],
     search: '',
+    item_qtty: '',
     first_search: '',
     itemsPerPage: 1000,
     items_headers: [
@@ -226,7 +244,14 @@ export default {
       if (!this.filtred_items.length || !this.first_search) {
         return;
       }
-      const qty = this.get_item_qty(this.first_search);
+
+    let qty = this.get_item_qty(this.first_search);
+    if(this.item_qtty)
+    {
+      qty = this.item_qtty;
+    }
+
+      // const qty = this.get_item_qty(this.first_search);
       const new_item = { ...this.filtred_items[0] };
       new_item.qty = flt(qty);
       new_item.item_barcode.forEach((element) => {
@@ -238,6 +263,8 @@ export default {
       this.search = null;
       this.first_search = null;
       this.debounce_search = null;
+      this.item_qtty = null;
+
     },
     get_item_qty(first_search) {
       let scal_qty = 1;
@@ -337,6 +364,22 @@ export default {
     },
   },
 
+    gotoQuantityField(e) {
+      if (e.key === 'F2') {
+        e.preventDefault();
+
+        console.log({ e });
+        this.$refs.quantity_field.focus();
+      }
+    },
+    gotoSearchItemsField(e) {
+      if (e.key === 'F3') {
+        e.preventDefault();
+
+        console.log({ e });
+        this.$refs.search_items_field.focus();
+      }
+    },
   computed: {
     filtred_items() {
       this.search = this.get_search(this.first_search);
@@ -395,8 +438,16 @@ export default {
     evntBus.$on('update_cur_items_details', () => {
       this.update_cur_items_details();
     });
+
+     document.addEventListener('keydown', this.gotoSearchItemsField.bind(this));
+     document.addEventListener('keydown', this.gotoQuantityField.bind(this));
   },
 
+  destroyed() {
+  //document.removeEventListener('keydown', this.KeyCustomer);
+  document.removeEventListener('keydown', this.gotoSearchItemsField);
+  document.removeEventListener('keydown', this.gotoQuantityField);    
+  },
   mounted() {
     this.scan_barcoud();
   },

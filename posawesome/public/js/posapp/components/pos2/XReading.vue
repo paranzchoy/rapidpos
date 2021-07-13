@@ -116,13 +116,14 @@ export default {
     calculate_totals() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.submit_total_opening_readings',
+        method: 'posawesome.posawesome.api.custom_posapp.submit_total_opening_readings',
         args: {
-          opening_shift:this.pos_opening_shift.name
+          opening_shift:this.pos_opening_shift
         },
         async: true,
         callback: function (r) {
           //do nothing
+          //this.
         },
       });
     },
@@ -162,16 +163,6 @@ export default {
       
     },
 
-    print_page() {
-      const vm = this;
-      vm.calculate_totals();
-      vm.load_print_page();
-    },
-
-    // submit_dialog() {
-    //   evntBus.$emit('submit_closing_pos', this.dialog_data);
-    //   this.xReading = false;
-    // },
     formtCurrency(value) {
       value = parseFloat(value);
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
@@ -181,7 +172,7 @@ export default {
       const url =
         frappe.urllib.get_base_url() +
         '/printview?doctype=POS%20Opening%20Shift&name=' +
-        this.pos_opening_shift.name +
+        this.pos_opening_shift +
         '&trigger_print=1' +
         '&format=' +
         'X Reading Report' +
@@ -201,11 +192,10 @@ export default {
   },
 
   created: function () {
-    evntBus.$on('open_xreading_dialog', () => {
+    evntBus.$on('open_xreading', (data) => {
       this.xReading = true;
-    });
-    evntBus.$on('current_opening_shift', (data) => {
-      this.pos_opening_shift = data.pos_opening_shift;
+      this.pos_opening_shift = data.name;
+      this.calculate_totals();
     });
   },
 };

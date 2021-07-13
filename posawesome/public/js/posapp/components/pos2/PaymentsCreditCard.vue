@@ -31,7 +31,8 @@
                       type="number"
                       v-model="payment.amount"
                       :prefix="invoice_doc.currency"
-                      @focus="set_rest_amount()"
+                      @focus="set_full_amount(payment.idx)"
+                      autofocus
                       :readonly="invoice_doc.is_return ? true : false"
                     ></v-text-field>
                     <br/>
@@ -50,6 +51,7 @@
                         placeholder="XXXX-XXXX-XXXX-XXXX"
                         background-color="white"
                         type="number"
+                        :counter="16"
                         v-model="payment.card_number"
                       >
                   </v-text-field>
@@ -297,12 +299,12 @@
           >
         </v-col>
         <v-col cols="12">
-          <v-btn block class="mt-2" large color="primary" dark @click="submit"
-            >Submit Payments</v-btn
-          >
-           <!-- <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
+          <!-- <v-btn block class="mt-2" large color="primary" dark @click="submit"
             >Submit Payments</v-btn
           > -->
+           <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
+            >Submit Payments</v-btn
+          >
         </v-col>
       </v-row>
     </v-card>
@@ -342,7 +344,8 @@ export default {
       });
     },
     on_confirm_dialog() {
-      evntBus.$emit("open_confirmation_dialog", this.invoice_doc); //dri ko nagedit last ok?
+      evntBus.$emit("open_confirmation_dialog", this.invoice_doc);
+      console.log(this.invoice_doc);
     },
     back_to_invoice() {
       evntBus.$emit('show_payment_cc', 'false');
@@ -406,6 +409,7 @@ export default {
       });
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
+      evntBus.$emit('set_customer_default');
       this.back_to_invoice();
 
       this.invoice_doc.payments.forEach((payment) => {
@@ -459,7 +463,7 @@ export default {
         this.invoice_doc.name +
         '&trigger_print=1' +
         '&format=' +
-        print_format +
+        "Sales Invoice Cash" +
         '&no_letterhead=' +
         letter_head;
       const printWindow = window.open(url, 'Print');
@@ -488,7 +492,7 @@ export default {
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
     shortPay(e) {
-      if (e.key === 'x' && (e.ctrlKey || e.metaKey)) {
+      if (e.key === 'p' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.submit();
       }
@@ -524,10 +528,11 @@ export default {
 
   created: function () {
     this.$nextTick(function () {
-      evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
+      evntBus.$on('send_invoice_doc_cc', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
-          (payment) => payment.default == 2
+          // (payment) => payment.default == 2
+          (payment) => payment.mode_of_payment == "Credit Card"
         );
         this.is_credit_sale = 0;
         if (default_payment) {
@@ -543,12 +548,13 @@ export default {
       evntBus.$on('another_payment_cc', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
-          (payment) => payment.default == 2
+          (payment) => payment.mode_of_payment == "Credit Card"
         );
         this.is_credit_sale = 1;
         if (default_payment) {
           default_payment.amount = invoice_doc.grand_total.toFixed(2);
         }
+        this.split_payment = true;
         this.loyalty_amount = 0;
         this.get_bank_names_data();
       })

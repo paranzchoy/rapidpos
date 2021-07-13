@@ -1,13 +1,13 @@
 <template>
   <nav>
-    <v-app-bar app height="40" class="elevation-2">
+    <v-app-bar app height="40" class="elevation-2" style="background-image: linear-gradient(to right, white, #f2ce2c);">
       <v-app-bar-nav-icon
         @click.stop="mini = !mini"
         class="grey--text"
       ></v-app-bar-nav-icon>
       <v-toolbar-title class="text-uppercase indigo--text">
-        <span class="font-weight-light">RapidSignal</span>
-        <span>Electronics</span>
+        <span><img src="/assets/rapidposcustom/images/Jacobs-removebg-preview.png"  class="brand-image" style="max-width: 100px; max-height: 100px;"></span>
+        <span class="font-weight-light"><img src="/assets/rapidposcustom/images/Breadnuts-removebg-preview.png"  class="brand-image" style="max-width: 200px; max-height: 100px;"></span>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -19,9 +19,7 @@
           </template>
           <v-card class="mx-auto" max-width="300" tile>
             <v-list dense>
-              
               <v-list-item-group v-model="menu_item" color="primary">
-
                   <!-- IDLE DIALOG -->
                   <v-list-item @click="idle_dialog">
                     <v-list-item-icon>
@@ -31,7 +29,6 @@
                       <v-list-item-title>Idle &nbsp;&nbsp; <span class="spacer"  style="color:gray">Ctrl+I</span></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
-
                   <!-- REPRINT INVOICE -->
                   <v-list-item @click="show_reprint">
                     <v-list-item-icon>
@@ -41,7 +38,6 @@
                       <v-list-item-title>Reprint &nbsp;&nbsp; <span  style="color:gray">Ctrl+R</span></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
-
                   <!-- XREADING DIALOG -->
                   <v-list-item @click="xreading_print_dialog">
                     <v-list-item-icon>
@@ -51,7 +47,6 @@
                       <v-list-item-title>X-Reading &nbsp;&nbsp; <span  style="color:gray">Ctrl+X</span></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
-
                   <!-- ZREADING DIALOG -->
                   <!-- <v-list-item @click="zreading_print_dialog">
                     <v-list-item-icon>
@@ -61,7 +56,6 @@
                       <v-list-item-title>Z-Reading</v-list-item-title>
                     </v-list-item-content>
                   </v-list-item> -->
-
                   <!-- CLOSING SHIFT DIALOG -->
                   <v-list-item
                     @click="close_shift_dialog"
@@ -74,7 +68,6 @@
                       <v-list-item-title>Close Shift</v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
-
                   <!-- CASH WITHDRAWAL DIALOG -->
                   <v-list-item @click="cash_withdrawal">
                     <v-list-item-icon>
@@ -84,7 +77,6 @@
                       <v-list-item-title>Cash Withdrawal &nbsp;&nbsp; <span style="color:gray">Ctrl+L</span></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
-
                   <!-- HELP DIALOG -->
                   <v-list-item @click="help_modal">
                     <v-list-item-icon>
@@ -94,8 +86,6 @@
                       <v-list-item-title>Help &nbsp;&nbsp; <span  style="color:gray">F1</span></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
-
-
                 <!-- <v-list-item
                   @click="close_shift_dialog"
                   v-if="!pos_profile.posa_hide_closing_shift"
@@ -130,7 +120,6 @@
                   </v-list-item-content>
                 </v-list-item>
                 <v-divider class="my-0"></v-divider>
-
                   <!-- ABOUT -->
                   <v-list-item @click="go_about">
                     <v-list-item-icon>
@@ -140,15 +129,13 @@
                       <v-list-item-title>About</v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
-
               </v-list-item-group>
-
             </v-list>
           </v-card>
         </v-menu>
       </div>
 <!-- // TEST COMMIT1 -->
-      <div class="text-center">
+      <!-- <div class="text-center">
         <v-menu offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-btn color="grey" dark text v-bind="attrs" v-on="on">Pages</v-btn>
@@ -172,9 +159,9 @@
             </v-list>
           </v-card>
         </v-menu>
-      </div>
+      </div> -->
       <v-btn text color="grey" @click="go_desk">
-        <span right>Erpnext</span>
+        <span right>Desk</span>
       </v-btn>
     </v-app-bar>
     <v-navigation-drawer
@@ -182,6 +169,7 @@
       :mini-variant.sync="mini"
       app
       class="indigo margen-top"
+      style="background-image: linear-gradient(#a4de1d, #ffffff);"
     >
       <v-list dark>
         <v-list-item class="px-2">
@@ -251,12 +239,12 @@ export default {
       this.$emit('changePage', key);
     },
     go_desk() {
-      frappe.set_route('');
+      frappe.set_route('/app');
       location.reload();
     },
     go_about() {
       const win = window.open(
-        'https://github.com/yrestom/POS-Awesome',
+        'https://www.facebook.com/rapidsignalelectronics',
         '_blank'
       );
       win.focus();
@@ -272,12 +260,10 @@ export default {
       this.snackColor = data.color;
       this.snackText = data.text;
     },
-
     // CASH WITHDRAWAL
     cash_withdrawal() {
-      evntBus.$emit('open_withdrawal');
+      evntBus.$emit('open_withdrawal_2');
     },
-
     // CASH WITHDRAWAL Shortcut Key
     withdraw(e) {
       if (e.key === 'l' && (e.ctrlKey || e.metaKey)) {
@@ -287,12 +273,10 @@ export default {
         this.cash_withdrawal();
       }
     },
-
     // XREADING
     xreading_print_dialog() {
       evntBus.$emit("open_xreading_dialog");
     },
-
     // XREADING Shortcut Key
     openXReading(e) {
       if (e.key === 'x' && (e.ctrlKey || e.metaKey)) {
@@ -302,7 +286,6 @@ export default {
         this.xreading_print_dialog();
       }
     },
-
     // ZREADING
     openZReading(e) {
       if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
@@ -311,13 +294,10 @@ export default {
         this.xreading_print_dialog();
       }
     },
-
-
     // REPRINT INVOICE
     show_reprint(){
       evntBus.$emit("open_reprint_dialog", this.company);
     },
-
     // REPRINT INVOICE Shortcut Key
     openReprint(e) {
       if (e.key === 'r' && (e.ctrlKey || e.metaKey)) {
@@ -327,17 +307,14 @@ export default {
         this.show_reprint();
       }
     },
-
     // IDLE
     idle_dialog() {
     evntBus.$emit("open_IdleDialog");
     },
-
     // HELP
     help_modal() {
       evntBus.$emit('open_help');
     },
-
     // HELP Shortcut Key
     openHelp(e) {
       if (e.key === 'F1') {
@@ -373,12 +350,11 @@ export default {
     document.addEventListener('keydown', this.openXReading.bind(this));    
   },
   
-  destroyed(){
+  destroyed() {
     document.removeEventListener('keydown', this.openHelp);
     document.removeEventListener('keydown', this.withdraw);
     document.removeEventListener('keydown', this.openReprint);
     document.removeEventListener('keydown', this.openXReading);
-
   }
 };
 </script>
