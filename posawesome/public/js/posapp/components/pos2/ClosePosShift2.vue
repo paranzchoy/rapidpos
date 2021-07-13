@@ -177,7 +177,7 @@
         <v-card-text>
            <template>
               <v-data-table
-                :headers="headers"
+                :headers="showHeaders"
                 :items="dialog_data.payment_reconciliation"
                 item-key="mode_of_payment"
                 class="elevation-1"
@@ -210,16 +210,14 @@
                       </template>
                   </template>
 
-                  <template v-slot:item.difference="{ item }">{{
-                    (item.difference = formtCurrency(
-                      item.expected_amount - item.closing_amount
-                    ))
-                  }}</template>
                   <template v-slot:item.opening_amount="{ item }">{{
                     formtCurrency(item.opening_amount)
                   }}</template>
                   <template v-slot:item.expected_amount="{ item }">{{
                     formtCurrency(item.expected_amount)
+                  }}</template>
+                  <template v-slot:item.difference="{ item }">{{
+                    formtCurrency(item.difference = item.expected_amount - item.closing_amount)
                   }}</template>
               </v-data-table>
 
@@ -280,24 +278,45 @@ export default {
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
     pagination: {},
     sample_items: [],
+    checkout_counter:'',
+    // headers: [
+    //   {
+    //     text: 'Mode of Payment',
+    //     value: 'mode_of_payment',
+    //     align: 'start',
+    //     sortable: true,
+    //   },
+    //   {
+    //     text: 'Opening Amount',
+    //     align: 'end',
+    //     sortable: true,
+    //     value: 'opening_amount',
+    //   },
+    //   {
+    //     text: 'Closing Amount',
+    //     value: 'closing_amount',
+    //     align: 'end',
+    //     sortable: true,
+    //   },
+    //   {
+    //     text: 'Expected Amount',
+    //     value: 'expected_amount',
+    //     align: 'end',
+    //     sortable: false,
+    //   },
+    //   {
+    //     text: 'Difference',
+    //     value: 'difference',
+    //     align: 'end',
+    //     sortable: false,
+    //   },
+    // ],
     headers: [
-      {
-        text: 'Mode of Payment',
-        value: 'mode_of_payment',
-        align: 'start',
-        sortable: true,
-      },
       {
         text: 'Opening Amount',
         align: 'end',
         sortable: true,
         value: 'opening_amount',
-      },
-      {
-        text: 'Closing Amount',
-        value: 'closing_amount',
-        align: 'end',
-        sortable: true,
       },
       {
         text: 'Expected Amount',
@@ -312,6 +331,12 @@ export default {
         sortable: false,
       },
     ],
+    headersMap: {
+      mode_of_payment: {text: 'Mode of Payment', value: 'mode_of_payment'},
+      closing_amount: {text: 'Closing Amount', value: 'closing_amount'}
+    },
+    selectedHeaders: [],
+    
     denomHeaders: [
       {
         text: 'DENOMINATION',
@@ -363,6 +388,9 @@ export default {
           if(r.message){
             r.message.forEach((element) => {
               vm.sample_items.push(element)
+              if (element.name === "Z-Counter"){
+                this.checkout_counter = element.value;
+              }
               // console.log(element);
             })
           }
@@ -436,6 +464,7 @@ export default {
         .call("posawesome.posawesome.doctype.pos_closing_shift.custom_pos_closing_shift.submit_closing_shift", {
           closing_shift: this.dialog_data,
           closing_cash: this.pos_closing_shift_data,
+          checkout_counter: this.checkout_counter
         })
         .then((r) => {
           if (r.message) {
@@ -527,6 +556,9 @@ export default {
         this.submit_closing_pos(data)
       })
     });
+
+    this.headers = Object.values(this.headersMap);
+    this.selectedHeaders = this.headers;
   },
   
   destroyed() {
@@ -540,6 +572,10 @@ export default {
         return totalSum + (item.amount * item.quantity);
       },0);
     },
+
+    showHeaders () {
+      return this.headers.filter(s => this.selectedHeaders.includes(s));
+    }
   }
 };
 </script>

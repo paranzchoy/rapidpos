@@ -315,10 +315,7 @@ export default {
       });
     },
     on_confirm_dialog() {
-      if(this.validation() !== false){
-        console.log(this.invoice_doc);
         evntBus.$emit("open_confirmation_dialog", this.invoice_doc);
-      }
     },
     back_to_invoice() {
       evntBus.$emit('show_payment_dc', 'false');
@@ -502,7 +499,6 @@ export default {
       //Another event for calling other payment method
       evntBus.$on('another_payment_dc', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
-        console.log(this.invoice_doc);
         const default_payment = this.invoice_doc.payments.find(
           (payment) => payment.mode_of_payment == "Debit Card"
         );

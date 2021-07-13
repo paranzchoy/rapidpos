@@ -359,12 +359,13 @@
                 <v-col cols="12">
                   <v-autocomplete
                       v-model="selectedDiscount"
-                      :items="options"
+                      :items="discount_types"
                       dense
                       outlined
                       label="Select Discount Type"
                       :disabled="enableDisable"
                       ref="discount"
+                      item-text="discount_type"
                     ></v-autocomplete>
                   <!-- <v-text-field
                     v-model="discount_amount"
@@ -541,6 +542,7 @@ export default {
       singleExpand: true,
       enableDisable:true,
       selectedDiscount: '',
+      discount_types: [],
       options: [
         { text: '0%', value: '0' },
         { text: 'SRCT', value: '5' },
@@ -640,6 +642,21 @@ export default {
         this.enableDisable = false;
     },
 
+    get_discount() {
+      const vm = this;
+        frappe.call({
+          method: "rapidposcustom.rapidposcustom.api.rapidposcustom.get_discount_types",
+            callback: function (r) {
+              if (r.message) {
+                r.message.get_discount.forEach((element) => {
+                  vm.discount_types.push(element)
+                })
+          }
+        },
+        });
+        console.log(vm.discount_types);
+    },
+
     calculate_discount() {
       let consumable_sum = 0;
       let consumable_discount_percent = 0;
@@ -648,11 +665,11 @@ export default {
       let medical_discount_percent = 0;
       let medical_discount = 0;
       this.items.forEach((item) => {
-        if (item.item_group == "FOOD" && this.selectedDiscount > 0) {
+        if ((item.item_group == "FOOD") && (this.selectedDiscount == "SRCTZ" || this.selectedDiscount == "PWD")) {
           consumable_sum += item.qty * item.rate;
           consumable_discount_percent = 5/100;
         }
-        if (item.item_group == "MEDICAL" && this.selectedDiscount > 0) {
+        if ((item.item_group == "MEDICAL") && (this.selectedDiscount == "SRCTZ" || this.selectedDiscount == "PWD")) {
           medical_sum += item.qty * item.rate;
           medical_discount_percent = 20/100;
         }
@@ -851,6 +868,7 @@ export default {
       doc.items = this.get_invoice_items();
       doc.total = this.subtotal;
       doc.discount_amount = flt(this.discount_amount);
+      doc.discount_type = this.selectedDiscount;
       doc.posa_pos_opening_shift = this.pos_opening_shift.name;
       doc.payments = this.get_payments();
       doc.taxes = [];
@@ -1444,6 +1462,14 @@ export default {
     evntBus.$on("submit_discount_authentication", (data) => {
         this.submit_discount_authentication(data)
     });
+
+    this.$nextTick(function (){
+      this.get_discount();
+      // evntBus.$on("submit_closing_pos", (data) => {
+      //   this.submit_closing_pos(data)
+      // })
+    });
+
     document.addEventListener('keydown', this.shortOpenPayment.bind(this));
     document.addEventListener('keydown', this.shortOpenCashPayment.bind(this));
     document.addEventListener('keydown', this.shortOpenCCPayment.bind(this));
