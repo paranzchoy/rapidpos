@@ -1129,9 +1129,12 @@ def get_card_invoices(opening_shift):
 	invoices = frappe.db.get_list('Sales Invoice',  filters={"posa_pos_opening_shift": opening_shift}, fields=["name"], order_by='name')
 	for item in invoices:
 		get_invoice = frappe.get_doc('Sales Invoice', item.name)
-		for i in get_invoice.payments:
-			if(i.mode_of_payment == 'Credit Card' or i.mode_of_payment == 'Debit Card'):
-				get_invoices.append({'card_number': i.card_number, 'card_number_hidden':i.card_number_hidden, 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment,})
+		if(get_invoice.status == 'Paid' or get_invoice.status == 'Unpaid'):
+			for i in get_invoice.payments:
+				if(i.mode_of_payment == 'Credit Card'):
+					get_invoices.append({'card_number': i.card_number, 'card_number_hidden':i.card_number_hidden, 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
+				if(i.mode_of_payment == 'Debit Card'):
+					get_invoices.append({'card_number': "", 'card_number_hidden': "", 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
 	return get_invoices
 
 
@@ -1142,7 +1145,7 @@ def get_coupons_invoices(opening_shift):
 	for item in coupons:
 		get_invoice = frappe.get_doc('Sales Invoice', item.name)
 		for i in get_invoice.payments:
-			if(i.mode_of_payment == 'Coupon'):
+			if(i.mode_of_payment == 'Coupon' and get_invoice.status == 'Paid'):
 				get_coupons.append({'name': get_invoice.name, 'amount': i.amount})
 	return get_coupons
 
@@ -1213,64 +1216,6 @@ def submit_invoice(data):
                         i.coupon_code = payment["coupon_code"]
                     payments.append(i)
                 break
-    if len(payments) == 0:
-        payments = [invoice_doc.payments[0]]
-    invoice_doc.payments = payments
-    invoice_doc.due_date = data.get("due_date")
-    invoice_doc.flags.ignore_permissions = True
-    frappe.flags.ignore_account_permission = True
-    invoice_doc.posa_is_printed = 1
-    invoice_doc.save()
-    if frappe.get_value("POS Profile", invoice_doc.pos_profile, "posa_allow_submissions_in_background_job"):
-        invoices_list = frappe.get_all("Sales Invoice", filters={
-            "posa_pos_opening_shift": invoice_doc.posa_pos_opening_shift,
-            "docstatus": 0,
-            "posa_is_printed": 1
-        })
-        for invoice in invoices_list:
-            enqueue(method=submit_in_background_job, queue='short',
-                    timeout=1000, is_async=True, kwargs=invoice.name)
-    else:
-        invoice_doc.submit()
-
-        append_opening_shift = frappe.get_doc("POS Opening Shift",
-            invoice_doc.posa_pos_opening_shift
-        )
-
-        for item in append_opening_shift.sales_invoices:
-            if invoice_doc == item.sales_invoice:
-                item.grand_total = invoice_doc.grand_total
-        append_opening_shift.submit()
-
-    return {
-        "name": invoice_doc.name,
-        "status": invoice_doc.docstatus
-    }
-
-#for invoice card payment
-@frappe.whitelist()
-def submit_invoice_card(data, cardNumber):
-    data = json.loads(data)
-    invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
-    if data.get("loyalty_amount") > 0:
-        invoice_doc.loyalty_amount = data.get("loyalty_amount")
-        invoice_doc.redeem_loyalty_points = data.get("redeem_loyalty_points")
-        invoice_doc.loyalty_points = data.get("loyalty_points")
-    payments = []
-
-    for i in invoice_doc.payments:
-            i.mode_of_payment = data.get("mode_of_payment")
-            i.amount = data.get("payment_amount")
-            i.card_number = cardNumber
-            i.card_number_hidden = cardNumberHide(cardNumber)
-            i.coupon_code = data.get("coupon_code")
-            i.approval_code = data.get("approval_code")
-            i.bank_name = data.get("card_bank")
-            i.card_expiry_date = data.get("card_expiry_date")
-            i.base_amount = 0
-            if i.amount:
-                payments.append(i)
-            break
     if len(payments) == 0:
         payments = [invoice_doc.payments[0]]
     invoice_doc.payments = payments
@@ -1422,54 +1367,6 @@ def submit_total_opening_readings(opening_shift):
     opening_shift_doc.total_card = total_card
     opening_shift_doc.last_sales_invoice = last_invoice
     opening_shift_doc.submit()
-
-@frappe.whitelist()
-def submit_total_closing_readings(closing_shift):
-    total_cash=0
-    total_card=0
-    first_invoice = ""
-    last_invoice = ""
-    first_void=""
-    void_count_array = []
-    total = 0
-    gross_amount = 0
-
-    closing_shift_doc=frappe.get_doc("POS Closing Shift", closing_shift)
-    array_length = len(closing_shift_doc.pos_transactions)
-    for i in closing_shift_doc.pos_transactions:
-        total+=1
-        gross_amount= gross_amount + i.grand_total
-
-        invoice_get=frappe.get_doc("Sales Invoice", i.sales_invoice)
-
-        if(invoice_get.status=="Draft"):
-            if(len(void_count_array)==0):
-                first_void = invoice_get.name
-            void_count_array.append(invoice_get.name)
-
-        if(total == 1):
-            first_invoice = invoice_get.name
-        if(total==array_length): 
-            last_invoice = invoice_get.name
-
-        for item in invoice_get.payments:
-            if(item.mode_of_payment == "Cash"):
-                total_cash = total_cash + item.amount
-            if(item.mode_of_payment == "Credit Card" or item.mode_of_payment == "Debit Card"):
-                total_card = total_card + item.amount
- 
-
-    closing_shift_doc.first_void_no = first_void
-    if(len(void_count_array)!=0):
-        closing_shift_doc.last_void_no = void_count_array[-1]
-    closing_shift_doc.void_count = len(void_count_array)
-    closing_shift_doc.gross_amount = gross_amount
-    closing_shift_doc.no_of_invoices = total
-    closing_shift_doc.total_cash = total_cash
-    closing_shift_doc.total_card = total_card
-    closing_shift_doc.last_sales_invoice = last_invoice
-    closing_shift_doc.first_sales_invoice = first_invoice
-    closing_shift_doc.submit()
 
 @frappe.whitelist()
 def create_customer(customer_name, tax_id, mobile_no, email_id, customer_group, territory):

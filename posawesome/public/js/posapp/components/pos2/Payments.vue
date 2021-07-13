@@ -199,6 +199,18 @@
               dense
               outlined
               color="indigo"
+              label="Discount Type"
+              background-color="white"
+              hide-details
+              :value="invoice_doc.discount_type"
+              disabled
+            ></v-text-field>
+          </v-col>
+          <v-col cols="6">
+            <v-text-field
+              dense
+              outlined
+              color="indigo"
               label="Tax and Charges"
               background-color="white"
               hide-details
@@ -212,10 +224,10 @@
               dense
               outlined
               color="indigo"
-              label="Totoal Amount"
+              label="Discount Amount"
               background-color="white"
               hide-details
-              :value="formtCurrency(invoice_doc.total)"
+              :value="formtCurrency(invoice_doc.discount_amount)"
               disabled
               :prefix="invoice_doc.currency"
             ></v-text-field>
@@ -225,10 +237,10 @@
               dense
               outlined
               color="indigo"
-              label="Discount Amount"
+              label="Total Amount"
               background-color="white"
               hide-details
-              :value="formtCurrency(invoice_doc.discount_amount)"
+              :value="formtCurrency(invoice_doc.total)"
               disabled
               :prefix="invoice_doc.currency"
             ></v-text-field>
