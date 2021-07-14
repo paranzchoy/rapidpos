@@ -159,15 +159,12 @@
                   </v-data-table>
                 </template>
               </div>
-            </div>
-          </template>
-        </v-card-text>
 
-
-      <!-- TAB COUPON -->
-      <div v-if="activetab ==='tabCoupon'" class="tabcontent">
-         <template>
+              <!-- TAB COUPON -->
+              <div v-if="activetab ==='tabCoupon'" class="tabcontent">
+                <template>
                   <v-data-table
+                    v-model="cash_withdrawal.coupon_details"
                     :headers="coupon_header"
                     :items="coupon_list"
                     :single-select="singleSelect"
@@ -177,8 +174,14 @@
                     height="320px"
                   >
                   </v-data-table>
-         </template>
-      </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </v-card-text>
+
+
+      
 
 
 
@@ -252,7 +255,7 @@
             </v-col>
             <v-col cols="4">
               <v-text-field
-                :value="1200"
+                :value="formtSumCoupon(this.total_coupon_amount)"
                 label="Coupon"
                 outlined
                 dense
@@ -272,7 +275,22 @@
             </v-col> -->
           </v-row> 
         </template>
-<!-- TEST --><p>{{ role }}</p>
+        <br>
+        <template>
+          <div>
+          <v-row no-gutters class="ml-5 mr-5 pa-0" style="height: 0%; margin-left: 5px;">
+            <v-col cols="4">
+              <v-text-field
+                v-model="cash_withdrawal.total_withdrawal_amount = TotalDenomAmount"
+                label="Total Amount"
+                readonly
+                hide-details
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          </div>
+        </template>
+
         <!-- Buttons -->
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -300,6 +318,7 @@ export default {
     show: false,
     verify: true,
     cash_amount: "",
+    total_withdrawal_amount: "",
     cash_withdrawal: {},
     cash_details: "",
     name:"",
@@ -338,7 +357,7 @@ export default {
       'Card',
     ],
     user: frappe.session.user,
-    role: frappe.user_roles,
+    role: "Head Cashier",
     inputUsername: null,
     inputPassword: null,
     card_invoices: [],
@@ -346,6 +365,7 @@ export default {
     singleSelect: false,
     headers: [{text:'Card Type', value:'mode_of_payment'}, {text:'Card #', value:'card_number_hidden'},{text:'Invoice', value:'name'}, {text:'Amount', value:'amount'}],
     total_card_amount: 0,
+    total_coupon_amount: 0,
     total_denom_amount: 0,
     isTesting: true,                                      /** SET TO FALSE FOR PRODUCTION **/
     cash_withdrawal_name:'',
@@ -455,22 +475,39 @@ export default {
       return value;
       // return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');;
     },
+
+    formtSumCoupon(value) {
+      // const vm = this;
+      value = parseFloat(value);
+      if(this.cash_withdrawal.coupon_details!=null){
+         this.cash_withdrawal.coupon_details.forEach((element) => {
+          value = value + element.amount;
+         })
+        // this.total_card_amount = value;
+      }
+      return value;
+      // return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');;
+    },
   configure_modal() {
-      const checks = this.role;
-      var check_role = checks.includes("Head Cashier");
-      if (!this.inputUsername || !this.inputPassword && check_role) {
+      // const checks = this.role;
+      // var check_role = checks.includes("Head Cashier");
+
+      // Validation
+      if (!this.inputUsername || !this.inputPassword && this.role) {
         evntBus.$emit("show_mesage", {
           text: `Please complete the required fields`,
           color: "warning",
         })
-      } 
-      else {
-        if (this.inputUsername === this.user && this.inputPassword) {
+      }
+       
+      else {    
+        if (this.inputUsername && this.inputPassword && this.role) {
           frappe.call({
-            method: "posawesome.posawesome.api.custom_posapp.verify_password",
+            method: "posawesome.posawesome.api.custom_posapp.verify_user",
             args: {
               username: this.inputUsername,
-              password: this.inputPassword
+              password: this.inputPassword,
+              role: this.role
             },
             callback: function(r) {
               if(!r.exc) {
@@ -520,7 +557,7 @@ export default {
       this.couponDetailsMethod();
       this.cash_withdrawal.cash_details = this.cash_details_push;
       this.cash_withdrawal.card_amount = this.formtSumCardInvoices(this.total_card_amount);
-      this.cash_withdrawal.coupon_details = this.coupon_list;
+      // this.cash_withdrawal.coupon = this.formtSumCoupon(this.total_coupon_amount);
       const cash_withdrawal_temp = this.cash_withdrawal;
       console.log({cash_withdrawal_temp});
 
@@ -596,10 +633,8 @@ export default {
     },
     TotalDenomAmount: function(){
 
-      return this.denominations.reduce(function(totalSum, item){
-
-        return totalSum + (item.cash_amount * item.card_amount);
-      },0);
+      return this.totalAmount + this.formtSumCardInvoices(this.total_card_amount) + this.formtSumCoupon(this.total_coupon_amount);
+     
     },
   }
 };
