@@ -159,14 +159,10 @@
                   </v-data-table>
                 </template>
               </div>
-            </div>
-          </template>
-        </v-card-text>
 
-
-      <!-- TAB COUPON -->
-      <div v-if="activetab ==='tabCoupon'" class="tabcontent">
-         <template>
+              <!-- TAB COUPON -->
+              <div v-if="activetab ==='tabCoupon'" class="tabcontent">
+                <template>
                   <v-data-table
                     :headers="coupon_header"
                     :items="coupon_list"
@@ -177,8 +173,14 @@
                     height="320px"
                   >
                   </v-data-table>
-         </template>
-      </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </v-card-text>
+
+
+      
 
 
 
@@ -272,7 +274,22 @@
             </v-col> -->
           </v-row> 
         </template>
-<!-- TEST --><p>{{ role }}</p>
+        <br>
+        <template>
+          <div>
+          <v-row no-gutters class="ml-5 mr-5 pa-0" style="height: 0%; margin-left: 5px;">
+            <v-col cols="4">
+              <v-text-field
+                v-model="TotalDenomAmount"
+                label="Total Amount"
+                readonly
+                hide-details
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          </div>
+        </template>
+
         <!-- Buttons -->
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -456,18 +473,18 @@ export default {
       // return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');;
     },
   configure_modal() {
-      const checks = this.role;
-      var check_role = checks.includes("Head Cashier");
+      // const checks = this.role;
+      // var check_role = checks.includes("Head Cashier");
 
       // Validation
-      if (!this.inputUsername || !this.inputPassword && check_role) {
+      if (!this.inputUsername || !this.inputPassword && this.role) {
         evntBus.$emit("show_mesage", {
           text: `Please complete the required fields`,
           color: "warning",
         })
       }
        
-      else {
+      else {    
         if (this.inputUsername && this.inputPassword && this.role) {
           frappe.call({
             method: "posawesome.posawesome.api.custom_posapp.verify_user",
@@ -600,10 +617,8 @@ export default {
     },
     TotalDenomAmount: function(){
 
-      return this.denominations.reduce(function(totalSum, item){
-
-        return totalSum + (item.cash_amount * item.card_amount);
-      },0);
+      return this.totalAmount + this.formtSumCardInvoices;
+     
     },
   }
 };

@@ -1255,7 +1255,7 @@ export default {
     // GET_DENOMINATIONS METHOD: List all cash denominations
     get_denominations() {
       const vm = this;
-        frappe.call({
+        frappe.call(
           method: "posawesome.posawesome.api.custom_posapp.get_denominations",
 
            callback: function (r) {
