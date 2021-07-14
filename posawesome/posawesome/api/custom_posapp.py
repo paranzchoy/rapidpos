@@ -1505,7 +1505,7 @@ def view_opening_shift_details(opening_shift_name):
 	{'name': "PWD Discount", 'value': get_op_shift.pwd_discount}, {'name': "Void", 'value': "0"},
 	{'name': "Net Amount", 'value': "0"}, {'name': "Cash", 'value': get_op_shift.total_cash}, {'name': "Checks", 'value': "0"},
 	{'name': "Coupons", 'value': get_op_shift.total_coupon}, {'name': "Gift Certificate", 'value': "0"},
-	{'name': "Card", 'value': get_op_shift.total_card}, {'name': "Mode of Payment Total", 'value': "0"},
+	{'name': "Card", 'value': get_op_shift.total_card}, {'name': "Mode of Payment Total", 'value': get_op_shift.total_cash + get_op_shift.total_card},
 	{'name': "VATable Sales", 'value': "0"}, {'name': "VAT Amount", 'value': "0"}, {'name': "VAT Exempt Sales", 'value': "0"},
 	{'name': "Zero-Rated Sales", 'value': "0"}, {'name': "Accumulated Grand Total", 'value': "0"}, {'name': "Reset Counter", 'value': "0"},
 	{'name': "Global Transaction", 'value': "0"}]
