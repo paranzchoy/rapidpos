@@ -1355,7 +1355,7 @@ def submit_total_opening_readings(opening_shift):
                 total_card = total_card + item.amount
  
     for item in opening_shift_doc.opening_shift_withdrawal:
-        paid_outs = paid_outs = item.amount
+        paid_outs = paid_outs + item.cash_amount + item.card_amount
 
     opening_shift_doc.first_void_no = first_void
     if(len(void_count_array)!=0):
