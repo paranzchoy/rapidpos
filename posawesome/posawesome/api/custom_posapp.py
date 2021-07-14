@@ -764,8 +764,8 @@ def verify_password(password):
 	frappe.local.login_manager.check_password(frappe.session.user, password)
 
 @frappe.whitelist()
-def verify_user(username, password, role):
-	frappe.local.login_manager.check_password(username, password, role)
+def verify_user(username, password):
+	frappe.local.login_manager.check_password(username, password)
 
 @frappe.whitelist()
 def verify_role(password):
