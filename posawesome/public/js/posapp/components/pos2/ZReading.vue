@@ -104,7 +104,7 @@ export default {
     calculate_totals() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.submit_total_closing_readings',
+        method: 'posawesome.posawesome.api.custom_posapp.submit_total_closing_readings',
         args: {
           closing_shift:this.pos_closing_shift
         },
@@ -136,7 +136,7 @@ export default {
         this.pos_closing_shift +
         '&trigger_print=1' +
         '&format=' +
-        'Z Reading Report' +
+        'Z Reading 2' +
         '&no_letterhead=' +
         'letter_head';
       const printWindow = window.open(url, 'Print');

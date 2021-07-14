@@ -13,6 +13,7 @@
               background-color="white"
               hide-details
               v-model="invoice_name"
+              @keyup.enter="search_invoices"
               dense
               clearable
               class="mx-4"
@@ -134,7 +135,7 @@ export default {
         this.full_invoice_name + 
         '&trigger_print=1' +
         '&format=' +
-        'Point of Sale' +
+        'Sales Invoice Cash' +
         '&no_letterhead=' +
         '0';
       const printWindow = window.open(url, 'Print');

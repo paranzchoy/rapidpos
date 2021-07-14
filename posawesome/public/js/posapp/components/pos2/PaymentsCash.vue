@@ -20,6 +20,7 @@
             >
             <v-col cols="12" v-if="payment.mode_of_payment==='Cash'">
               <v-text-field
+                v-if="!split_payment"
                 dense
                 outlined
                 color="indigo"
@@ -30,6 +31,22 @@
                 v-model="payment.amount"
                 :prefix="invoice_doc.currency"
                 @focus="set_full_amount(payment.idx)"
+                autofocus
+                :readonly="invoice_doc.is_return ? true : false"
+              ></v-text-field>
+              <!-- For split payment textfield to display remaining amount to be paid -->
+              <v-text-field
+                v-if="split_payment"
+                dense
+                outlined
+                color="indigo"
+                label="Cash on Hand"
+                background-color="white"
+                hide-details
+                type="number"
+                v-model="payment.amount"
+                :prefix="invoice_doc.currency"
+                @focus="set_rest_amount(payment.idx)"
                 autofocus
                 :readonly="invoice_doc.is_return ? true : false"
               ></v-text-field>
@@ -244,7 +261,7 @@
           >
         </v-col>
         <v-col cols="12">
-          <v-btn block class="mt-2" large color="primary" dark @click="submit"
+          <v-btn block class="mt-2" large color="primary" dark @click="on_confirm_dialog"
             >Submit Payments</v-btn
           >
         </v-col>
@@ -263,13 +280,17 @@ export default {
     loyalty_amount: 0,
     is_credit_sale: 0,
     date_menu: false,
-    is_credit_transaction: false
+    is_credit_transaction: false,
+    split_payment: false
   }),
 
   methods: {
     back_to_invoice() {
       evntBus.$emit('show_payment_cash', 'false');
       evntBus.$emit('set_customer_readonly', false);
+    },
+    on_confirm_dialog() {
+      evntBus.$emit("open_confirmation_dialog", this.invoice_doc);
     },
     submit() {
       
@@ -311,6 +332,7 @@ export default {
       // this.invoice_doc.mode_of_payment = "Cash"
       this.submit_invoice();
       evntBus.$emit('new_invoice', 'false');
+      evntBus.$emit('set_customer_default');
       this.back_to_invoice();
     },
     submit_invoice() {
@@ -341,20 +363,21 @@ export default {
       });
     },
     set_rest_amount() {
-      // this.invoice_doc.payments.forEach((payment) => {
+      this.invoice_doc.payments.forEach((payment) => {
         if (
-          // payment.idx == idx &&
-         this.invoice_doc.cash_amount == 0 &&
+          payment.idx == idx &&
+          payment.amount == 0 &&
           this.diff_payment > 0
         ) {
-          this.invoice_doc.cash_amount = this.diff_payment;
+          payment.amount = this.diff_payment;
         }
-      // });
+      });
     },
     load_print_page() {
       const print_format =
         this.pos_profile.print_format_for_online ||
         this.pos_profile.print_format;
+      // const print_format = "Sales Invoice Cash"
       const letter_head = this.pos_profile.letter_head || 0;
       const url =
         frappe.urllib.get_base_url() +
@@ -362,7 +385,7 @@ export default {
         this.invoice_doc.name +
         '&trigger_print=1' +
         '&format=' +
-        print_format +
+        "Sales Invoice Cash" +
         '&no_letterhead=' +
         letter_head;
       const printWindow = window.open(url, 'Print');
@@ -391,7 +414,7 @@ export default {
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
     shortPay(e) {
-      if (e.key === 'x' && (e.ctrlKey || e.metaKey)) {
+      if (e.key === 'p' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.submit();
       }
@@ -405,7 +428,6 @@ export default {
       this.invoice_doc.payments.forEach((payment) => {
         total += flt(payment.amount);
       });
-      // total = flt(this.invoice_doc.cash_amount);
       return total.toFixed(2);
     },
     diff_payment() {
@@ -428,12 +450,13 @@ export default {
 
   created: function () {
     this.$nextTick(function () {
-      evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
+      evntBus.$on('send_invoice_doc_cash', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
           (payment) => payment.default == 1
         );
         this.is_credit_sale = 0;
+        this.split_payment = false;
         if (default_payment) {
           default_payment.amount = invoice_doc.grand_total.toFixed(2);
         }
@@ -445,10 +468,11 @@ export default {
           (payment) => payment.default == 1
         );
         this.is_credit_sale = 0;
-        if (default_payment) {
-          default_payment.amount = invoice_doc.grand_total.toFixed(2);
-        }
-        this.loyalty_amount = 0;
+        this.split_payment = true;
+        // if (default_payment) {
+        //   default_payment.amount = invoice_doc.grand_total.toFixed(2);
+        // }
+        this.loyalty_amount = this.invoice_doc.loyalty_amount;
       });
       evntBus.$on('register_pos_profile', (data) => {
         this.pos_profile = data.pos_profile;

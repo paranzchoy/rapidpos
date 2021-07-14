@@ -147,9 +147,25 @@
               <div v-if="activetab ==='tabCard'" class="tabcontent">
                 <template>
                   <v-data-table
-                    :value="formtSumCardInvoices(this.total_card_amount)"
+                    v-model="cash_withdrawal.card_details"
                     :headers="headers"
                     :items="card_invoices"
+                    :single-select="singleSelect"
+                    item-key="name"
+                    show-select
+                    class="elevation-1"
+                    height="320px"
+                  >
+                  </v-data-table>
+                </template>
+              </div>
+
+              <!-- TAB COUPON -->
+              <div v-if="activetab ==='tabCoupon'" class="tabcontent">
+                <template>
+                  <v-data-table
+                    :headers="coupon_header"
+                    :items="coupon_list"
                     :single-select="singleSelect"
                     item-key="name"
                     show-select
@@ -164,27 +180,13 @@
         </v-card-text>
 
 
-      <!-- TAB COUPON -->
-      <div v-if="activetab ==='tabCoupon'" class="tabcontent">
-         <template>
-                  <v-data-table
-                    :headers="coupon_header"
-                    :items="coupon_list"
-                    :single-select="singleSelect"
-                    item-key="name"
-                    show-select
-                    class="elevation-1"
-                    height="320px"
-                  >
-                  </v-data-table>
-         </template>
-      </div>
+      
 
 
 
 
         <!-- Total summary -->
-        <template>
+        <!-- <template>
           <v-row justify="end" dense>
             <v-col
               cols="12"
@@ -226,11 +228,11 @@
             ></v-text-field>
             </v-col>
           </v-row>
-        </template>
+        </template> -->
 
         <template>
           <v-row no-gutters class="ml-5 mr-5 pa-0" style="height: 0%; margin-left: 5px;">
-            <v-col cols="3">
+            <v-col cols="4">
               <v-text-field
                 v-model="cash_withdrawal.cash_amount = totalAmount"
                 label="Cash"
@@ -240,7 +242,7 @@
                 hide-details
               ></v-text-field>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <v-text-field
                 :value="formtSumCardInvoices(this.total_card_amount)"
                 label="Card"
@@ -250,7 +252,7 @@
                 hide-details
               ></v-text-field>
             </v-col>
-            <v-col cols="3">
+            <v-col cols="4">
               <v-text-field
                 :value="1200"
                 label="Coupon"
@@ -260,7 +262,7 @@
                 hide-details
               ></v-text-field>
             </v-col>
-            <v-col cols="3">
+            <!-- <v-col cols="3">
               <v-text-field
                 v-model="total_denom_amount = TotalDenomAmount"
                 label="TOTAL"
@@ -269,10 +271,25 @@
                 readonly
                 hide-details
               ></v-text-field>
-            </v-col>
+            </v-col> -->
           </v-row> 
         </template>
-<!-- TEST --><p>{{ role }}</p>
+        <br>
+        <template>
+          <div>
+          <v-row no-gutters class="ml-5 mr-5 pa-0" style="height: 0%; margin-left: 5px;">
+            <v-col cols="4">
+              <v-text-field
+                v-model="TotalDenomAmount"
+                label="Total Amount"
+                readonly
+                hide-details
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          </div>
+        </template>
+
         <!-- Buttons -->
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -338,7 +355,7 @@ export default {
       'Card',
     ],
     user: frappe.session.user,
-    role: frappe.user_roles,
+    role: "Head Cashier",
     inputUsername: null,
     inputPassword: null,
     card_invoices: [],
@@ -347,7 +364,8 @@ export default {
     headers: [{text:'Card Type', value:'mode_of_payment'}, {text:'Card #', value:'card_number_hidden'},{text:'Invoice', value:'name'}, {text:'Amount', value:'amount'}],
     total_card_amount: 0,
     total_denom_amount: 0,
-    isTesting: true,                                        /** SET TO FALSE FOR PRODUCTION **/
+    isTesting: true,                                      /** SET TO FALSE FOR PRODUCTION **/
+    cash_withdrawal_name:'',
 
 
     // COUPON DATA
@@ -447,7 +465,7 @@ export default {
       value = parseFloat(value);
       if(this.cash_withdrawal.card_details!=null){
          this.cash_withdrawal.card_details.forEach((element) => {
-         value = value + element.amount;
+          value = value + element.amount;
          })
         // this.total_card_amount = value;
       }
@@ -455,21 +473,25 @@ export default {
       // return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');;
     },
   configure_modal() {
-      const checks = this.role;
-      var check_role = checks.includes("Head Cashier");
-      if (!this.inputUsername || !this.inputPassword && check_role) {
+      // const checks = this.role;
+      // var check_role = checks.includes("Head Cashier");
+
+      // Validation
+      if (!this.inputUsername || !this.inputPassword && this.role) {
         evntBus.$emit("show_mesage", {
           text: `Please complete the required fields`,
           color: "warning",
         })
-      } 
-      else {
-        if (this.inputUsername === this.user && this.inputPassword) {
+      }
+       
+      else {    
+        if (this.inputUsername && this.inputPassword && this.role) {
           frappe.call({
-            method: "posawesome.posawesome.api.custom_posapp.verify_password",
+            method: "posawesome.posawesome.api.custom_posapp.verify_user",
             args: {
               username: this.inputUsername,
-              password: this.inputPassword
+              password: this.inputPassword,
+              role: this.role
             },
             callback: function(r) {
               if(!r.exc) {
@@ -529,13 +551,12 @@ export default {
         })
         .then((r) => {
           if (r.message) {
+            this.cash_withdrawal_name = r.message;
+            this.load_print_page();
             evntBus.$emit("show_mesage", {
               text: `Withdrawal created successfully.`,
               color: "success",
             });
-            console.log(r.message);
-            // this.check_opening_entry();
-            // this.load_print_page();
           } else {
             console.log(r)
           }
@@ -545,16 +566,14 @@ export default {
       value = parseFloat(value);
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
-  },
-
-  load_print_page() {
+    load_print_page() {
       const url =
         frappe.urllib.get_base_url() +
-        '/printview?doctype=Print%20Format&name=' +
-        'Withdrawal' +
+        '/printview?doctype=POS%20Opening%20Shift%20Withdrawal%20Details&name=' +
+        this.cash_withdrawal_name +
         '&trigger_print=1' +
         '&format=' +
-        'Withdrawal2' +
+        'Cash Withdrawal Report' +
         '&no_letterhead=' +
         'letter_head';
       const printWindow = window.open(url, 'Print');
@@ -567,7 +586,10 @@ export default {
         },
         true
       );
-    },
+    }
+  },
+
+ 
   created: function () {
     evntBus.$on("open_withdrawal", (data) => {
       if(this.isTesting) {
@@ -595,19 +617,9 @@ export default {
     },
     TotalDenomAmount: function(){
 
-      return this.denominations.reduce(function(totalSum, item){
-
-        return totalSum + (item.cash_amount * item.card_amount);
-      },0);
-    }
-    // card_amount() {
-    //   let value = parseFloat(this.total_card_amount);
-    //   this.cash_withdrawal.card_details.forEach((element) => {
-    //      value = value + element.amount;
-    //   });
-    //   return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-    // }
-
+      return this.totalAmount + this.formtSumCardInvoices;
+     
+    },
   }
 };
 </script>

@@ -189,11 +189,12 @@ def make_closing_shift_from_opening(opening_shift):
 #     return closing_shift_doc.name
 
 @frappe.whitelist()
-def submit_closing_shift(closing_shift, closing_cash):
+def submit_closing_shift(closing_shift, closing_cash, checkout_counter):
     cash_details = []
     closing_cash = json.loads(closing_cash)
     closing_shift = json.loads(closing_shift)    
     closing_shift_doc = frappe.get_doc(closing_shift)
+    closing_shift_doc.checkout_counter = checkout_counter
     closing_cash_withdrawal = frappe.get_doc({
         'doctype': 'POS Closing Shift'
     })
@@ -203,13 +204,12 @@ def submit_closing_shift(closing_shift, closing_cash):
     for item in closing_cash.get("cash_details"):
             closing_shift_doc.append("cash_denominations_breakdown", {'amount': item["amount"], 'quantity': item["quantity"], 'total': item["total"]})
     closing_cash_withdrawal.set("cash_denominations_breakdown", cash_details)
-
     # closing_shift_doc.append("cash_denominations_breakdown", {
     #     "amount": 100,
     #     "quantity": 1,
     #     "total": 100
     # })
-
+    submit_total_closing_readings(closing_shift_doc) #testing
     closing_shift_doc.flags.ignore_permissions = True
     closing_shift_doc.save()
     closing_shift_doc.submit()
@@ -225,3 +225,50 @@ def submit_printed_invoices(pos_opening_shift):
     for invoice in invoices_list:
         invoice_doc = frappe.get_doc("Sales Invoice", invoice.name)
         invoice_doc.submit()
+
+def submit_total_closing_readings(closing_shift_doc):
+    total_cash=0
+    total_card=0
+    first_invoice = ""
+    last_invoice = ""
+    first_void=""
+    void_count_array = []
+    total = 0
+    gross_amount = 0
+
+    # closing_shift_doc=frappe.get_doc("POS Closing Shift", closing_shift)
+    array_length = len(closing_shift_doc.pos_transactions)
+    for i in closing_shift_doc.pos_transactions:
+        total+=1
+        gross_amount= gross_amount + i.grand_total
+
+        invoice_get=frappe.get_doc("Sales Invoice", i.sales_invoice)
+
+        if(invoice_get.status=="Draft"):
+            if(len(void_count_array)==0):
+                first_void = invoice_get.name
+            void_count_array.append(invoice_get.name)
+
+        if(total == 1):
+            first_invoice = invoice_get.name
+        if(total==array_length): 
+            last_invoice = invoice_get.name
+
+        for item in invoice_get.payments:
+            if(item.mode_of_payment == "Cash"):
+                total_cash = total_cash + item.amount
+            if(item.mode_of_payment == "Credit Card" or item.mode_of_payment == "Debit Card"):
+                total_card = total_card + item.amount
+ 
+
+    closing_shift_doc.first_void_no = first_void
+    if(len(void_count_array)!=0):
+        closing_shift_doc.last_void_no = void_count_array[-1]
+    closing_shift_doc.void_count = len(void_count_array)
+    closing_shift_doc.gross_amount = gross_amount
+    closing_shift_doc.no_of_invoices = total
+    closing_shift_doc.total_cash = total_cash
+    closing_shift_doc.total_card = total_card
+    closing_shift_doc.last_sales_invoice = last_invoice
+    closing_shift_doc.first_sales_invoice = first_invoice
+    # closing_shift_doc.submit()

@@ -14,17 +14,17 @@
       </v-card>
     </v-dialog>
 
-     <v-dialog v-model="anotherPayment" max-width="625px">
+     <v-dialog v-model="anotherPayment" max-width="500px">
       <v-card>
         <v-card-title>
-          <span class="headline indigo--text">Add a Payment?</span>
+          <span class="headline indigo--text">Add a Payment? (Shift + Option #)</span>
         </v-card-title>
         <v-card-actions>
-          <v-btn color="error" dark @click="close_payment_dialog">(←)Cancel</v-btn>
-          <v-btn color="success" dark @click="cash_payment_dialog">(1) Cash</v-btn>
-          <v-btn color="secondary" dark @click="cc_payment_dialog">(2) Credit Card</v-btn>
-          <v-btn color="primary" dark @click="dc_payment_dialog">(3) Debit Card</v-btn>
-          <v-btn color="warning" dark @click="coupon_payment_dialog">(4) Coupon</v-btn>
+          <v-btn color="error" dark @click="close_payment_dialog">Cancel (0)</v-btn>
+          <v-btn color="success" dark @click="cash_payment_dialog">Cash (1)</v-btn>
+          <v-btn color="secondary" dark @click="cc_payment_dialog">Credit Card (2)</v-btn>
+          <v-btn color="primary" dark @click="dc_payment_dialog">Debit Card (3)</v-btn>
+          <!-- <v-btn color="warning" dark @click="coupon_payment_dialog">Coupon</v-btn> -->
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -46,6 +46,7 @@ export default {
     dialog_data: {},
     invoice_doc: '',
     pos_profile: '',
+    validation_identifier: false,
     // opening_shift_name: pos_opening_shift.name,
     pos_opening_shift: "",
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
@@ -60,7 +61,10 @@ export default {
       this.anotherPayment = false;
     },
     another_payment_dialog(){
-      this.anotherPayment = true;
+      this.validate();
+      if (!this.validation_identifier){
+        this.anotherPayment = true;
+      }
     },
     cash_payment_dialog(){
       this.close_dialog();
@@ -101,30 +105,103 @@ export default {
       evntBus.$emit('set_customer_readonly', false);
     },
     submit() {
-      this.invoice_doc.payments.forEach((payment) => {
-         if(payment.mode_of_payment=== "Credit Card" && payment.amount !== 0 && payment.card_number===0||payment.card_number===null){
-              evntBus.$emit('show_mesage', {
-              text: `Please enter card number for card transactions.`,
-              color: 'error',
-            });
-            frappe.utils.play_sound('error');
-            // this.is_credit_transaction = true;
-          return;
-         }
-         else{
-          //  this.is_credit_transaction = false;
-         }
+      this.validate();
+      if (!this.pos_profile.posa_allow_partial_payment && this.total_payments < this.invoice_doc.grand_total) {
+        evntBus.$emit('show_mesage', {
+          text: `The amount paid is not complete`,
+          color: 'error',
         });
-      this.close_dialog();
-      this.invoice_doc.payments.forEach((payment) => {
-        if(payment.card_number){
-          payment.card_number_hidden = payment.card_number.replace(/\d(?=\d{4})/g, "*");
+        frappe.utils.play_sound('error');
+        this.validation_identifier = true;
+        return;
+      }      
+      if(!this.validation_identifier){
+        this.close_dialog();
+        this.invoice_doc.payments.forEach((payment) => {
+          if(payment.card_number){
+            payment.card_number_hidden = payment.card_number.replace(/\d(?=\d{4})/g, "*");
+          }
+        });
+        this.submit_invoice();
+        evntBus.$emit('new_invoice', 'false');
+        evntBus.$emit('set_customer_default');
+        this.back_to_invoice();
+      }
+      
+    },
+    validate(){
+        this.invoice_doc.payments.forEach((payment) => {
+        if(payment.mode_of_payment === 'Credit Card' && payment.amount !== 0){
+            if(payment.card_number==='0'||payment.card_number==null){
+                evntBus.$emit('show_mesage', {
+                  text: `Please enter card number for card transactions.`,
+                  color: 'error',
+                });
+                frappe.utils.play_sound('error');
+                this.validation_identifier = true;
+                return;
+            }
+            else if(payment.approval_code==null || payment.card_expiry_date==null || payment.bank_name == null){
+                evntBus.$emit('show_mesage', {
+                  text: `Please complete the form before submitting.`,
+                  color: 'error',
+                });
+                frappe.utils.play_sound('error');
+                this.validation_identifier = true;
+                return;
+            }
+            else if (payment.card_number.length > 16){
+              evntBus.$emit('show_mesage', {
+              text: `Card Number can't exceed 16 numbers.`,
+              color: 'error',
+              });
+              frappe.utils.play_sound('error');
+              this.validation_identifier = true;
+              return;
+            }
+            else{
+                this.validation_identifier = false;
+            }
+        }
+        else if(payment.mode_of_payment === 'Debit Card' && payment.amount !== 0) {
+          if(payment.bank_name == null){
+               evntBus.$emit('show_mesage', {
+                  text: `Please input bank name.`,
+                  color: 'error',
+                });
+                frappe.utils.play_sound('error');
+                this.validation_identifier = true;
+                return;
+          }
+          else{
+                this.validation_identifier = false;
+          }
         }
       });
-      console.log(this.invoice_doc);
-      this.submit_invoice();
-      evntBus.$emit('new_invoice', 'false');
-      this.back_to_invoice();
+
+      if (!this.invoice_doc.is_return && this.total_payments < 0) {
+        evntBus.$emit('show_mesage', {
+          text: `Payments not correct`,
+          color: 'error',
+        });
+        frappe.utils.play_sound('error');
+        this.validation_identifier = true;
+        return;
+      }
+      if (
+        this.pos_profile.posa_allow_partial_payment &&
+        !this.pos_profile.posa_allow_credit_sale &&
+        this.total_payments == 0
+      ) {
+        evntBus.$emit('show_mesage', {
+          text: `Please enter the amount paid`,
+          color: 'error',
+        });
+        frappe.utils.play_sound('error');
+        this.validation_identifier = true;
+        return;
+      }
+
     },
     submit_invoice() {
       const vm = this;
@@ -157,7 +234,7 @@ export default {
         this.invoice_doc.name +
         '&trigger_print=1' +
         '&format=' +
-        print_format +
+        "Sales Invoice Cash" +
         '&no_letterhead=' +
         letter_head;
       const printWindow = window.open(url, 'Print');
@@ -171,41 +248,68 @@ export default {
         true
       );
     },
-    shortPay(e) {
-      e.preventDefault();
-      if (e.key === 'Backspace'){
+    shortCancelPay(e){
+      if (e.key === '0' && e.ctrlKey){
+        e.preventDefault();
         this.close_payment_dialog();
       }
-      if (e.key === '1'){
+    },
+    shortCashPay(e){
+      if (e.key === '=' && e.ctrlKey){
+        e.preventDefault();
         this.cash_payment_dialog();
       }
-      if (e.key === '2'){
+    },
+    shortCreditCardPay(e){
+      if (e.key === '-' && e.ctrlKey){
+        e.preventDefault();
         this.cc_payment_dialog();
       }
-       if (e.key === '3'){
+    },
+    shortDebitCardPay(e){
+      if (e.key === ']' && e.ctrlKey)
+        e.preventDefault();
         this.dc_payment_dialog();
       }
-       if (e.key === '4'){
-        this.coupon_payment_dialog();
-      }
+    },
+
+  //   shortPay(e) {
+  //     //  if (e.key === '4' && e.ctrlKey){
+  //     //   this.coupon_payment_dialog();
+  //     // }
       
+  //   // }
+  // },
+  computed:{
+    total_payments() {
+      let total = flt(this.invoice_doc.loyalty_amount);
+      this.invoice_doc.payments.forEach((payment) => {
+        total += flt(payment.amount);
+      });
+      return total.toFixed(2);
     }
   },
 
-  created: function () {
+  created () {
     evntBus.$on('open_confirmation_dialog', (data) => {
       this.confirmPayment = true;
       this.invoice_doc = data;
       this.pos_profile = this.invoice_doc.pos_profile;
     });
-    // evntBus.$on('current_opening_shift', (data) => {
-    //   this.pos_opening_shift = data.pos_opening_shift;
-    // });
-    // document.addEventListener('keydown', this.shortPay.bind(this));
+    evntBus.$on('register_pos_profile', (data) => {
+        this.pos_profile = data.pos_profile;
+    });
+    // document.addEventListener('keydown', this.shortCancelPay.bind(this));
+    // document.addEventListener('keydown', this.shortCashPay.bind(this));
+    // document.addEventListener('keydown', this.shortCreditCardPay.bind(this));
+    // document.addEventListener('keydown', this.shortDebitCardPay.bind(this));
   },
 
   // destroyed() {
-  //   document.removeEventListener('keydown', this.shortPay);
+  //   document.removeEventListener('keydown', this.shortCancelPay);
+  //   document.removeEventListener('keydown', this.shortCashPay);
+  //   document.removeEventListener('keydown', this.shortCreditCardPay);
+  //   document.removeEventListener('keydown', this.shortDebitCardPay);
   // },
 };
 </script>

@@ -315,10 +315,7 @@ export default {
       });
     },
     on_confirm_dialog() {
-      if(this.validation() !== false){
-        console.log(this.invoice_doc);
         evntBus.$emit("open_confirmation_dialog", this.invoice_doc);
-      }
     },
     back_to_invoice() {
       evntBus.$emit('show_payment_dc', 'false');
@@ -366,6 +363,7 @@ export default {
       if (this.validation() !== false){
         this.submit_invoice();
         evntBus.$emit('new_invoice', 'false');
+        evntBus.$emit('set_customer_default');
         this.back_to_invoice();
       }
     },
@@ -417,7 +415,7 @@ export default {
         this.invoice_doc.name +
         '&trigger_print=1' +
         '&format=' +
-        print_format +
+        "Sales Invoice Cash" +
         '&no_letterhead=' +
         letter_head;
       const printWindow = window.open(url, 'Print');
@@ -446,7 +444,7 @@ export default {
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
     shortPay(e) {
-      if (e.key === 'x' && (e.ctrlKey || e.metaKey)) {
+      if (e.key === 'p' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.submit();
       }
@@ -482,7 +480,7 @@ export default {
 
   created: function () {
     this.$nextTick(function () {
-      evntBus.$on('send_invoice_doc_payment', (invoice_doc) => {
+      evntBus.$on('send_invoice_doc_dc', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
         const default_payment = this.invoice_doc.payments.find(
           (payment) => payment.mode_of_payment == "Debit Card"
@@ -501,15 +499,10 @@ export default {
       //Another event for calling other payment method
       evntBus.$on('another_payment_dc', (invoice_doc) => {
         this.invoice_doc = invoice_doc;
-        console.log(this.invoice_doc);
         const default_payment = this.invoice_doc.payments.find(
           (payment) => payment.mode_of_payment == "Debit Card"
         );
         this.is_credit_sale = 0;
-        if (default_payment) {
-          default_payment.amount = invoice_doc.grand_total.toFixed(2);
-        }
-      
         this.split_payment = true;
         this.loyalty_amount = this.invoice_doc.loyalty_amount;
         this.get_bank_names_data();

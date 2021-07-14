@@ -764,8 +764,8 @@ def verify_password(password):
 	frappe.local.login_manager.check_password(frappe.session.user, password)
 
 @frappe.whitelist()
-def verify_user(username, password):
-	frappe.local.login_manager.check_password(username, password)
+def verify_user(username, password, role):
+	frappe.local.login_manager.check_password(username, password, role)
 
 @frappe.whitelist()
 def verify_role(password):
@@ -1129,9 +1129,12 @@ def get_card_invoices(opening_shift):
 	invoices = frappe.db.get_list('Sales Invoice',  filters={"posa_pos_opening_shift": opening_shift}, fields=["name"], order_by='name')
 	for item in invoices:
 		get_invoice = frappe.get_doc('Sales Invoice', item.name)
-		for i in get_invoice.payments:
-			if(i.mode_of_payment == 'Credit Card' or i.mode_of_payment == 'Debit Card'):
-				get_invoices.append({'card_number': i.card_number, 'card_number_hidden':i.card_number_hidden, 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment,})
+		if(get_invoice.status == 'Paid' or get_invoice.status == 'Unpaid'):
+			for i in get_invoice.payments:
+				if(i.mode_of_payment == 'Credit Card'):
+					get_invoices.append({'card_number': i.card_number, 'card_number_hidden':i.card_number_hidden, 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
+				if(i.mode_of_payment == 'Debit Card'):
+					get_invoices.append({'card_number': "", 'card_number_hidden': "", 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
 	return get_invoices
 
 
@@ -1142,7 +1145,7 @@ def get_coupons_invoices(opening_shift):
 	for item in coupons:
 		get_invoice = frappe.get_doc('Sales Invoice', item.name)
 		for i in get_invoice.payments:
-			if(i.mode_of_payment == 'Coupon'):
+			if(i.mode_of_payment == 'Coupon' and get_invoice.status == 'Paid'):
 				get_coupons.append({'name': get_invoice.name, 'amount': i.amount})
 	return get_coupons
 
@@ -1213,64 +1216,6 @@ def submit_invoice(data):
                         i.coupon_code = payment["coupon_code"]
                     payments.append(i)
                 break
-    if len(payments) == 0:
-        payments = [invoice_doc.payments[0]]
-    invoice_doc.payments = payments
-    invoice_doc.due_date = data.get("due_date")
-    invoice_doc.flags.ignore_permissions = True
-    frappe.flags.ignore_account_permission = True
-    invoice_doc.posa_is_printed = 1
-    invoice_doc.save()
-    if frappe.get_value("POS Profile", invoice_doc.pos_profile, "posa_allow_submissions_in_background_job"):
-        invoices_list = frappe.get_all("Sales Invoice", filters={
-            "posa_pos_opening_shift": invoice_doc.posa_pos_opening_shift,
-            "docstatus": 0,
-            "posa_is_printed": 1
-        })
-        for invoice in invoices_list:
-            enqueue(method=submit_in_background_job, queue='short',
-                    timeout=1000, is_async=True, kwargs=invoice.name)
-    else:
-        invoice_doc.submit()
-
-        append_opening_shift = frappe.get_doc("POS Opening Shift",
-            invoice_doc.posa_pos_opening_shift
-        )
-
-        for item in append_opening_shift.sales_invoices:
-            if invoice_doc == item.sales_invoice:
-                item.grand_total = invoice_doc.grand_total
-        append_opening_shift.submit()
-
-    return {
-        "name": invoice_doc.name,
-        "status": invoice_doc.docstatus
-    }
-
-#for invoice card payment
-@frappe.whitelist()
-def submit_invoice_card(data, cardNumber):
-    data = json.loads(data)
-    invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
-    if data.get("loyalty_amount") > 0:
-        invoice_doc.loyalty_amount = data.get("loyalty_amount")
-        invoice_doc.redeem_loyalty_points = data.get("redeem_loyalty_points")
-        invoice_doc.loyalty_points = data.get("loyalty_points")
-    payments = []
-
-    for i in invoice_doc.payments:
-            i.mode_of_payment = data.get("mode_of_payment")
-            i.amount = data.get("payment_amount")
-            i.card_number = cardNumber
-            i.card_number_hidden = cardNumberHide(cardNumber)
-            i.coupon_code = data.get("coupon_code")
-            i.approval_code = data.get("approval_code")
-            i.bank_name = data.get("card_bank")
-            i.card_expiry_date = data.get("card_expiry_date")
-            i.base_amount = 0
-            if i.amount:
-                payments.append(i)
-            break
     if len(payments) == 0:
         payments = [invoice_doc.payments[0]]
     invoice_doc.payments = payments
@@ -1376,3 +1321,193 @@ def submit_pos_opening_shift_withdrawal2(withdrawal):
     opening_shift_doc.submit()
     return opening_shift_doc.name
 
+@frappe.whitelist()
+def submit_total_opening_readings(opening_shift):
+    paid_outs=0
+    total_cash=0
+    total_card=0
+    last_invoice = ""
+    first_void=""
+    void_count_array = []
+    total = 0
+    gross_amount = 0
+
+    opening_shift_doc=frappe.get_doc("POS Opening Shift", opening_shift)
+    array_length = len(opening_shift_doc.sales_invoices)
+    for i in opening_shift_doc.sales_invoices:
+        total+=1
+        gross_amount= gross_amount + i.grand_total
+
+        invoice_get=frappe.get_doc("Sales Invoice", i.sales_invoice)
+
+        if(invoice_get.status=="Draft"):
+            if(len(void_count_array)==0):
+                first_void = invoice_get.name
+            void_count_array.append(invoice_get.name)
+
+        if(total==array_length): 
+            last_invoice = invoice_get.name
+
+        for item in invoice_get.payments:
+            if(item.mode_of_payment == "Cash"):
+                total_cash = total_cash + item.amount
+            if(item.mode_of_payment == "Credit Card" or item.mode_of_payment == "Debit Card"):
+                total_card = total_card + item.amount
+ 
+    for item in opening_shift_doc.opening_shift_withdrawal:
+        paid_outs = paid_outs = item.amount
+
+    opening_shift_doc.first_void_no = first_void
+    if(len(void_count_array)!=0):
+        opening_shift_doc.last_void_no = void_count_array[-1]
+    opening_shift_doc.void_count = len(void_count_array)
+    opening_shift_doc.withdrawal_amount = paid_outs
+    opening_shift_doc.gross_amount = gross_amount
+    opening_shift_doc.total_cash = total_cash
+    opening_shift_doc.total_card = total_card
+    opening_shift_doc.last_sales_invoice = last_invoice
+    opening_shift_doc.submit()
+
+@frappe.whitelist()
+def create_customer(customer_name, tax_id, mobile_no, email_id, customer_group, territory):
+    if not frappe.db.exists("Customer", {"customer_name": customer_name}):
+        customer = frappe.get_doc(
+            {
+                "doctype": "Customer",
+                "customer_name": customer_name,
+                "tax_id": tax_id,
+                "mobile_no": mobile_no,
+                "email_id": email_id,
+                "customer_group": customer_group,
+                "territory": territory,
+            }
+        ).insert(ignore_permissions=True)
+        return customer
+
+@frappe.whitelist()
+def get_territory_data():
+    territory_list = []
+    get_territory = frappe.get_list("Territory", fields=["name"], order_by='name')
+    for i in get_territory:
+        territory_list.append(i.name)
+    return territory_list
+
+@frappe.whitelist()
+def get_customer_group_data():
+    customer_group_list = []
+    get_customer_group = frappe.get_list("Customer Group", fields=["name"], order_by='name')
+    for i in get_customer_group:
+        customer_group_list.append(i.name)
+    return customer_group_list
+
+@frappe.whitelist()
+def create_opening_voucher(pos_profile, company, balance_details, pos_checkout_counter):
+    balance_details = json.loads(balance_details)
+
+    new_pos_opening = frappe.get_doc(
+        {
+            "doctype": "POS Opening Shift",
+            "period_start_date": frappe.utils.get_datetime(),
+            "posting_date": frappe.utils.getdate(),
+            "user": frappe.session.user,
+            "pos_profile": pos_profile,
+            "company": company,
+            "checkout_counter":pos_checkout_counter
+        }
+    )
+    new_pos_opening.set("balance_details", balance_details)
+    new_pos_opening.submit()
+
+    data = {}
+    data["pos_opening_shift"] = new_pos_opening.as_dict()
+    update_opening_shift_data(data, new_pos_opening.pos_profile)
+    return data
+
+@frappe.whitelist()
+def get_opening_dialog_data():
+    data = {}
+    data["companys"] = frappe.get_list("Company", limit_page_length=0, order_by="name")
+    data["pos_checkout_counters_data"] = frappe.get_list(
+		"POS Checkout Counter",
+        fields=["name", "company"],
+		limit_page_length=0, 
+		order_by="name")
+    data["pos_profiles_data"] = frappe.get_list(
+        "POS Profile",
+        filters={"disabled": 0},
+        fields=["name", "company"],
+        limit_page_length=0,
+        order_by="name",
+    )
+
+    pos_profiles_list = []
+    for i in data["pos_profiles_data"]:
+        pos_profiles_list.append(i.name)
+
+    payment_method_table = (
+        "POS Payment Method" if get_version() == 13 else "Sales Invoice Payment"
+    )
+    data["payments_method"] = frappe.get_list(
+        payment_method_table,
+        filters={"parent": ["in", pos_profiles_list]},
+        fields=["*"],
+        limit_page_length=0,
+        order_by="parent",
+    )
+
+    return data
+
+def get_version():
+    branch_name = get_app_branch("erpnext")
+    if "12" in branch_name:
+        return 12
+    elif "13" in branch_name:
+        return 13
+    else:
+        return 13
+
+
+def get_app_branch(app):
+    """Returns branch of an app"""
+    import subprocess
+
+    try:
+        branch = subprocess.check_output(
+            "cd ../apps/{0} && git rev-parse --abbrev-ref HEAD".format(app), shell=True
+        )
+        branch = branch.decode("utf-8")
+        branch = branch.strip()
+        return branch
+    except Exception:
+        return ""
+
+def update_opening_shift_data(data, pos_profile):
+    data["pos_profile"] = frappe.get_doc("POS Profile", pos_profile)
+    data["company"] = frappe.get_doc("Company", data["pos_profile"].company)
+    allow_negative_stock = frappe.get_value(
+        "Stock Settings", None, "allow_negative_stock"
+    )
+    data["stock_settings"] = {}
+    data["stock_settings"].update({"allow_negative_stock": allow_negative_stock})
+
+@frappe.whitelist()
+def view_opening_shift_details(opening_shift_name):
+	submit_total_opening_readings(opening_shift_name)
+	get_op_shift = frappe.get_doc("POS Opening Shift", opening_shift_name)
+
+	data = [{'name': "Z-Counter", 'value': get_op_shift.checkout_counter}, {'name': "Beginning SI No", 'value': get_op_shift.first_sales_invoice},
+	{'name': "Ending SI No", 'value': get_op_shift.last_sales_invoice}, {'name': "Beginning Void No", 'value': get_op_shift.first_void_no},
+	{'name': "Ending Void No", 'value': get_op_shift.last_void_no}, {'name': "Sales Count", 'value': get_op_shift.no_of_invoices-get_op_shift.void_count},
+	{'name': "Void Count", 'value': get_op_shift.void_count}, {'name': "Total Transactions", 'value': get_op_shift.no_of_invoices},
+	{'name': "Beginning Balance", 'value': "000,019,275,409.19"}, {'name': "Ending Balance", 'value': "000,019,333,397.47"},
+	{'name': "Gross Amount", 'value': get_op_shift.gross_amount}, {'name': "Less", 'value': get_op_shift.gross_amount},
+	{'name': "Discount", 'value': "0"}, {'name': "Senior Discount", 'value': get_op_shift.senior_discount}, 
+	{'name': "PWD Discount", 'value': get_op_shift.pwd_discount}, {'name': "Void", 'value': "0"},
+	{'name': "Net Amount", 'value': "0"}, {'name': "Cash", 'value': get_op_shift.total_cash}, {'name': "Checks", 'value': "0"},
+	{'name': "Coupons", 'value': get_op_shift.total_coupon}, {'name': "Gift Certificate", 'value': "0"},
+	{'name': "Card", 'value': get_op_shift.total_card}, {'name': "Mode of Payment Total", 'value': "0"},
+	{'name': "VATable Sales", 'value': "0"}, {'name': "VAT Amount", 'value': "0"}, {'name': "VAT Exempt Sales", 'value': "0"},
+	{'name': "Zero-Rated Sales", 'value': "0"}, {'name': "Accumulated Grand Total", 'value': "0"}, {'name': "Reset Counter", 'value': "0"},
+	{'name': "Global Transaction", 'value': "0"}]
+
+	return data
