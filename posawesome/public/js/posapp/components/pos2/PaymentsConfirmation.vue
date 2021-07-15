@@ -61,6 +61,18 @@ export default {
       this.anotherPayment = false;
     },
     another_payment_dialog(){
+      if (this.diff_payment === '0.00') {
+        evntBus.$emit('show_mesage', {
+          text: `Remaining amount balance is 0.`,
+          color: 'error',
+        });
+        frappe.utils.play_sound('error');
+        this.validation_identifier = true;
+        return;
+      }
+      else{
+        this.validation_identifier = false;
+      }
       this.validate();
       if (!this.validation_identifier){
         this.anotherPayment = true;
@@ -287,6 +299,9 @@ export default {
         total += flt(payment.amount);
       });
       return total.toFixed(2);
+    },
+    diff_payment() {
+      return (this.invoice_doc.grand_total - this.total_payments).toFixed(2);
     }
   },
 

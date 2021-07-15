@@ -1355,7 +1355,7 @@ def submit_total_opening_readings(opening_shift):
                 total_card = total_card + item.amount
  
     for item in opening_shift_doc.opening_shift_withdrawal:
-        paid_outs = paid_outs = item.amount
+        paid_outs = paid_outs + item.cash_amount + item.card_amount
 
     opening_shift_doc.first_void_no = first_void
     if(len(void_count_array)!=0):
@@ -1491,6 +1491,14 @@ def update_opening_shift_data(data, pos_profile):
     data["stock_settings"].update({"allow_negative_stock": allow_negative_stock})
 
 @frappe.whitelist()
+def calculate_cash_withdrawn(opening_shift_name):
+    total = 0
+    get_op_shift = frappe.get_doc("POS Opening Shift", opening_shift_name)
+    for item in get_op_shift.opening_shift_withdrawal:
+        total = total + item.cash_amount
+    return total
+
+@frappe.whitelist()
 def view_opening_shift_details(opening_shift_name):
 	submit_total_opening_readings(opening_shift_name)
 	get_op_shift = frappe.get_doc("POS Opening Shift", opening_shift_name)
@@ -1505,7 +1513,7 @@ def view_opening_shift_details(opening_shift_name):
 	{'name': "PWD Discount", 'value': get_op_shift.pwd_discount}, {'name': "Void", 'value': "0"},
 	{'name': "Net Amount", 'value': "0"}, {'name': "Cash", 'value': get_op_shift.total_cash}, {'name': "Checks", 'value': "0"},
 	{'name': "Coupons", 'value': get_op_shift.total_coupon}, {'name': "Gift Certificate", 'value': "0"},
-	{'name': "Card", 'value': get_op_shift.total_card}, {'name': "Mode of Payment Total", 'value': "0"},
+	{'name': "Card", 'value': get_op_shift.total_card}, {'name': "Mode of Payment Total", 'value': get_op_shift.total_cash + get_op_shift.total_card},
 	{'name': "VATable Sales", 'value': "0"}, {'name': "VAT Amount", 'value': "0"}, {'name': "VAT Exempt Sales", 'value': "0"},
 	{'name': "Zero-Rated Sales", 'value': "0"}, {'name': "Accumulated Grand Total", 'value': "0"}, {'name': "Reset Counter", 'value': "0"},
 	{'name': "Global Transaction", 'value': "0"}]
