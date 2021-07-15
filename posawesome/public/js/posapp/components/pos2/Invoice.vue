@@ -669,14 +669,10 @@ export default {
           consumable_sum += item.qty * item.rate;
           consumable_discount_percent = 5/100;
         }
-        // if ((item.item_group == "FOOD") && (this.selectedDiscount == "SRCTZ" || this.selectedDiscount == "PWD")) {
-        //   consumable_sum += item.qty * item.rate;
-        //   consumable_discount_percent = 5/100;
-        // }
-        // if ((item.item_group == "MEDICAL") && (this.selectedDiscount == "SRCTZ" || this.selectedDiscount == "PWD")) {
-        //   medical_sum += item.qty * item.rate;
-        //   medical_discount_percent = 20/100;
-        // }
+        if (item.item_group == "MEDICAL" && this.selectedDiscount != null) {
+          medical_sum += item.qty * item.rate;
+          medical_discount_percent = 20/100;
+        }
       });
       consumable_discount = consumable_sum * consumable_discount_percent;
       medical_discount = medical_sum * medical_discount_percent;
