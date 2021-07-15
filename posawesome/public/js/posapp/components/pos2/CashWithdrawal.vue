@@ -2,6 +2,7 @@
   <v-row justify="center">
     <!-- Verify username & password -->
     <v-dialog v-model="verify_user" max-width="550px">
+      <v-form ref="form" v-model="valid" lazy-validation>
       <v-card>
         <!-- Title -->
         <v-card-title>
@@ -40,10 +41,11 @@
         <!-- Buttons -->
         <v-card-actions>
           <v-spacer></v-spacer>
-            <v-btn color="error" dark @click="close_dialog">Cancel</v-btn>
+            <v-btn color="error" dark @click="close_login_dialog">Cancel</v-btn>
             <v-btn color="primary" @click="configure_modal">Start</v-btn>
           </v-card-actions>
         </v-card>
+        </v-form>
      </v-dialog>
 
     <!-- Tabs: Cash, Cards, Coupon-->
@@ -57,6 +59,7 @@
         <!-- Content -->
         <v-card-text>
           <template>
+            <form>
             <!-- Tab titles -->
             <div class="tabs">
                 <a v-on:click="activetab='tabCash'" v-bind:class="[ activetab === 'tabCash' ? 'active' : '' ]">Cash</a>
@@ -177,6 +180,7 @@
                 </template>
               </div>
             </div>
+            </form>
           </template>
         </v-card-text>
 
@@ -385,8 +389,15 @@ export default {
 
   },
   methods: {
+    close_login_dialog() {
+      this.$refs.form.reset()
+      this.verify_user = false;
+      
+    },
     close_dialog() {
+      // this.$refs.form.reset()
       this.withdrawalDialog = false;
+      
     },
     get_denominations() {
       const vm = this;
@@ -527,6 +538,8 @@ export default {
           })
         }
       }
+      this.$refs.form.reset()
+
     },
     submit_dialog() {
       if (this.cash_amount) {
@@ -577,6 +590,12 @@ export default {
             console.log(r)
           }
         });
+      
+      // this.$refs.form.reset()
+      // this.withdrawalDialog = false;
+    
+
+
     },    
     formtCurrency(value) {
       value = parseFloat(value);
