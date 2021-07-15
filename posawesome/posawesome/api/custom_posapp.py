@@ -1491,6 +1491,14 @@ def update_opening_shift_data(data, pos_profile):
     data["stock_settings"].update({"allow_negative_stock": allow_negative_stock})
 
 @frappe.whitelist()
+def calculate_cash_withdrawn(opening_shift_name):
+    total = 0
+    get_op_shift = frappe.get_doc("POS Opening Shift", opening_shift_name)
+    for item in get_op_shift.opening_shift_withdrawal:
+        total = total + item.cash_amount
+    return total
+
+@frappe.whitelist()
 def view_opening_shift_details(opening_shift_name):
 	submit_total_opening_readings(opening_shift_name)
 	get_op_shift = frappe.get_doc("POS Opening Shift", opening_shift_name)

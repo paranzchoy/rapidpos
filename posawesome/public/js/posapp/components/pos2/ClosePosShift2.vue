@@ -37,7 +37,7 @@
               clearable
               counter
               required
-              @keyup.enter="submit_dialog"
+              @keyup.enter="configure_modal"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -68,7 +68,7 @@
           <template>
             <div class="tabs">
                 <a v-on:click="activetab='1'" v-bind:class="[ activetab === '1' ? 'active' : '' ]">Details</a>
-                <a v-on:click="activetab='2'" v-bind:class="[ activetab === '2' ? 'active' : '' ]">Cash</a>
+                <a v-on:click="activetab='2'" v-bind:class="[ activetab === '2' ? 'active' : '' ]" @click="view_cash_withdrawn()">Cash</a>
             </div>
             <div class="content">
                 <div v-if="activetab ==='1'" class="tabcontent">
@@ -144,7 +144,7 @@
                                 <v-col cols="12"
                                   sm="3"
                                   class="text-right">
-                                  {{totalAmount}}
+                                  {{formtCurrency(totalAmount)}}
                                 </v-col>
                                   <v-col cols="12"
                                   sm="9"
@@ -154,7 +154,7 @@
                                 <v-col cols="12"
                                   sm="3"
                                   class="text-right">
-                                  1200
+                                {{formtCurrency(total_cash_withdrawn)}}
                                 </v-col>
                                 <v-col cols="12"
                                   sm="9"
@@ -164,7 +164,7 @@
                                 <v-col cols="12"
                                   sm="3"
                                   class="text-right">
-                                  {{totalAmount+1200}}
+                                  {{formtCurrency(totalAmount + total_cash_withdrawn)}}
                                 </v-col>
                               </v-row>
                             </template>
@@ -279,6 +279,7 @@ export default {
     pagination: {},
     sample_items: [],
     checkout_counter:'',
+    total_cash_withdrawn:0,
     // headers: [
     //   {
     //     text: 'Mode of Payment',
@@ -391,11 +392,27 @@ export default {
               if (element.name === "Z-Counter"){
                 this.checkout_counter = element.value;
               }
+
               // console.log(element);
             })
           }
         },
       });
+    },
+    view_cash_withdrawn(){
+        frappe.call({
+          method: 'posawesome.posawesome.api.custom_posapp.calculate_cash_withdrawn',
+          args: {
+            opening_shift_name: this.dialog_data.pos_opening_shift
+          },
+          async: true,
+          callback: function (r) {
+              if (r.message) {
+                this.total_cash_withdrawn = r.message;
+                console.log(r.message);
+              }
+        },
+        });
     },
     // GET_DENOMINATIONS METHOD: List all cash denominations
     get_denominations() {
@@ -410,7 +427,6 @@ export default {
           }
         },
         });
-        console.log(vm.denominations);
     },
     // CASH_DETAILS METHOD
     cashDetailsMethod(){
