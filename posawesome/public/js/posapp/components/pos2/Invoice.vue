@@ -541,7 +541,7 @@ export default {
       expanded: [],
       singleExpand: true,
       enableDisable:true,
-      selectedDiscount: '',
+      selectedDiscount: null,
       discount_types: [],
       options: [
         { text: '0%', value: '0' },
@@ -665,14 +665,18 @@ export default {
       let medical_discount_percent = 0;
       let medical_discount = 0;
       this.items.forEach((item) => {
-        if ((item.item_group == "FOOD") && (this.selectedDiscount == "SRCTZ" || this.selectedDiscount == "PWD")) {
+        if (item.item_group == "FOOD" && this.selectedDiscount != null) {
           consumable_sum += item.qty * item.rate;
           consumable_discount_percent = 5/100;
         }
-        if ((item.item_group == "MEDICAL") && (this.selectedDiscount == "SRCTZ" || this.selectedDiscount == "PWD")) {
-          medical_sum += item.qty * item.rate;
-          medical_discount_percent = 20/100;
-        }
+        // if ((item.item_group == "FOOD") && (this.selectedDiscount == "SRCTZ" || this.selectedDiscount == "PWD")) {
+        //   consumable_sum += item.qty * item.rate;
+        //   consumable_discount_percent = 5/100;
+        // }
+        // if ((item.item_group == "MEDICAL") && (this.selectedDiscount == "SRCTZ" || this.selectedDiscount == "PWD")) {
+        //   medical_sum += item.qty * item.rate;
+        //   medical_discount_percent = 20/100;
+        // }
       });
       consumable_discount = consumable_sum * consumable_discount_percent;
       medical_discount = medical_sum * medical_discount_percent;
@@ -1432,6 +1436,13 @@ export default {
         this.$refs.discount.focus();
       }
     },
+    clearDiscount(e) {
+      if (e.key === 'c' && (e.ctrlKey)) {
+        this.selectedDiscount = null;
+        this.enableDisable = true;
+        this.discount_amount = 0;
+      }
+    },
   },
   created() {
     evntBus.$on('register_pos_profile', (data) => {
@@ -1478,6 +1489,7 @@ export default {
     document.addEventListener('keydown', this.shortDeleteFirstItem.bind(this));
     document.addEventListener('keydown', this.shortOpenFirstItem.bind(this));
     document.addEventListener('keydown', this.shortSelectDiscount.bind(this));
+    document.addEventListener('keydown', this.clearDiscount.bind(this));
   },
   destroyed() {
     document.removeEventListener('keydown', this.shortOpenPayment);
@@ -1488,6 +1500,7 @@ export default {
     document.removeEventListener('keydown', this.shortDeleteFirstItem);
     document.removeEventListener('keydown', this.shortOpenFirstItem);
     document.removeEventListener('keydown', this.shortSelectDiscount);
+    document.removeEventListener('keydown', this.clearDiscount);
   },
   watch: {
     customer() {
