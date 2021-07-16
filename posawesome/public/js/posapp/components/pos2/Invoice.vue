@@ -703,6 +703,7 @@ export default {
       }
       new_item.stock_qty = item.qty;
       new_item.discount_amount = 0;
+      new_item.selectedDiscount = null;
       new_item.discount_percentage = 0;
       new_item.discount_amount_per_item = 0;
       new_item.price_list_rate = item.rate;
@@ -818,7 +819,7 @@ export default {
       doc.items = this.get_invoice_items();
       doc.total = this.subtotal;
       doc.discount_amount = flt(this.discount_amount);
-      doc.discount_type = this.selectedDiscount;
+      doc.additional_discount_type = this.selectedDiscount;
       doc.posa_pos_opening_shift = this.pos_opening_shift.name;
       doc.payments = this.get_payments();
       doc.taxes = [];
