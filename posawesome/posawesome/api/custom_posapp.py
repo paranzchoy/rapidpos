@@ -1331,6 +1331,8 @@ def submit_total_opening_readings(opening_shift):
     void_count_array = []
     total = 0
     gross_amount = 0
+    senior_discount = 0
+    pwd_discount = 0
 
     opening_shift_doc=frappe.get_doc("POS Opening Shift", opening_shift)
     array_length = len(opening_shift_doc.sales_invoices)
@@ -1340,6 +1342,11 @@ def submit_total_opening_readings(opening_shift):
 
         invoice_get=frappe.get_doc("Sales Invoice", i.sales_invoice)
 
+        if(invoice_get.additional_discount_type):
+            if(invoice_get.additional_discount_type=="PWD"):
+                pwd_discount += invoice_get.grand_total
+            elif (invoice_get.additional_discount_type=="SRCT"):
+                senior_discount += invoice_get.grand_total
         if(invoice_get.status=="Draft"):
             if(len(void_count_array)==0):
                 first_void = invoice_get.name
@@ -1365,6 +1372,8 @@ def submit_total_opening_readings(opening_shift):
     opening_shift_doc.gross_amount = gross_amount
     opening_shift_doc.total_cash = total_cash
     opening_shift_doc.total_card = total_card
+    opening_shift_doc.pwd_discount = pwd_discount
+    opening_shift_doc.senior_discount = senior_discount
     opening_shift_doc.last_sales_invoice = last_invoice
     opening_shift_doc.submit()
 
