@@ -2,7 +2,6 @@
   <v-row justify="center">
     <!-- Verify username & password -->
     <v-dialog v-model="verify_user" max-width="550px">
-      <v-form ref="form" v-model="valid" lazy-validation>
       <v-card>
         <!-- Title -->
         <v-card-title>
@@ -45,7 +44,6 @@
             <v-btn color="primary" @click="configure_modal">Start</v-btn>
           </v-card-actions>
         </v-card>
-        </v-form>
      </v-dialog>
 
     <!-- Tabs: Cash, Cards, Coupon-->
@@ -298,7 +296,7 @@
         <!-- Buttons -->
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" dark @click="close_dialog">Close</v-btn>
+          <v-btn color="error" dark @click="close_withdrawal_dialog">Close</v-btn>
           <v-btn color="primary" dark @click="submit_dialog2">Submit</v-btn>
         </v-card-actions>
       </v-card>
@@ -390,12 +388,24 @@ export default {
   },
   methods: {
     close_login_dialog() {
-      this.$refs.form.reset()
+      // Reset the Form
+      this.inputUsername = null
+      this.inputPassword = null
+
+      // Close Dialog
       this.verify_user = false;
+
       
     },
-    close_dialog() {
-      // this.$refs.form.reset()
+    close_withdrawal_dialog() {
+      // Reset the Form
+       this.denominations.forEach((element) => {
+        element.quantity = "0"
+      })
+      this.cash_withdrawal.card_details = []
+      this.cash_withdrawal.coupon_details = []
+
+      // Close Dialog
       this.withdrawalDialog = false;
       
     },
@@ -586,13 +596,21 @@ export default {
               text: `Withdrawal created successfully.`,
               color: "success",
             });
+            this.cash_details_push = []
           } else {
             console.log(r)
           }
         });
       
-      // this.$refs.form.reset()
-      // this.withdrawalDialog = false;
+       // Reset the Form
+       this.denominations.forEach((element) => {
+        element.quantity = "0"
+      })
+      this.cash_withdrawal.card_details = []
+      this.cash_withdrawal.coupon_details = []
+
+      // Close Dialog
+      this.withdrawalDialog = false;
     
 
 
