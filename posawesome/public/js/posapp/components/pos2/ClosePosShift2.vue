@@ -176,7 +176,69 @@
         </v-card-text>
         <v-card-text>
            <template>
-              <v-data-table
+             <v-row>
+                <v-col cols="6">
+                </v-col>
+                <v-col cols="6">
+                  <v-data-table
+                    :headers="showHeaders"
+                    :items="dialog_data.payment_reconciliation"
+                    item-key="mode_of_payment"
+                    class="elevation-1"
+                    :items-per-page="itemsPerPage"
+                    hide-default-footer
+                  >
+                      <template v-slot:item.closing_amount="props">
+                          <template v-if="props.item.mode_of_payment === 'Cash'">{{
+                              (
+                                props.item.closing_amount = (totalAmount)
+                              )
+                            }}
+                          </template>
+                          <template v-else-if="props.item.mode_of_payment === 'Credit Card'">
+                            <v-edit-dialog
+                            :return-value.sync="props.item.closing_amount"
+                            >
+                              {{ formtCurrency(props.item.closing_amount) }}
+                                <template v-slot:input>
+                                    <v-text-field
+                                      v-model="props.item.closing_amount"
+                                      :rules="[max25chars]"
+                                      label="Edit"
+                                      single-line
+                                      counter
+                                      type="number"
+                                    ></v-text-field>
+                                </template>
+                            </v-edit-dialog>
+                          </template>
+                      </template>
+
+                      <template v-slot:item.opening_amount="{ item }">{{
+                        formtCurrency(item.opening_amount)
+                      }}</template>
+                      <template v-slot:item.expected_amount="{ item }">{{
+                        formtCurrency(item.expected_amount)
+                      }}</template>
+                      <template v-slot:item.difference="{ item }">{{
+                        formtCurrency(item.difference = item.expected_amount - item.closing_amount)
+                      }}</template>
+
+                      <template slot="body.append">
+                        <tr class="pink--text">
+                            <th class="title">Totals</th>
+                            <th class="title" text-aligh="center">[test value]</th>
+                            <!-- <th class="title">{{ sumField(item.closing_amount)}}</th> -->
+                            <!-- <th class="title">{{ sumField('calories') }}</th>
+                            <th class="title">{{ sumField('fat') }}</th>
+                            <th class="title">{{ sumField('carbs') }}</th>
+                            <th class="title">{{ sumField('protein') }}</th> -->
+                        </tr>
+                      </template>
+                  </v-data-table>
+                </v-col>
+             </v-row>
+              <!-- <v-data-table
                 :headers="showHeaders"
                 :items="dialog_data.payment_reconciliation"
                 item-key="mode_of_payment"
@@ -219,9 +281,9 @@
                   <template v-slot:item.difference="{ item }">{{
                     formtCurrency(item.difference = item.expected_amount - item.closing_amount)
                   }}</template>
-              </v-data-table>
+              </v-data-table> -->
 
-          <v-row justify="end" no-gutters class="ma-0" style="height: 0%">
+          <!-- <v-row justify="end" no-gutters class="ma-0" style="height: 0%">
             <v-col
               cols="12"
               sm="9"
@@ -234,7 +296,7 @@
               class="text-right">
               1200
             </v-col>
-          </v-row>
+          </v-row> -->
         </template>
       </v-card-text>
 
@@ -334,7 +396,7 @@ export default {
     ],
     headersMap: {
       mode_of_payment: {text: 'Mode of Payment', value: 'mode_of_payment'},
-      closing_amount: {text: 'Closing Amount', value: 'closing_amount'}
+      closing_amount: {text: 'Closing Amount', value: 'closing_amount', align: 'center'}
     },
     selectedHeaders: [],
     
