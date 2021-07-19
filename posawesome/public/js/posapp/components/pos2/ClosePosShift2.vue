@@ -288,13 +288,15 @@
               cols="12"
               sm="9"
               class="text-right">
-              TOTAL
+              total
             </v-col>
             <v-col
               cols="12"
               sm="3"
               class="text-right">
               1200
+              {{shift_number}}
+              {{num_invoices}}
             </v-col>
           </v-row> -->
         </template>
@@ -303,7 +305,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="error" dark @click="close_dialog">Close</v-btn>
-        <v-btn color="primary" dark @click="submit_dialog">Submit</v-btn>
+        <v-btn color="primary" dark @click="verify_submit">Submit</v-btn>
       </v-card-actions>
 
       </v-card>
@@ -333,6 +335,7 @@ export default {
     pos_close: '',
     pos_profile: "",
     pos_opening_shift: "",
+    shift_number: "",
     inputUsername: null,
     inputPassword: null,
     denominations: [],
@@ -342,6 +345,7 @@ export default {
     sample_items: [],
     checkout_counter:'',
     total_cash_withdrawn:0,
+    num_invoices:0,
     // headers: [
     //   {
     //     text: 'Mode of Payment',
@@ -523,12 +527,26 @@ export default {
           this.verify_user = false;
           this.inputUsername = null;
           this.inputPassword = null;
+          this.shift_number = this.pos_opening_shift.name;
+          this.num_invoices = this.pos_opening_shift.no_of_invoices;
          } else {
           evntBus.$emit("show_mesage", {
             text: `Username does not match. Please try again.`,
             color: "error",
           })
         }
+      }
+    },
+
+    //CHECK NO OF INVOICES
+    verify_submit() {
+      if (this.num_invoices === 0) {
+        evntBus.$emit("show_mesage", {
+          text: `No transactions made`,
+          color: "warning",
+        });
+      } else {
+        this.submit_dialog();
       }
     },
 
@@ -629,6 +647,7 @@ export default {
     document.addEventListener('keydown', this.OpenClosingShift.bind(this));
 
     this.$nextTick(function (){
+      this.check_opening_entry();
       this.get_denominations();
       evntBus.$on("submit_closing_pos", (data) => {
         this.submit_closing_pos(data)
