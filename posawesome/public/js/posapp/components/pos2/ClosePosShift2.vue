@@ -283,7 +283,7 @@
                   }}</template>
               </v-data-table> -->
 
-          <v-row justify="end" no-gutters class="ma-0" style="height: 0%">
+          <!-- <v-row justify="end" no-gutters class="ma-0" style="height: 0%">
             <v-col
               cols="12"
               sm="9"
@@ -298,7 +298,7 @@
               {{shift_number}}
               {{num_invoices}}
             </v-col>
-          </v-row>
+          </v-row> -->
         </template>
       </v-card-text>
 
