@@ -1134,7 +1134,7 @@ def get_card_invoices(opening_shift):
 				if(i.mode_of_payment == 'Credit Card'):
 					get_invoices.append({'card_number': i.card_number, 'card_number_hidden':i.card_number_hidden, 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
 				if(i.mode_of_payment == 'Debit Card'):
-					get_invoices.append({'card_number': "", 'card_number_hidden': "", 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
+					get_invoices.append({'card_number': "", 'card_number_hidden': "N/A", 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
 	return get_invoices
 
 
