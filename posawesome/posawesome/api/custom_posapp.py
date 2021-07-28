@@ -1364,9 +1364,11 @@ def submit_total_opening_readings(opening_shift):
     for item in opening_shift_doc.opening_shift_withdrawal:
         paid_outs = paid_outs + item.cash_amount + item.card_amount
 
-    opening_shift_doc.first_void_no = first_void
     if(len(void_count_array)!=0):
         opening_shift_doc.last_void_no = void_count_array[-1]
+    company_info = frappe.get_doc("Company", opening_shift_doc.company)
+
+    opening_shift_doc.first_void_no = first_void
     opening_shift_doc.void_count = len(void_count_array)
     opening_shift_doc.withdrawal_amount = paid_outs
     opening_shift_doc.gross_amount = gross_amount
@@ -1375,6 +1377,8 @@ def submit_total_opening_readings(opening_shift):
     opening_shift_doc.pwd_discount = pwd_discount
     opening_shift_doc.senior_discount = senior_discount
     opening_shift_doc.last_sales_invoice = last_invoice
+    # opening_shift_doc.company_address = last_invoice
+    opening_shift_doc.tin_number = company_info.tax_id
     opening_shift_doc.submit()
 
 @frappe.whitelist()
