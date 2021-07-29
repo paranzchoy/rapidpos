@@ -455,11 +455,9 @@ export default {
           if(r.message){
             r.message.forEach((element) => {
               vm.sample_items.push(element)
-              if (element.name === "Z-Counter"){
-                this.checkout_counter = element.value;
-              }
-
-              // console.log(element);
+              // if (element.name === "Z-Counter"){
+              //   this.checkout_counter = element.value;
+              // }
             })
           }
         },
@@ -494,11 +492,17 @@ export default {
         },
         });
     },
-    // CASH_DETAILS METHOD
-    cashDetailsMethod(){
+    validateCashAndCounterDetails(){
+    // Verify if denom is not empty
       this.denominations.forEach((element) => {
         if(element.quantity!=0){
          this.cash_details_push.push(element);
+        }
+      })
+    //assign value to z-counter
+      this.sample_items.forEach((element) => {
+        if (element.name === "Z-Counter"){
+            this.checkout_counter = element.value;
         }
       })
     },
@@ -552,7 +556,7 @@ export default {
 
     // SUBMIT_DIALOG METHOD: Submit POS Closing Shift data
     submit_dialog() {
-      this.cashDetailsMethod();
+      this.validateCashAndCounterDetails();
       this.pos_closing_shift_data.cash_details = this.cash_details_push;
       const pos_closing_shift_temp = this.pos_closing_shift_data;
       console.log({pos_closing_shift_temp});
@@ -566,12 +570,10 @@ export default {
           if (r.message) {
             this.pos_closing_shift = r.message;
             this.load_print_page();
-            // evntBus.$emit("current_closing_shift", r.message);
             evntBus.$emit("show_mesage", {
               text: `POS Shift Closed`,
               color: "success",
             });
-            // this.check_opening_entry();
             this.close_dialog();
             evntBus.$emit("check_opening_entry");
           } else {
