@@ -6,8 +6,10 @@
         class="grey--text"
       ></v-app-bar-nav-icon>
       <v-toolbar-title class="text-uppercase indigo--text">
-        <span><img src="/assets/rapidposcustom/images/Jacobs-removebg-preview.png"  class="brand-image" style="max-width: 100px; max-height: 100px;"></span>
-        <span class="font-weight-light"><img src="/assets/rapidposcustom/images/Breadnuts-removebg-preview.png"  class="brand-image" style="max-width: 200px; max-height: 100px;"></span>
+        <!-- <span><img src="/assets/rapidposcustom/images/Jacobs-removebg-preview.png"  class="brand-image" style="max-width: 100px; max-height: 100px;"></span>
+        <span class="font-weight-light"><img src="/assets/rapidposcustom/images/Breadnuts-removebg-preview.png"  class="brand-image" style="max-width: 200px; max-height: 100px;"></span> -->
+        <span><img src="/assets/rapidposcustom/images/TacurongLogo.png"  class="brand-image" style="max-width: 25px; max-height: 25px;"></span>
+        <span class="font-weight-bold">Tacurong Doctors Hospital Pharmacy</span>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -56,18 +58,6 @@
                       <v-list-item-title>Z-Reading</v-list-item-title>
                     </v-list-item-content>
                   </v-list-item> -->
-                  <!-- CLOSING SHIFT DIALOG -->
-                  <v-list-item
-                    @click="close_shift_dialog"
-                    v-if="!pos_profile.posa_hide_closing_shift"
-                  >
-                    <v-list-item-icon>
-                      <v-icon>mdi-folder-open</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-content>
-                      <v-list-item-title>Close Shift</v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
                   <!-- CASH WITHDRAWAL DIALOG -->
                   <v-list-item @click="cash_withdrawal">
                     <v-list-item-icon>
@@ -75,15 +65,6 @@
                     </v-list-item-icon>
                     <v-list-item-content>
                       <v-list-item-title>Cash Withdrawal &nbsp;&nbsp; <span style="color:gray">Ctrl+L</span></v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                  <!-- HELP DIALOG -->
-                  <v-list-item @click="help_modal">
-                    <v-list-item-icon>
-                      <v-icon>mdi-help-circle</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-content>
-                      <v-list-item-title>Help &nbsp;&nbsp; <span  style="color:gray">F1</span></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 <!-- <v-list-item

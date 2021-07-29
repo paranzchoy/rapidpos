@@ -1108,20 +1108,8 @@ def generate_keys(user):
 @frappe.whitelist()
 def get_denominations():
 	data = {}
-	data["get_denom"] = frappe.db.get_list("Breakdown Denomination", fields=["amount","quantity","total"], limit= 20)
+	data["get_denom"] = frappe.db.get_list("Breakdown Denomination", fields=["amount","quantity","total"], limit= 20, order_by='amount desc')
 	return data
-
-
-# @frappe.whitelist()
-# def get_denominations():
-#     denominations = frappe.db.sql("""
-#         select name, amount
-#         from `tabBreakdown Denomination`
-#         order by name
-#         LIMIT 0, 10000 """, as_dict=1)
-
-#     return denominations
-
 
 @frappe.whitelist()
 def get_card_invoices(opening_shift):
@@ -1134,7 +1122,7 @@ def get_card_invoices(opening_shift):
 				if(i.mode_of_payment == 'Credit Card'):
 					get_invoices.append({'card_number': i.card_number, 'card_number_hidden':i.card_number_hidden, 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
 				if(i.mode_of_payment == 'Debit Card'):
-					get_invoices.append({'card_number': "", 'card_number_hidden': "", 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
+					get_invoices.append({'card_number': "", 'card_number_hidden': "N/A", 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
 	return get_invoices
 
 
@@ -1261,7 +1249,6 @@ def cardNumberHide(card_number):
         asterisks = asterisks + '*'
     return first_two + asterisks + search_last_four
 
-
 @frappe.whitelist()
 def get_bank_names_data():
     bank_list = []
@@ -1269,7 +1256,6 @@ def get_bank_names_data():
     for i in get_bank:
         bank_list.append(i.name)
     return bank_list
-
 
 @frappe.whitelist()
 def submit_pos_opening_shift_withdrawal(withdrawal):
@@ -1333,6 +1319,7 @@ def submit_total_opening_readings(opening_shift):
     gross_amount = 0
     senior_discount = 0
     pwd_discount = 0
+    opening_amount = 0
 
     opening_shift_doc=frappe.get_doc("POS Opening Shift", opening_shift)
     array_length = len(opening_shift_doc.sales_invoices)
@@ -1363,7 +1350,9 @@ def submit_total_opening_readings(opening_shift):
  
     for item in opening_shift_doc.opening_shift_withdrawal:
         paid_outs = paid_outs + item.cash_amount + item.card_amount
-
+	
+    for item in opening_shift_doc.balance_details:
+        opening_amount += item.amount
     if(len(void_count_array)!=0):
         opening_shift_doc.last_void_no = void_count_array[-1]
     company_info = frappe.get_doc("Company", opening_shift_doc.company)
@@ -1371,6 +1360,7 @@ def submit_total_opening_readings(opening_shift):
     opening_shift_doc.first_void_no = first_void
     opening_shift_doc.void_count = len(void_count_array)
     opening_shift_doc.withdrawal_amount = paid_outs
+    opening_shift_doc.cash_opening_amount = opening_amount
     opening_shift_doc.gross_amount = gross_amount
     opening_shift_doc.total_cash = total_cash
     opening_shift_doc.total_card = total_card
@@ -1521,12 +1511,13 @@ def view_opening_shift_details(opening_shift_name):
 	{'name': "Ending Void No", 'value': get_op_shift.last_void_no}, {'name': "Sales Count", 'value': get_op_shift.no_of_invoices-get_op_shift.void_count},
 	{'name': "Void Count", 'value': get_op_shift.void_count}, {'name': "Total Transactions", 'value': get_op_shift.no_of_invoices},
 	{'name': "Beginning Balance", 'value': "000,019,275,409.19"}, {'name': "Ending Balance", 'value': "000,019,333,397.47"},
-	{'name': "Gross Amount", 'value': get_op_shift.gross_amount}, {'name': "Less", 'value': get_op_shift.gross_amount},
-	{'name': "Discount", 'value': "0"}, {'name': "Senior Discount", 'value': get_op_shift.senior_discount}, 
+	{'name': "Gross Amount", 'value': get_op_shift.gross_amount}, {'name': "Less", 'value': ''},
+	{'name': "Discount", 'value': get_op_shift.pwd_discount+get_op_shift.senior_discount}, {'name': "Senior Discount", 'value': get_op_shift.senior_discount}, 
 	{'name': "PWD Discount", 'value': get_op_shift.pwd_discount}, {'name': "Void", 'value': "0"},
-	{'name': "Net Amount", 'value': "0"}, {'name': "Cash", 'value': get_op_shift.total_cash}, {'name': "Checks", 'value': "0"},
-	{'name': "Coupons", 'value': get_op_shift.total_coupon}, {'name': "Gift Certificate", 'value': "0"},
-	{'name': "Card", 'value': get_op_shift.total_card}, {'name': "Mode of Payment Total", 'value': get_op_shift.total_cash + get_op_shift.total_card},
+	{'name': "Net Amount", 'value': get_op_shift.gross_amount-(get_op_shift.pwd_discount+get_op_shift.senior_discount)}, 
+	{'name': "Cash", 'value': get_op_shift.total_cash}, {'name': "Checks", 'value': "0"},{'name': "Coupons", 'value': get_op_shift.total_coupon}, 
+	{'name': "Gift Certificate", 'value': "0"},	{'name': "Card", 'value': get_op_shift.total_card}, 
+	{'name': "Mode of Payment Total", 'value': get_op_shift.total_cash + get_op_shift.total_card},
 	{'name': "VATable Sales", 'value': "0"}, {'name': "VAT Amount", 'value': "0"}, {'name': "VAT Exempt Sales", 'value': "0"},
 	{'name': "Zero-Rated Sales", 'value': "0"}, {'name': "Accumulated Grand Total", 'value': "0"}, {'name': "Reset Counter", 'value': "0"},
 	{'name': "Global Transaction", 'value': "0"}]
