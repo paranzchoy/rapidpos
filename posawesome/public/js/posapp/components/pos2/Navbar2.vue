@@ -1,15 +1,15 @@
 <template>
   <nav>
-    <v-app-bar app height="40" class="elevation-2" style="background-image: linear-gradient(to right, #09203f, #537895);">
+    <v-app-bar app height="40" class="elevation-2" style="background-image: linear-gradient(to right, white, #f2ce2c);">
       <v-app-bar-nav-icon
         @click.stop="mini = !mini"
         class="grey--text"
       ></v-app-bar-nav-icon>
       <v-toolbar-title class="text-uppercase indigo--text">
-        <!-- <span><img src="/assets/rapidposcustom/images/Jacobs-removebg-preview.png"  class="brand-image" style="max-width: 100px; max-height: 100px;"></span>
-        <span class="font-weight-light"><img src="/assets/rapidposcustom/images/Breadnuts-removebg-preview.png"  class="brand-image" style="max-width: 200px; max-height: 100px;"></span> -->
-        <span><img src="/assets/rapidposcustom/images/TacurongLogo.png"  class="brand-image" style="max-width: 25px; max-height: 25px;"></span>
-        <span class="font-weight-bold" style="color:white;">Tacurong Doctors Hospital Pharmacy</span>
+        <span><img src="/assets/rapidposcustom/images/Jacobs-removebg-preview.png"  class="brand-image" style="max-width: 100px; max-height: 100px;"></span>
+        <span class="font-weight-light"><img src="/assets/rapidposcustom/images/Breadnuts-removebg-preview.png"  class="brand-image" style="max-width: 200px; max-height: 100px;"></span>
+        <!-- <span><img src="/assets/rapidposcustom/images/TacurongLogo.png"  class="brand-image" style="max-width: 25px; max-height: 25px;"></span>
+        <span class="font-weight-bold" style="color:white;">Tacurong Doctors Hospital Pharmacy</span> -->
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -150,7 +150,7 @@
       :mini-variant.sync="mini"
       app
       class="indigo margen-top"
-      style="background-image: linear-gradient(#380036, #0cbaba);"
+      style="background-image: linear-gradient(#a4de1d, #ffffff);"
     >
       <v-list dark>
         <v-list-item class="px-2">
