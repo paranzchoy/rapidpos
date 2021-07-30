@@ -17,7 +17,7 @@
       <div class="text-center">
         <v-menu offset-y>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="white" dark text v-bind="attrs" v-on="on">Menu</v-btn>
+            <v-btn color="grey" dark text v-bind="attrs" v-on="on">Menu</v-btn>
           </template>
           <v-card class="mx-auto" max-width="300" tile>
             <v-list dense>
@@ -141,7 +141,7 @@
           </v-card>
         </v-menu>
       </div> -->
-      <v-btn text color="white" @click="go_desk">
+      <v-btn text color="grey" @click="go_desk">
         <span right>Desk</span>
       </v-btn>
     </v-app-bar>
