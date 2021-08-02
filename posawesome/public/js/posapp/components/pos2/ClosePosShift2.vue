@@ -68,7 +68,7 @@
           <template>
             <div class="tabs">
                 <a v-on:click="activetab='1'" v-bind:class="[ activetab === '1' ? 'active' : '' ]">Details</a>
-                <a v-on:click="activetab='2'" v-bind:class="[ activetab === '2' ? 'active' : '' ]" @click="view_cash_withdrawn()">Cash</a>
+                <a v-on:click="activetab='2'" v-bind:class="[ activetab === '2' ? 'active' : '' ]">Cash</a>
             </div>
             <div class="content">
                 <div v-if="activetab ==='1'" class="tabcontent">
@@ -154,7 +154,7 @@
                                 <v-col cols="12"
                                   sm="3"
                                   class="text-right">
-                                {{formtCurrency(total_cash_withdrawn)}}
+                                {{this.total_cash_withdrawn}}
                                 </v-col>
                                 <v-col cols="12"
                                   sm="9"
@@ -228,11 +228,6 @@
                         <tr class="pink--text">
                             <th class="title">Totals</th>
                             <th class="title" text-aligh="center">[test value]</th>
-                            <!-- <th class="title">{{ sumField(item.closing_amount)}}</th> -->
-                            <!-- <th class="title">{{ sumField('calories') }}</th>
-                            <th class="title">{{ sumField('fat') }}</th>
-                            <th class="title">{{ sumField('carbs') }}</th>
-                            <th class="title">{{ sumField('protein') }}</th> -->
                         </tr>
                       </template>
                   </v-data-table>
@@ -346,38 +341,6 @@ export default {
     checkout_counter:'',
     total_cash_withdrawn:0,
     num_invoices:0,
-    // headers: [
-    //   {
-    //     text: 'Mode of Payment',
-    //     value: 'mode_of_payment',
-    //     align: 'start',
-    //     sortable: true,
-    //   },
-    //   {
-    //     text: 'Opening Amount',
-    //     align: 'end',
-    //     sortable: true,
-    //     value: 'opening_amount',
-    //   },
-    //   {
-    //     text: 'Closing Amount',
-    //     value: 'closing_amount',
-    //     align: 'end',
-    //     sortable: true,
-    //   },
-    //   {
-    //     text: 'Expected Amount',
-    //     value: 'expected_amount',
-    //     align: 'end',
-    //     sortable: false,
-    //   },
-    //   {
-    //     text: 'Difference',
-    //     value: 'difference',
-    //     align: 'end',
-    //     sortable: false,
-    //   },
-    // ],
     headers: [
       {
         text: 'Opening Amount',
@@ -455,9 +418,6 @@ export default {
           if(r.message){
             r.message.forEach((element) => {
               vm.sample_items.push(element)
-              // if (element.name === "Z-Counter"){
-              //   this.checkout_counter = element.value;
-              // }
             })
           }
         },
@@ -639,17 +599,15 @@ export default {
   },
 
   created: function () {
-    // evntBus.$on('current_closing_shift', (data) => {
-    //   this.pos_closing_shift = data.pos_closing_shift;
-    // });
     evntBus.$on('open_ClosingDialog2', (data) => {
       this.verify_user = true;
       this.dialog_data = data;
+      this.view_cash_withdrawn();
     });
     document.addEventListener('keydown', this.OpenClosingShift.bind(this));
 
     this.$nextTick(function (){
-      this.check_opening_entry();
+      // this.check_opening_entry();
       this.get_denominations();
       evntBus.$on("submit_closing_pos", (data) => {
         this.submit_closing_pos(data)
@@ -671,7 +629,6 @@ export default {
         return totalSum + (item.amount * item.quantity);
       },0);
     },
-
     showHeaders () {
       return this.headers.filter(s => this.selectedHeaders.includes(s));
     }
