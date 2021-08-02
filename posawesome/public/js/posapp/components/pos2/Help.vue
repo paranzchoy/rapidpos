@@ -102,16 +102,37 @@
               </v-card>
             </v-col>
       </v-row>
-
+      <v-row no-gutters>
+         <v-col cols="2" sm="3" md="2">
+            <v-card class="pa-2" outlinedtile>
+                <div class="font-weight-medium">F5</div>
+            </v-card>
+        </v-col>
+        <v-col cols="4" md="4">
+          <v-card class="pa-2" outlined tile>
+            Refresh
+          </v-card>
+        </v-col>
+        <v-col cols="2" sm="3" md="2">
+            <v-card class="pa-2" outlinedtile>
+                <div class="font-weight-medium">Ctrl + I</div>
+            </v-card>
+        </v-col>
+        <v-col cols="4" md="4">
+          <v-card class="pa-2" outlined tile>
+            Idle
+          </v-card>
+        </v-col>
+      </v-row>
       <v-row no-gutters>
           <v-col cols="2" sm="3" md="2">
             <v-card class="pa-2" outlinedtile>
-                <div class="font-weight-medium">Ctrl + I</div>
+                <div class="font-weight-medium">F6</div>
             </v-card>
           </v-col>
           <v-col cols="4" md="4">
             <v-card class="pa-2" outlined tile>
-              Idle
+              Apply Coupon
             </v-card>
           </v-col>
           <v-col cols="2" sm="3" md="2">
