@@ -32,7 +32,7 @@
                 clearable
                 counter
                 required
-                @keyup.enter="submit_dialog"
+                @keyup.enter="configure_modal"
               ></v-text-field>
           </v-col>
         </v-row>
