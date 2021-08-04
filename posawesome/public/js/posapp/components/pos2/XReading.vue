@@ -8,13 +8,6 @@
         <v-card-text>
           <span style="color: black; font-size: 15px;">*Head cashier/Sales Manager only</span>
           <v-container>
-            <!-- <v-row justify="center">
-              <v-col 
-              cols="12"
-              sm="9">
-                <v-btn elevation="2" color="primary" dark @click="print_page">Print X-Reading</v-btn>
-              </v-col>
-            </v-row> -->
             <v-row justify="center">
               <v-col 
               cols="12">
@@ -70,7 +63,6 @@ export default {
     inputPassword: null,
     messages: '',
     dialog_data: {},
-    // opening_shift_name: pos_opening_shift.name,
     pos_opening_shift: "",
     headers: [
       {
@@ -123,45 +115,44 @@ export default {
         async: true,
         callback: function (r) {
           //do nothing
-          //this.
         },
       });
     },
 
     submit_dialog() {
-      
       if (!this.inputUsername || !this.inputPassword) {
         evntBus.$emit("show_mesage", {
           text: `Please complete the required fields`,
           color: "warning",
         })
+        return;
       } 
-      else if (this.inputUsername && this.inputPassword) {
+      else {
+          const vm = this;
           frappe.call({
-            method: "posawesome.posawesome.api.custom_posapp.verify_password",
+            method: "posawesome.posawesome.api.custom_posapp.verifyRole",
             args: {
               username: this.inputUsername,
               password: this.inputPassword
             },
             callback: function(r) {
               if(r.message) {
-                this.messages = r.message;
+                 evntBus.$emit("show_mesage", {
+                  text: `Please check if credentials are correct and you have necessary permissions.`,
+                  color: "error",
+                })
+              }
+              else{
+                vm.load_print_page();
+                vm.xReading = false;
+                vm.inputUsername = null;
+                vm.inputPassword = null;
               }
             }
           })
-          this.load_print_page();
-          this.xReading = false;
-          // this.inputUsername = null;
-          // this.inputPassword = null;
-         } 
-        //  else {
-        //   evntBus.$emit("show_mesage", {
-        //     text: `Username does not match. Please try again.`,
-        //     color: "error",
-        //   })
-        // }
-      
+         }
     },
+
 
     formtCurrency(value) {
       value = parseFloat(value);
