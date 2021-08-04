@@ -359,7 +359,6 @@ export default {
       'Card',
     ],
     user: frappe.session.user,
-    role: "Head Cashier",
     inputUsername: null,
     inputPassword: null,
     card_invoices: [],
@@ -504,49 +503,39 @@ export default {
          this.cash_withdrawal.coupon_details.forEach((element) => {
           value = value + element.amount;
          })
-        // this.total_card_amount = value;
       }
       return value;
-      // return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');;
     },
   configure_modal() {
-      // const checks = this.role;
-      // var check_role = checks.includes("Head Cashier");
-
-      // Validation
-      if (!this.inputUsername || !this.inputPassword && this.role) {
+      if (!this.inputUsername || !this.inputPassword) {
         evntBus.$emit("show_mesage", {
           text: `Please complete the required fields`,
           color: "warning",
         })
       }
-       
       else {    
-        if (this.inputUsername && this.inputPassword && this.role) {
+        const vm = this;
           frappe.call({
-            method: "posawesome.posawesome.api.custom_posapp.verify_user",
+            method: "posawesome.posawesome.api.custom_posapp.verifyRole",
             args: {
               username: this.inputUsername,
-              password: this.inputPassword,
-              role: this.role
+              password: this.inputPassword
             },
             callback: function(r) {
-              if(!r.exc) {
-                callback();
+              if(r.message) {
+                 evntBus.$emit("show_mesage", {
+                  text: `Please check if credentials are correct and you have necessary permissions.`,
+                  color: "error",
+                })
+              }
+              else{
+                 vm.withdrawalDialog = true;
+                 vm.verify_user = false;
+                 vm.inputUsername = null;
+                 vm.inputPassword = null;
               }
             }
           })
-
-          this.withdrawalDialog = true;
-          this.verify_user = false;
-          this.inputUsername = null;
-          this.inputPassword = null;
-         } else {
-          evntBus.$emit("show_mesage", {
-            text: `Username does not match. Please try again.`,
-            color: "error",
-          })
-        }
       }
       this.$refs.form.reset()
 
