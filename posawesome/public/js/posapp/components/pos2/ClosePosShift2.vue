@@ -45,8 +45,6 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <!-- <v-btn color="error" dark @click="close_verify_dialog">Cancel</v-btn> -->
-
           <v-btn color="error" dark @click="close_verify_user">Cancel</v-btn>
 
           <v-btn color="primary" @click="configure_modal">Verify</v-btn>
@@ -472,33 +470,32 @@ export default {
           text: `Please complete the required fields`,
           color: "warning",
         })
-      } else {
-        if (this.inputUsername === this.user && this.inputPassword) {
-          this.view_opening_shift_details();
+      } 
+      else {
+        const vm = this;
           frappe.call({
-            method: "posawesome.posawesome.api.custom_posapp.verify_user",
+            method: "posawesome.posawesome.api.custom_posapp.verifyRole",
             args: {
               username: this.inputUsername,
               password: this.inputPassword
             },
             callback: function(r) {
-              if(!r.exc) {
-                callback();
+              if(r.message) {
+                 evntBus.$emit("show_mesage", {
+                  text: `Please check if credentials are correct and you have necessary permissions.`,
+                  color: "error",
+                })
+              }
+              else{
+                vm.closingShiftDialog = true;
+                vm.verify_user = false; 
+                vm.inputUsername = null;
+                vm.inputPassword = null;
+                vm.shift_number = vm.pos_opening_shift.name;
+                vm.num_invoices = vm.pos_opening_shift.no_of_invoices;
               }
             }
           })
-          this.closingShiftDialog = true;
-          this.verify_user = false;
-          this.inputUsername = null;
-          this.inputPassword = null;
-          this.shift_number = this.pos_opening_shift.name;
-          this.num_invoices = this.pos_opening_shift.no_of_invoices;
-         } else {
-          evntBus.$emit("show_mesage", {
-            text: `Username does not match. Please try again.`,
-            color: "error",
-          })
-        }
       }
     },
 
