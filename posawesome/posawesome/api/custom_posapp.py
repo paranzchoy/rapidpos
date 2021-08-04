@@ -756,8 +756,20 @@ def get_pos_invoices(pos_opening_shift):
 
     return data
 
-# @frappe.whitelist()
-# def pos_has_sales_invoices()
+@frappe.whitelist()
+def verifyRole(username, password):
+    roles = []
+    hasError = False
+    checkIfCorrect = frappe.local.login_manager.check_password(username, password)
+    if (checkIfCorrect==username):
+        checkRole = frappe.get_roles(username)
+        if (any(item in 'Head Cashier' for item in checkRole) or any(item in 'Sales Manager' for item in checkRole)):
+           hasError = False
+        else:
+           hasError = True
+    else:
+        hasError = True
+    return hasError
 
 @frappe.whitelist()
 def verify_password(password):
