@@ -740,7 +740,8 @@ export default {
         });
       }
       this.items = [];
-      this.customer = this.pos_profile.customer;
+      // this.customer = this.pos_profile.customer;
+      this.customer = 'WalkIn';
       this.invoice_doc = '';
       this.return_doc = '';
       this.discount_amount = 0;
@@ -763,7 +764,8 @@ export default {
       }
       if (!data.name && !data.is_return) {
         this.items = [];
-        this.customer = this.pos_profile.customer;
+        // this.customer = this.pos_profile.customer;
+        this.customer = 'WalkIn';
         this.invoice_doc = '';
         this.discount_amount = 0;
       } else {
