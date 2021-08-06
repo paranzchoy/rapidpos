@@ -5,6 +5,7 @@
         <v-card-title>
           <v-row justify="center">
             <span class="headline indigo--text">Enter credentials to enable discount.</span>
+            <h4 style="color: rgb(155, 0, 0); --darkreader-inline-color:#ff6060;" data-darkreader-inline-color="">* Head Cashier or Sales manager only   </h4>
           </v-row>
         </v-card-title>
         <v-card-text class="pa-0">
@@ -75,8 +76,8 @@ export default {
     itemsPerPage: 20,
     dialog_data: {},
     user: frappe.session.user,
-    inputUsername: null,
-    inputPassword: null,
+    inputUsername: '',
+    inputPassword: '',
   }),
   watch: {},
 
@@ -86,37 +87,35 @@ export default {
     },
 
     submit_dialog() {
-        // evntBus.$emit('submit_discount_authentication', this.dialog_data);
-        // this.enabledDiscountDialog = false;
         if (!this.inputUsername || !this.inputPassword) {
           evntBus.$emit("show_mesage", {
             text: `Please complete all fields`,
             color: "error",
           })
         } 
-        // else if (this.inputUsername == role) {
-        //   evntBus.$emit("show_mesage", {
-        //     text: `You are not authorized`,
-        //     color: "error",
-        //   })
-        // } 
         else {
+          const vm = this;
           frappe.call({
-            method: "posawesome.posawesome.api.custom_posapp.verify_user",
+            method: "posawesome.posawesome.api.custom_posapp.verifyRole",
             args: {
               username: this.inputUsername,
               password: this.inputPassword
             },
             callback: function(r) {
-              if(!r.exc) {
-                callback();
+              if(r.message) {
+                 evntBus.$emit("show_mesage", {
+                  text: `Please check if credentials are correct and you have necessary permissions.`,
+                  color: "error",
+                })
+              }
+              else{
+                evntBus.$emit('submit_discount_authentication', vm.dialog_data);
+                vm.enabledDiscountDialog = false;
+                vm.inputUsername = null;
+                vm.inputPassword = null;
               }
             }
           })
-          evntBus.$emit('submit_discount_authentication', this.dialog_data);
-          this.enabledDiscountDialog = false;
-          this.inputUsername = null;
-          this.inputPassword = null;
         }
     },
     KeyDiscount(e) {
