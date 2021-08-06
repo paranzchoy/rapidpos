@@ -422,6 +422,7 @@ export default {
       });
     },
     view_cash_withdrawn(){
+      const vm = this;
         frappe.call({
           method: 'posawesome.posawesome.api.custom_posapp.calculate_cash_withdrawn',
           args: {
@@ -430,7 +431,7 @@ export default {
           async: true,
           callback: function (r) {
               if (r.message) {
-                this.total_cash_withdrawn = r.message;
+                vm.total_cash_withdrawn = r.message;
                 console.log(r.message);
               }
         },
