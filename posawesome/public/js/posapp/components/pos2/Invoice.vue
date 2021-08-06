@@ -740,7 +740,8 @@ export default {
         });
       }
       this.items = [];
-      this.customer = this.pos_profile.customer;
+      // this.customer = this.pos_profile.customer;
+      this.customer = 'WalkIn';
       this.invoice_doc = '';
       this.return_doc = '';
       this.discount_amount = 0;
@@ -763,7 +764,8 @@ export default {
       }
       if (!data.name && !data.is_return) {
         this.items = [];
-        this.customer = this.pos_profile.customer;
+        // this.customer = this.pos_profile.customer;
+        this.customer = 'WalkIn';
         this.invoice_doc = '';
         this.discount_amount = 0;
       } else {
@@ -1395,6 +1397,13 @@ export default {
         this.discount_amount = 0;
       }
     },
+    openCouponDialog(e){
+      if(e.key === 'F6'){
+        e.preventDefault();
+        const invoice_doc = this.proces_invoice();
+        evntBus.$emit("apply_coupon_code", invoice_doc);
+      }
+    }
   },
   created() {
     evntBus.$on('register_pos_profile', (data) => {
@@ -1425,6 +1434,9 @@ export default {
     evntBus.$on("submit_discount_authentication", (data) => {
         this.submit_discount_authentication(data)
     });
+    evntBus.$on("open_coupon_dialog", () => {
+      this.openCouponDialog();
+    });
 
     this.$nextTick(function (){
       this.get_discount();
@@ -1442,6 +1454,7 @@ export default {
     document.addEventListener('keydown', this.shortOpenFirstItem.bind(this));
     document.addEventListener('keydown', this.shortSelectDiscount.bind(this));
     document.addEventListener('keydown', this.clearDiscount.bind(this));
+    document.addEventListener('keydown', this.openCouponDialog.bind(this));
   },
   destroyed() {
     document.removeEventListener('keydown', this.shortOpenPayment);
@@ -1453,6 +1466,7 @@ export default {
     document.removeEventListener('keydown', this.shortOpenFirstItem);
     document.removeEventListener('keydown', this.shortSelectDiscount);
     document.removeEventListener('keydown', this.clearDiscount);
+    document.removeEventListener('keydown', this.openCouponDialog);
   },
   watch: {
     customer() {

@@ -4,7 +4,7 @@
 from __future__ import unicode_literals, print_function
 import frappe
 from frappe.model.document import Document
-from frappe.utils import cint, flt, has_gravatar, format_datetime, now_datetime, get_formatted_email, today
+from frappe.utils import cint, flt, has_gravatar, format_datetime, now_datetime, get_formatted_email, today, getdate
 from frappe import throw, msgprint, _
 from frappe.utils.password import update_password as _update_password
 from frappe.desk.notifications import clear_notifications
@@ -758,7 +758,6 @@ def get_pos_invoices(pos_opening_shift):
 
 @frappe.whitelist()
 def verifyRole(username, password):
-    roles = []
     hasError = False
     checkIfCorrect = frappe.local.login_manager.check_password(username, password)
     if (checkIfCorrect==username):
@@ -1535,3 +1534,37 @@ def view_opening_shift_details(opening_shift_name):
 	{'name': "Global Transaction", 'value': "0"}]
 
 	return data
+
+@frappe.whitelist()
+def submit_coupon_code(coupon_code, invoice_name):
+    data = {}
+    coupon = frappe.get_doc('Coupon Code', {'coupon_code': coupon_code})
+    if coupon is None:
+        data["error_message"] = "Invalid Coupon Code"
+    else:
+        validate = validate_coupon_code(coupon.coupon_name)
+        if validate:
+           data["error_message"] = validate
+        else:
+            data["coupon_code"] = coupon_code
+            # invoice_doc = frappe.get_doc('Sales Invoice', invoice_name)
+            # invoice_doc.append("coupon_list", {
+            #     "coupon_name": coupon.coupon_name,
+            #     "qty": 0
+            # })
+            # data["invoice_doc"] = invoice_doc
+    return data
+
+
+
+def validate_coupon_code(coupon_name):
+    coupon = frappe.get_doc("Coupon Code", coupon_name)
+    if coupon.valid_from:
+        if coupon.valid_from > getdate(today()):
+            return "Sorry, this coupon code's validity has not started"
+    if coupon.valid_upto:
+        if coupon.valid_upto < getdate(today()):
+            return "Sorry, this coupon code's validity has expired"
+    if coupon.maximum_use:            
+        if coupon.used >= coupon.maximum_use:
+            return "Sorry, this coupon code is no longer valid"
