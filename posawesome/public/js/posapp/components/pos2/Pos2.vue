@@ -7,6 +7,7 @@
     <ReprintInvoice></ReprintInvoice>
     <XReading></XReading>
     <ZReading></ZReading>
+    <ApplyCoupon></ApplyCoupon>
     <Help></Help>
     <PaymentsConfirmation></PaymentsConfirmation>
     <ClosePosShift></ClosePosShift>
@@ -70,6 +71,7 @@ import ZReading from "./ZReading.vue";
 import Invoice from "./Invoice.vue";
 import EnabledDiscount from "./EnableDiscount.vue";
 import NewCustomer from "./NewCustomer.vue";
+import ApplyCoupon from "./ApplyCoupon.vue";
 
 export default {
   data: function () {
@@ -110,7 +112,8 @@ export default {
     PaymentsCoupon,
     CashWithdrawal,
     Invoice,
-    EnabledDiscount
+    EnabledDiscount,
+    ApplyCoupon
   },
 
   watch: {
@@ -187,9 +190,6 @@ export default {
           }
         });
     },
-    // get_withdrawal_data() {
-    //   evntBus.$emit('open_withdrawal', this.pos_opening_shift);
-    // },
     submit_closing_pos(data){
       frappe
         .call("posawesome.posawesome.doctype.pos_closing_shift.pos_closing_shift.submit_closing_shift", {
@@ -275,7 +275,6 @@ export default {
         this.get_closing_data2()
       })
       evntBus.$on("open_withdrawal_2", () => {
-        // this.get_withdrawal_data()
         evntBus.$emit('open_withdrawal', this.pos_opening_shift);
       })
       evntBus.$on("open_xreading_dialog", () => {
