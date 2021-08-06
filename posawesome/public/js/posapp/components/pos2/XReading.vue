@@ -6,7 +6,7 @@
           <span class="headline indigo--text">X-Reading</span>
         </v-card-title>
         <v-card-text>
-          <span style="color: black; font-size: 15px;">*Head cashier/Sales Manager only</span>
+          <h4 style="color: rgb(155, 0, 0); --darkreader-inline-color:#ff6060;" data-darkreader-inline-color="">* Head Cashier or Sales manager only   </h4>
           <v-container>
             <v-row justify="center">
               <v-col 
