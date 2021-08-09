@@ -432,7 +432,6 @@ export default {
           callback: function (r) {
               if (r.message) {
                 vm.total_cash_withdrawn = r.message;
-                console.log(r.message);
               }
         },
         });
@@ -488,6 +487,7 @@ export default {
                 })
               }
               else{
+                vm.view_opening_shift_details();
                 vm.closingShiftDialog = true;
                 vm.verify_user = false; 
                 vm.inputUsername = null;
