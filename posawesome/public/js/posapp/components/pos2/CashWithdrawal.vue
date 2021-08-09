@@ -87,7 +87,7 @@
                       <v-text-field
                           v-model="cash_withdrawal.cash_details = props.item.quantity"
                           :rules="[max25chars]"
-                          label="Edit"
+                          label="0"
                           single-line
                           type="number"
                           dense
