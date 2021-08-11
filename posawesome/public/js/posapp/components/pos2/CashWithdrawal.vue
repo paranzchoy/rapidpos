@@ -575,7 +575,7 @@ export default {
 
       frappe
         .call("rapidposcustom.rapidposcustom.api.rapidposcustom.submit_pos_opening_shift_withdrawal2", {
-          withdrawal: this.cash_withdrawal,
+          withdrawal: this.cash_withdrawal
         })
         .then((r) => {
           if (r.message) {
