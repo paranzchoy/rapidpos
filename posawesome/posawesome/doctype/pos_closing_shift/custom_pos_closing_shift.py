@@ -188,17 +188,11 @@ def submit_closing_shift(closing_shift, closing_cash, checkout_counter):
     closing_cash_withdrawal = frappe.get_doc({
         'doctype': 'POS Closing Shift'
     })
-    # for item in closing_cash.get("cash_details"):
-    #         cash_details.append({'amount': item["amount"], 'quantity': item["quantity"], 'total': item["total"]})
-    # closing_cash_withdrawal.set("cash_denominations_breakdown", cash_details)
+
     for item in closing_cash.get("cash_details"):
             closing_shift_doc.append("cash_denominations_breakdown", {'amount': item["amount"], 'quantity': item["quantity"], 'total': item["total"]})
     closing_cash_withdrawal.set("cash_denominations_breakdown", cash_details)
-    # closing_shift_doc.append("cash_denominations_breakdown", {
-    #     "amount": 100,
-    #     "quantity": 1,
-    #     "total": 100
-    # })
+
     closing_shift_doc.checkout_counter = checkout_counter
     submit_total_closing_readings(closing_shift_doc) #testing
     closing_shift_doc.flags.ignore_permissions = True
@@ -260,9 +254,13 @@ def submit_total_closing_readings(closing_shift_doc):
                 total_card = total_card + item.amount
  
 
-    closing_shift_doc.first_void_no = first_void
     if(len(void_count_array)!=0):
         closing_shift_doc.last_void_no = void_count_array[-1]
+
+    company_info = frappe.get_doc("Company", closing_shift_doc.company)
+
+    closing_shift_doc.first_void_no = first_void
+    closing_shift_doc.tin_number = company_info.tax_id
     closing_shift_doc.void_count = len(void_count_array)
     closing_shift_doc.gross_amount = gross_amount
     closing_shift_doc.no_of_invoices = total
