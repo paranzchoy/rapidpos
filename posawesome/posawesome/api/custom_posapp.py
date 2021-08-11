@@ -15,7 +15,7 @@ import frappe.permissions
 import frappe.share
 import re
 import json
-
+from frappe.utils.password import check_password
 from frappe.website.utils import is_signup_enabled
 from frappe.utils.background_jobs import enqueue
 
@@ -759,7 +759,8 @@ def get_pos_invoices(pos_opening_shift):
 @frappe.whitelist()
 def verifyRole(username, password):
     hasError = False
-    checkIfCorrect = frappe.local.login_manager.check_password(username, password)
+    # checkIfCorrect = frappe.local.login_manager.check_password(username, password)
+    checkIfCorrect = check_pass(username, password)
     if (checkIfCorrect==username):
         checkRole = frappe.get_roles(username)
         if (any(item in 'Head Cashier' for item in checkRole) or any(item in 'Sales Manager' for item in checkRole)):
@@ -769,6 +770,12 @@ def verifyRole(username, password):
     else:
         hasError = True
     return hasError
+
+def check_pass(user,pwd):
+    try:
+        return check_password(user,pwd)
+    except frappe.AuthenticationError:
+        return 
 
 @frappe.whitelist()
 def verify_password(password):
@@ -1331,6 +1338,7 @@ def submit_total_opening_readings(opening_shift):
     senior_discount = 0
     pwd_discount = 0
     opening_amount = 0
+    address = ''
 
     opening_shift_doc=frappe.get_doc("POS Opening Shift", opening_shift)
     array_length = len(opening_shift_doc.sales_invoices)
@@ -1367,7 +1375,9 @@ def submit_total_opening_readings(opening_shift):
     if(len(void_count_array)!=0):
         opening_shift_doc.last_void_no = void_count_array[-1]
     company_info = frappe.get_doc("Company", opening_shift_doc.company)
-
+    links = frappe.get_all('Dynamic Link', filters={'link_doctype': 'Company', 'link_name': opening_shift_doc.company, 'parenttype': 'Address'}, fields=['parent'])
+    if links:
+        address = frappe.get_doc("Address", links[0].parent)
     opening_shift_doc.first_void_no = first_void
     opening_shift_doc.void_count = len(void_count_array)
     opening_shift_doc.withdrawal_amount = paid_outs
@@ -1378,7 +1388,7 @@ def submit_total_opening_readings(opening_shift):
     opening_shift_doc.pwd_discount = pwd_discount
     opening_shift_doc.senior_discount = senior_discount
     opening_shift_doc.last_sales_invoice = last_invoice
-    # opening_shift_doc.company_address = last_invoice
+    opening_shift_doc.company_address = address.address_line1 + ", " + address.address_line2+ ", "+ address.city + " " + address.pincode
     opening_shift_doc.tin_number = company_info.tax_id
     opening_shift_doc.submit()
 
