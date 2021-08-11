@@ -15,7 +15,7 @@ import frappe.permissions
 import frappe.share
 import re
 import json
-
+from frappe.utils.password import check_password
 from frappe.website.utils import is_signup_enabled
 from frappe.utils.background_jobs import enqueue
 
@@ -759,7 +759,8 @@ def get_pos_invoices(pos_opening_shift):
 @frappe.whitelist()
 def verifyRole(username, password):
     hasError = False
-    checkIfCorrect = frappe.local.login_manager.check_password(username, password)
+    # checkIfCorrect = frappe.local.login_manager.check_password(username, password)
+    checkIfCorrect = check_pass(username, password)
     if (checkIfCorrect==username):
         checkRole = frappe.get_roles(username)
         if (any(item in 'Head Cashier' for item in checkRole) or any(item in 'Sales Manager' for item in checkRole)):
@@ -769,6 +770,12 @@ def verifyRole(username, password):
     else:
         hasError = True
     return hasError
+
+def check_pass(user,pwd):
+    try:
+        return check_password(user,pwd)
+    except frappe.AuthenticationError:
+        return 
 
 @frappe.whitelist()
 def verify_password(password):
