@@ -1338,6 +1338,7 @@ def submit_total_opening_readings(opening_shift):
     senior_discount = 0
     pwd_discount = 0
     opening_amount = 0
+    address = ''
 
     opening_shift_doc=frappe.get_doc("POS Opening Shift", opening_shift)
     array_length = len(opening_shift_doc.sales_invoices)
@@ -1374,7 +1375,9 @@ def submit_total_opening_readings(opening_shift):
     if(len(void_count_array)!=0):
         opening_shift_doc.last_void_no = void_count_array[-1]
     company_info = frappe.get_doc("Company", opening_shift_doc.company)
-
+    links = frappe.get_all('Dynamic Link', filters={'link_doctype': 'Company', 'link_name': opening_shift_doc.company, 'parenttype': 'Address'}, fields=['parent'])
+    if links:
+        address = frappe.get_doc("Address", links[0].parent)
     opening_shift_doc.first_void_no = first_void
     opening_shift_doc.void_count = len(void_count_array)
     opening_shift_doc.withdrawal_amount = paid_outs
@@ -1385,7 +1388,7 @@ def submit_total_opening_readings(opening_shift):
     opening_shift_doc.pwd_discount = pwd_discount
     opening_shift_doc.senior_discount = senior_discount
     opening_shift_doc.last_sales_invoice = last_invoice
-    # opening_shift_doc.company_address = last_invoice
+    opening_shift_doc.company_address = address.address_line1 + ", " + address.address_line2+ ", "+ address.city + " " + address.pincode
     opening_shift_doc.tin_number = company_info.tax_id
     opening_shift_doc.submit()
 
