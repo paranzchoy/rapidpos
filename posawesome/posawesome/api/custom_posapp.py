@@ -1536,7 +1536,7 @@ def view_opening_shift_details(opening_shift_name):
 	return data
 
 @frappe.whitelist()
-def submit_coupon_code(coupon_code, invoice_name):
+def submit_coupon_code(coupon_code):
     data = {}
     coupon = frappe.get_doc('Coupon Code', {'coupon_code': coupon_code})
     if coupon is None:
@@ -1546,16 +1546,8 @@ def submit_coupon_code(coupon_code, invoice_name):
         if validate:
            data["error_message"] = validate
         else:
-            data["coupon_code"] = coupon_code
-            # invoice_doc = frappe.get_doc('Sales Invoice', invoice_name)
-            # invoice_doc.append("coupon_list", {
-            #     "coupon_name": coupon.coupon_name,
-            #     "qty": 0
-            # })
-            # data["invoice_doc"] = invoice_doc
+            data["coupon_code"] = coupon.coupon_code
     return data
-
-
 
 def validate_coupon_code(coupon_name):
     coupon = frappe.get_doc("Coupon Code", coupon_name)
@@ -1568,3 +1560,58 @@ def validate_coupon_code(coupon_name):
     if coupon.maximum_use:            
         if coupon.used >= coupon.maximum_use:
             return "Sorry, this coupon code is no longer valid"
+
+@frappe.whitelist()
+def apply_coupons(coupon_list, invoice_doc):
+    data={}
+    error_messages = []
+    discount_return = []
+    coupon_data = json.loads(coupon_list)
+    for item in coupon_data:
+        coupon = frappe.get_doc('Coupon Code', {'coupon_code': item.coupon_code})
+        coupon_type = coupon.coupon_type
+        pricing_rule = coupon.pricing_rule
+
+        if coupon_type == "Gift Card":
+            customer_name = coupon.customer
+        else:
+            customer_name =""
+
+        discount_type = frappe.db.get_value('Pricing Rule', {'name': pricing_rule}, ['rate_or_discount'])
+        if discount_type == 'Discount Percentage':
+            disc_val = frappe.db.get_value('Pricing Rule', {'name': pricing_rule}, ['discount_percentage'])
+            disc_type = "Percentage"
+        elif discount_type == 'Discount Amount':
+            disc_val = frappe.db.get_value('Pricing Rule', {'name': pricing_rule}, ['discount_amount'])
+            disc_type = "Amount"
+        min_amt = frappe.db.get_value('Pricing Rule', {'name': pricing_rule}, ['min_amt'])
+        max_amt = frappe.db.get_value('Pricing Rule', {'name': pricing_rule}, ['max_amt'])
+        net_total_int = invoice_doc.net_total
+        if min_amt:
+            if min_amt>net_total_int:
+                error_messages.append("Minimum amount not met")
+            if max_amt:
+                if max_amt<net_total_int:
+                   error_messages.append("Total exceeds max amount")
+         # data_k = {"discount_type": disc_type, "discount_value": disc_val, "customer": invoice_doc.customer_name, "coupon_type": coupon_type}
+        discount_return.append({"discount_type": disc_type, "discount_value": disc_val, "customer": invoice_doc.customer_name, "coupon_type": coupon_type})
+         # data = json.dumps(data_k)
+        incrementUsage = update_coupon_code_count(coupon.coupon_name, "used", item.qty)
+        if incrementUsage == False:
+            error_messages.append("Allowed quantity is exhausted")
+
+    data["error_messages"] = error_messages
+    data["discount"] = discount_return
+    return data
+		
+def update_coupon_code_count(coupon_name,transaction_type,quantity):
+    coupon=frappe.get_doc("Coupon Code",coupon_name)
+    if coupon:
+        if transaction_type=='used':
+            if coupon.maximum_use:
+                if coupon.used<coupon.maximum_use:
+                    coupon.used=coupon.used + quantity
+                    coupon.save(ignore_permissions=True)
+                    return true
+                else:
+                    return false
