@@ -87,7 +87,7 @@
                       <v-text-field
                           v-model="cash_withdrawal.cash_details = props.item.quantity"
                           :rules="[max25chars]"
-                          label="Edit"
+                          label="0"
                           single-line
                           type="number"
                           dense
@@ -575,7 +575,7 @@ export default {
 
       frappe
         .call("rapidposcustom.rapidposcustom.api.rapidposcustom.submit_pos_opening_shift_withdrawal2", {
-          withdrawal: this.cash_withdrawal,
+          withdrawal: this.cash_withdrawal
         })
         .then((r) => {
           if (r.message) {

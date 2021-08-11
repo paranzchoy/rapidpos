@@ -16,33 +16,42 @@
               clearable
               class="mx-4"
               v-model="coupon_code"
-              @keyup.enter="submit_coupon_code"
+              @keyup.enter="add_coupon_code"
             ></v-text-field>
             <v-btn
               text
               class="ml-2"
               color="primary"
               dark
-              @click="submit_coupon_code"
+              @click="add_coupon_code"
               >Add</v-btn>
           </v-row>
           <v-row>
-            <v-col cols="12" class="pa-1" v-if="dialog_data">
+            <v-col cols="12" class="pa-1">
               <template>
-                <v-data-table
-                  :headers="headers"
-                  :items="coupon_list"
-                  item-key="name"
-                  class="elevation-1"
-                  hide-default-footer 
-                  disable-pagination
-                  dense
-                  v-model="coupon_list"
-                >
-                  <!-- <template v-slot:item.grand_total="{ item }">{{
-                    formtCurrency(item.grand_total)
-                  }}</template> -->
-                </v-data-table>
+              <v-data-table
+                :headers = "headers"
+                :items = "coupon_list"
+                item-key = "coupon_code"
+                class="elevation-1"
+              >
+                  <template v-slot:item.qty="props">
+                    <v-edit-dialog
+                      :return-value.sync="props.item.qty"
+                    >
+                      {{ props.item.qty }}
+                      <template v-slot:input>
+                        <v-text-field
+                          v-model="props.item.qty"
+                          label="#"
+                          single-line
+                          counter
+                          type="number"
+                        ></v-text-field>
+                      </template>
+                    </v-edit-dialog>
+                  </template>
+              </v-data-table>
               </template>
             </v-col>
           </v-row>
@@ -53,6 +62,7 @@
           <v-btn
             color="primary"
             dark
+            @click="submit_dialog"
             >Apply</v-btn>
         </v-card-actions>
       </v-card>
@@ -68,8 +78,21 @@ export default {
       coupon_state: false,
       dialog_data: false,
       coupon_code: '',
+      coupon_details:'',
       coupon_list: [],
-      headers: [{text:'Coupon Name', value:'coupon_name'}, {text:'Qty', value:'qty'}],
+      headers: [
+      {
+        text: 'Coupon Code',
+        align: 'start',
+        sortable: false,
+        value: 'coupon_code',
+      },
+      {
+        text: 'Qty',
+        sortable: false,
+        value: 'qty',
+      }
+    ],
     selected:''
   }),
   watch: {
@@ -79,14 +102,13 @@ export default {
       close_dialog(){
           this.coupon_state = false;
       },
-      submit_coupon_code(){
+      add_coupon_code(){
         const vm = this;
         if (vm.coupon_code){
           frappe.call({
             method: 'posawesome.posawesome.api.custom_posapp.submit_coupon_code',
             args: {
-              coupon_code: vm.coupon_code,
-              invoice_name: this.invoice_doc.name
+              coupon_code: vm.coupon_code
             },
             async: true,
             callback: function (r) {
@@ -98,16 +120,24 @@ export default {
                     });
                 }
                 else{
-                  // vm.coupon_list.push({"coupon_name":r.message.coupon_code, "qty":0});
-                  // console.log(vm.coupon_list);
+                  //check if item exists, push to list if not and increment quantity if true
+                    var exists = vm.coupon_list.some(function(field) {
+                      return field.coupon_code === r.message.coupon_code
+                    });
+                    if (!exists){
+                      vm.coupon_list.push({"coupon_code":r.message.coupon_code,"qty":1});
+                    }
+                    else{
+                      vm.coupon_list.forEach(element => {
+                        if(element.coupon_code === r.message.coupon_code){
+                          element.qty++;
+                        }
+                      });
+                    }
                     evntBus.$emit("show_mesage", {
                       text: "Coupon '" + r.message.coupon_code +"' added!",
                       color: "success",
                     });
-                    // vm.invoice_doc = r.message.invoice_doc;
-                    // vm.invoice_doc.coupon_list.forEach((element) => {
-                    // vm.coupon_list.push(element);
-                  // })
                 }
                
               }
@@ -121,13 +151,29 @@ export default {
             });
         }
     
+      },
+      submit_dialog(){
+        const vm = this;
+        console.log(vm.coupon_list);
+        frappe.call({
+            method: 'posawesome.posawesome.api.custom_posapp.apply_coupons',
+            args: {
+              coupon_list: vm.coupon_list,
+              invoice_doc: vm.invoice_doc
+            },
+            async: true,
+            callback: function (r) {
+              if (r.message) {
+                console.log(r.message);
+              }
+            },
+          });
       }
   },
   created: function () {
     evntBus.$on('apply_coupon_code', (data) => {
-      this.invoice_doc = data;
-      this.coupon_state = true;
-      console.log(data);
+        this.invoice_doc = data;
+        this.coupon_state = true;
     });
   },
   computed: {

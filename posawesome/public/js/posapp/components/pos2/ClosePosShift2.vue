@@ -432,7 +432,6 @@ export default {
           callback: function (r) {
               if (r.message) {
                 vm.total_cash_withdrawn = r.message;
-                console.log(r.message);
               }
         },
         });
@@ -441,7 +440,7 @@ export default {
     get_denominations() {
       const vm = this;
         frappe.call({
-          method: "rapidposcustom.rapidposcustom.api.rapidposcustom.get_cash_denominations_breakdown",
+          method: "posawesome.posawesome.api.custom_posapp.get_denominations",
             callback: function (r) {
               if (r.message) {
                 r.message.get_denom.forEach((element) => {
@@ -488,6 +487,7 @@ export default {
                 })
               }
               else{
+                vm.view_opening_shift_details();
                 vm.closingShiftDialog = true;
                 vm.verify_user = false; 
                 vm.inputUsername = null;
