@@ -1400,6 +1400,23 @@ export default {
     openCouponDialog(e){
       if(e.key === 'F6'){
         e.preventDefault();
+        
+        if (!this.items.length) {
+          evntBus.$emit('show_mesage', {
+            text: `There is no Items !`,
+            color: 'error',
+          });
+          return;
+        }
+
+        if (!this.customer) {
+        evntBus.$emit('show_mesage', {
+          text: `There is no Customer !`,
+          color: 'error',
+        });
+        return;
+        }
+
         const invoice_doc = this.proces_invoice();
         evntBus.$emit("apply_coupon_code", invoice_doc);
       }
