@@ -18,6 +18,7 @@
                     v-model="inputUsername"
                     clearable
                     required
+                    @keyup.enter="configure_modal"
                   >
                 </v-text-field>
             </v-col>  
