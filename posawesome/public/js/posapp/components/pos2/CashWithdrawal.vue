@@ -13,7 +13,9 @@
         <v-row justify="center">
           <h4 style="color: rgb(155, 0, 0); --darkreader-inline-color:#ff6060;" data-darkreader-inline-color="">* Head Cashier or Sales manager only   </h4>
           <v-col cols="12" sm="7" >
-            <v-text-field label="Username" v-model="inputUsername" clearable required ></v-text-field>
+            <v-text-field label="Username" v-model="inputUsername" clearable required
+                @keyup.enter="configure_modal"
+             ></v-text-field>
           </v-col>
         </v-row>
 

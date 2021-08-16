@@ -258,7 +258,9 @@ def submit_total_closing_readings(closing_shift_doc):
         closing_shift_doc.last_void_no = void_count_array[-1]
 
     company_info = frappe.get_doc("Company", closing_shift_doc.company)
-
+    links = frappe.get_all('Dynamic Link', filters={'link_doctype': 'Company', 'link_name': closing_shift_doc.company, 'parenttype': 'Address'}, fields=['parent'])
+    if links:
+       address = frappe.get_doc("Address", links[0].parent)
     closing_shift_doc.first_void_no = first_void
     closing_shift_doc.tin_number = company_info.tax_id
     closing_shift_doc.void_count = len(void_count_array)
@@ -270,4 +272,4 @@ def submit_total_closing_readings(closing_shift_doc):
     closing_shift_doc.senior_discount = senior_discount
     closing_shift_doc.last_sales_invoice = last_invoice
     closing_shift_doc.first_sales_invoice = first_invoice
-    # closing_shift_doc.submit()
+    closing_shift_doc.company_address = address.address_line1 + ", " + address.address_line2+ ", "+ address.city + " " + address.pincode
