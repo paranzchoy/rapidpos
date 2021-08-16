@@ -548,6 +548,8 @@ export default {
       enableDisable:true,
       selectedDiscount: null,
       discount_types: [],
+      coupon_activated: false,
+      coupon_discounts: [],
       options: [
         { text: '0%', value: '0' },
         { text: 'SRCT', value: '5' },
@@ -621,17 +623,47 @@ export default {
       let consumable_discount = 0;
       let medical_sum = 0;
       let medical_discount = 0;
+      let item_sum = 0;
+      let coupon_percentage_discount = 0;
+      let coupon_amount_discount = 0;
+
       this.items.forEach((item) => {
-        if (item.item_group == "FOOD" && this.selectedDiscount != null) {
-          consumable_sum += item.qty * item.rate;
+        
+        if(this.selectedDiscount){
+            if (item.item_group == "FOOD") {
+              consumable_sum += item.qty * item.rate;
+            }
+            if (item.item_group == "MEDICAL") {
+              medical_sum += item.qty * item.rate;
+            }
         }
-        if (item.item_group == "MEDICAL" && this.selectedDiscount != null) {
-          medical_sum += item.qty * item.rate;
+
+        if (this.coupon_activated){
+          if(!this.selectedDiscount){
+            item_sum += item.qty * item.rate;
+          }
+          else{
+            if(item.item_group != "MEDICAL"||item.item_group != "FOOD"){
+              item_sum += item.qty * item.rate;
+            }
+          }
         }
       });
+
+      if(this.coupon_activated){
+          this.coupon_discounts.forEach((element) => {
+            if(element.discount_type == "Percentage"){
+              coupon_percentage_discount += item_sum * element.discount_value
+            }
+            if (element.discount_type == "Amount"){
+              coupon_amount_discount += element.discount_value
+            }
+          });
+        }
+      
       consumable_discount = consumable_sum * 0.05;
       medical_discount = medical_sum * 0.20;
-      this.discount_amount = consumable_discount + medical_discount;
+      this.discount_amount = consumable_discount + medical_discount + coupon_percentage_discount + coupon_amount_discount;
       return this.discount_amount;
     },
 
@@ -1420,6 +1452,18 @@ export default {
         const invoice_doc = this.proces_invoice();
         evntBus.$emit("apply_coupon_code", invoice_doc);
       }
+    },
+    submit_coupon_codes(discount){
+      this.coupon_activated = true;
+      this.coupon_discounts = discount;
+      // discount.forEach((element) => {
+      //   this.coupon_discounts.push(element);
+      // })
+      console.log(discount);
+      evntBus.$emit("show_mesage", {
+            text: `Coupon Payments added!`,
+            color: "success",
+          });
     }
   },
   created() {
@@ -1453,6 +1497,9 @@ export default {
     });
     evntBus.$on("open_coupon_dialog", () => {
       this.openCouponDialog();
+    });
+    evntBus.$on("submit_coupon", (discount) => {
+      this.submit_coupon_codes(discount);
     });
 
     this.$nextTick(function (){

@@ -93,7 +93,8 @@ export default {
         value: 'qty',
       }
     ],
-    selected:''
+    selected:[],
+    coupon_list_invoice:[]
   }),
   watch: {
 
@@ -164,7 +165,24 @@ export default {
             async: true,
             callback: function (r) {
               if (r.message) {
-                console.log(r.message);
+                if (r.message.error_messages.length != 0){
+                   evntBus.$emit("show_mesage", {
+                        text: r.message.error_messages[0],
+                        color: "error",
+                    });
+                }
+                else{
+                    r.message.discount.forEach((element) => {
+                      vm.coupon_list_invoice.push(element)
+                    })
+                    evntBus.$emit("submit_coupon", {
+                        discount: vm.coupon_list_invoice
+                    });
+                    
+                    vm.coupon_state = false;
+                    vm.coupon_code = null;
+                    vm.coupon_list.splice(0);
+                }
               }
             },
           });
