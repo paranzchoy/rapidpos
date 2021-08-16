@@ -94,7 +94,6 @@ export default {
       }
     ],
     selected:[],
-    coupon_list_invoice:[]
   }),
   watch: {
 
@@ -155,7 +154,6 @@ export default {
       },
       submit_dialog(){
         const vm = this;
-        console.log(vm.coupon_list);
         frappe.call({
             method: 'posawesome.posawesome.api.custom_posapp.apply_coupons',
             args: {
@@ -172,12 +170,7 @@ export default {
                     });
                 }
                 else{
-                    r.message.discount.forEach((element) => {
-                      vm.coupon_list_invoice.push(element)
-                    })
-                    evntBus.$emit("submit_coupon", {
-                        discount: vm.coupon_list_invoice
-                    });
+                    evntBus.$emit('submit_coupon', r.message.discount);
                     
                     vm.coupon_state = false;
                     vm.coupon_code = null;

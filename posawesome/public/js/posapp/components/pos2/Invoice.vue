@@ -637,26 +637,16 @@ export default {
               medical_sum += item.qty * item.rate;
             }
         }
-
-        if (this.coupon_activated){
-          if(!this.selectedDiscount){
-            item_sum += item.qty * item.rate;
-          }
-          else{
-            if(item.item_group != "MEDICAL"||item.item_group != "FOOD"){
-              item_sum += item.qty * item.rate;
-            }
-          }
-        }
+        item_sum += item.qty * item.rate;
       });
 
       if(this.coupon_activated){
           this.coupon_discounts.forEach((element) => {
             if(element.discount_type == "Percentage"){
-              coupon_percentage_discount += item_sum * element.discount_value
+              coupon_percentage_discount += item_sum*(element.discount_value/100);
             }
             if (element.discount_type == "Amount"){
-              coupon_amount_discount += element.discount_value
+              coupon_amount_discount += element.discount_value;
             }
           });
         }
@@ -1454,12 +1444,8 @@ export default {
       }
     },
     submit_coupon_codes(discount){
-      this.coupon_activated = true;
       this.coupon_discounts = discount;
-      // discount.forEach((element) => {
-      //   this.coupon_discounts.push(element);
-      // })
-      console.log(discount);
+      this.coupon_activated = true;
       evntBus.$emit("show_mesage", {
             text: `Coupon Payments added!`,
             color: "success",
