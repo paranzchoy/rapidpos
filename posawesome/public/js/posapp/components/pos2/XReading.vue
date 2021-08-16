@@ -18,6 +18,7 @@
                   autocomplete="nope"
                   clearable
                   required
+                  @keyup.enter="submit_dialog"
                 ></v-text-field>
               </v-col>
             </v-row>
