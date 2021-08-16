@@ -1516,11 +1516,24 @@ def update_opening_shift_data(data, pos_profile):
 
 @frappe.whitelist()
 def calculate_cash_withdrawn(opening_shift_name):
-    total = 0
+    data = {}
+    total_cash_withdrawn = 0
+    total_debit = 0
+    total_credit = 0
     get_op_shift = frappe.get_doc("POS Opening Shift", opening_shift_name)
     for item in get_op_shift.opening_shift_withdrawal:
-        total = total + item.cash_amount
-    return total
+        total_cash_withdrawn = total_cash_withdrawn + item.cash_amount
+    for item in get_op_shift.sales_invoices:
+        get_invoice_doc = frappe.get_doc("Sales Invoice", item.sales_invoice)
+        for transaction in get_invoice_doc.payments:
+            if transaction.mode_of_payment == "Credit Card":
+                total_credit += transaction.amount
+            if transaction.mode_of_payment == "Debit Card":
+                total_debit += transaction.amount
+    data["total_cash_withdrawn"] = total_cash_withdrawn
+    data["total_credit"] = total_credit
+    data["total_debit"] = total_debit
+    return data
 
 @frappe.whitelist()
 def view_opening_shift_details(opening_shift_name):

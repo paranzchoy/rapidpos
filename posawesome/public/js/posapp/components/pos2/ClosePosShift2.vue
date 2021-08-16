@@ -194,22 +194,11 @@
                               )
                             }}
                           </template>
-                          <template v-else-if="props.item.mode_of_payment === 'Credit Card'">
-                            <v-edit-dialog
-                            :return-value.sync="props.item.closing_amount"
-                            >
-                              {{ formtCurrency(props.item.closing_amount) }}
-                                <template v-slot:input>
-                                    <v-text-field
-                                      v-model="props.item.closing_amount"
-                                      :rules="[max25chars]"
-                                      label="Edit"
-                                      single-line
-                                      counter
-                                      type="number"
-                                    ></v-text-field>
-                                </template>
-                            </v-edit-dialog>
+                          <template v-if="props.item.mode_of_payment === 'Credit Card'">
+                            {{ total_credit_amount}}
+                          </template>
+                          <template v-if="props.item.mode_of_payment === 'Debit Card'">
+                            {{ total_debit_amount}}
                           </template>
                       </template>
 
@@ -226,73 +215,12 @@
                       <template slot="body.append">
                         <tr class="pink--text">
                             <th class="title">Totals</th>
-                            <th class="title" text-aligh="center">[test value]</th>
+                            <th class="title" text-aligh="center">{{totalAmount + total_credit_amount +  total_debit_amount}}</th>
                         </tr>
                       </template>
                   </v-data-table>
                 </v-col>
              </v-row>
-              <!-- <v-data-table
-                :headers="showHeaders"
-                :items="dialog_data.payment_reconciliation"
-                item-key="mode_of_payment"
-                class="elevation-1"
-                :items-per-page="itemsPerPage"
-                hide-default-footer
-              >
-                  <template v-slot:item.closing_amount="props">
-                      <template v-if="props.item.mode_of_payment === 'Cash'">{{
-                          (
-                            props.item.closing_amount = (totalAmount)
-                          )
-                        }}
-                      </template>
-                      <template v-else-if="props.item.mode_of_payment === 'Credit Card'">
-                        <v-edit-dialog
-                        :return-value.sync="props.item.closing_amount"
-                        >
-                          {{ formtCurrency(props.item.closing_amount) }}
-                            <template v-slot:input>
-                                <v-text-field
-                                  v-model="props.item.closing_amount"
-                                  :rules="[max25chars]"
-                                  label="Edit"
-                                  single-line
-                                  counter
-                                  type="number"
-                                ></v-text-field>
-                            </template>
-                        </v-edit-dialog>
-                      </template>
-                  </template>
-
-                  <template v-slot:item.opening_amount="{ item }">{{
-                    formtCurrency(item.opening_amount)
-                  }}</template>
-                  <template v-slot:item.expected_amount="{ item }">{{
-                    formtCurrency(item.expected_amount)
-                  }}</template>
-                  <template v-slot:item.difference="{ item }">{{
-                    formtCurrency(item.difference = item.expected_amount - item.closing_amount)
-                  }}</template>
-              </v-data-table> -->
-
-          <!-- <v-row justify="end" no-gutters class="ma-0" style="height: 0%">
-            <v-col
-              cols="12"
-              sm="9"
-              class="text-right">
-              total
-            </v-col>
-            <v-col
-              cols="12"
-              sm="3"
-              class="text-right">
-              1200
-              {{shift_number}}
-              {{num_invoices}}
-            </v-col>
-          </v-row> -->
         </template>
       </v-card-text>
 
@@ -339,6 +267,8 @@ export default {
     sample_items: [],
     checkout_counter:'',
     total_cash_withdrawn:0,
+    total_debit_amount:0,
+    total_credit_amount:0,
     num_invoices:0,
     headers: [
       {
@@ -432,7 +362,9 @@ export default {
           async: true,
           callback: function (r) {
               if (r.message) {
-                vm.total_cash_withdrawn = r.message;
+                vm.total_cash_withdrawn = r.message.total_cash_withdrawn;
+                vm.total_debit_amount = r.message.total_debit;
+                vm.total_credit_amount = r.message.total_credit;
               }
         },
         });
