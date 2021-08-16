@@ -93,7 +93,7 @@ export default {
         value: 'qty',
       }
     ],
-    selected:''
+    selected:[],
   }),
   watch: {
 
@@ -154,7 +154,6 @@ export default {
       },
       submit_dialog(){
         const vm = this;
-        console.log(vm.coupon_list);
         frappe.call({
             method: 'posawesome.posawesome.api.custom_posapp.apply_coupons',
             args: {
@@ -164,7 +163,19 @@ export default {
             async: true,
             callback: function (r) {
               if (r.message) {
-                console.log(r.message);
+                if (r.message.error_messages.length != 0){
+                   evntBus.$emit("show_mesage", {
+                        text: r.message.error_messages[0],
+                        color: "error",
+                    });
+                }
+                else{
+                    evntBus.$emit('submit_coupon', r.message.discount);
+                    
+                    vm.coupon_state = false;
+                    vm.coupon_code = null;
+                    vm.coupon_list.splice(0);
+                }
               }
             },
           });
