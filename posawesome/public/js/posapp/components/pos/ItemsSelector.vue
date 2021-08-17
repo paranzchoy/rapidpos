@@ -362,7 +362,6 @@ export default {
       value = parseFloat(value);
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
-  
 
     gotoQuantityField(e) {
       if (e.key === 'F2') {
@@ -381,6 +380,10 @@ export default {
       }
     },
   },
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev-branch
   computed: {
     filtred_items() {
       this.search = this.get_search(this.first_search);
