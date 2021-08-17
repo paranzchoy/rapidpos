@@ -362,7 +362,7 @@ export default {
       value = parseFloat(value);
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
-  },
+  
 
     gotoQuantityField(e) {
       if (e.key === 'F2') {
@@ -379,6 +379,7 @@ export default {
         console.log({ e });
         this.$refs.search_items_field.focus();
       }
+    },
     },
   computed: {
     filtred_items() {
