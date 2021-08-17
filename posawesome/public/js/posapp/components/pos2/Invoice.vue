@@ -1400,7 +1400,7 @@ export default {
       }
     },
     shortOpenFirstItem(e) {
-      if (e.key === 'a' && (e.ctrlKey || e.metaKey)) {
+      if (e.key === 'o' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         this.expanded = [];
         this.expanded.push(this.items[0]);
@@ -1417,6 +1417,27 @@ export default {
         e.preventDefault();
         console.log({e});
         this.new_invoice();
+        }
+    },
+    getHold(e){
+      if (e.key === "F8"){
+        e.preventDefault();
+        console.log({e});
+        this.get_draft_invoices();
+        }
+    },
+    openReturns(e){
+      if (e.key === "F9"){
+        e.preventDefault();
+        console.log({e});
+        this.open_returns();
+        }
+    },
+     cancelInvoice(e){
+      if (e.key === "F10"){
+        e.preventDefault();
+        console.log({e});
+        this.cancel_invoice();
         }
     },
     clearDiscount(e) {
@@ -1513,6 +1534,9 @@ export default {
     document.addEventListener('keydown', this.clearDiscount.bind(this));
     document.addEventListener('keydown', this.openCouponDialog.bind(this));
     document.addEventListener('keydown', this.openNewInvoice.bind(this));
+    document.addEventListener('keydown', this.getHold.bind(this));
+    document.addEventListener('keydown', this.openReturns.bind(this));
+    document.addEventListener('keydown', this.cancelInvoice.bind(this));
 
   },
   destroyed() {
@@ -1527,6 +1551,9 @@ export default {
     document.removeEventListener('keydown', this.clearDiscount);
     document.removeEventListener('keydown', this.openCouponDialog);
     document.removeEventListener('keydown', this.openNewInvoice);
+    document.removeEventListener('keydown', this.getHold);
+    document.removeEventListener('keydown', this.openReturns);
+    document.removeEventListener('keydown', this.cancelInvoice);
 
   },
   watch: {
