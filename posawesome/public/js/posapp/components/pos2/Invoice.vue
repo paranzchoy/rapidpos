@@ -1412,6 +1412,13 @@ export default {
         this.$refs.discount.focus();
       }
     },
+    openNewInvoice(e){
+      if (e.key === "F11"){
+        e.preventDefault();
+        console.log({e});
+        this.new_invoice();
+        }
+    },
     clearDiscount(e) {
       if (e.key === 'c' && (e.ctrlKey)) {
         this.selectedDiscount = null;
@@ -1505,6 +1512,8 @@ export default {
     document.addEventListener('keydown', this.shortSelectDiscount.bind(this));
     document.addEventListener('keydown', this.clearDiscount.bind(this));
     document.addEventListener('keydown', this.openCouponDialog.bind(this));
+    document.addEventListener('keydown', this.openNewInvoice.bind(this));
+
   },
   destroyed() {
     document.removeEventListener('keydown', this.shortOpenPayment);
@@ -1517,6 +1526,8 @@ export default {
     document.removeEventListener('keydown', this.shortSelectDiscount);
     document.removeEventListener('keydown', this.clearDiscount);
     document.removeEventListener('keydown', this.openCouponDialog);
+    document.removeEventListener('keydown', this.openNewInvoice);
+
   },
   watch: {
     customer() {
