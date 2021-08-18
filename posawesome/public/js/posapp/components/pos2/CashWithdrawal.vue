@@ -63,7 +63,7 @@
             <!-- Tab titles -->
             <div class="tabs">
                 <a v-on:click="activetab='tabCash'" v-bind:class="[ activetab === 'tabCash' ? 'active' : '' ]">Cash</a>
-                <a v-on:click="activetab='tabCard'" v-bind:class="[ activetab === 'tabCard' ? 'active' : '' ]" @click="get_card_invoices()">Card</a>
+                <a v-on:click="activetab='tabCard'" v-bind:class="[ activetab === 'tabCard' ? 'active' : '' ]">Card</a>
                 <a v-on:click="activetab='tabCoupon'" v-bind:class="[ activetab === 'tabCoupon' ? 'active' : '' ]" @click="get_coupons_invoices()">Coupon</a>
             </div>
             <div class="content">
@@ -134,13 +134,6 @@
                       </v-col>
                     </v-row>
                   </template>
-                  <!-- <v-text-field 
-                      v-model="cash_withdrawal.cash_amount = totalAmount"
-                      single-line
-                      type="number"
-                      readonly
-                      label="Cash"
-                  ></v-text-field> -->
                 </template>
               </div>
 
@@ -148,6 +141,7 @@
 
               <!-- TAB: Card -->
               <div v-if="activetab ==='tabCard'" class="tabcontent">
+                {{ this.get_card_invoices() }}
                 <template>
                   <v-data-table
                     v-model="cash_withdrawal.card_details"
@@ -184,57 +178,6 @@
           </template>
         </v-card-text>
 
-
-      
-
-
-
-
-        <!-- Total summary -->
-        <!-- <template>
-          <v-row justify="end" dense>
-            <v-col
-              cols="12"
-              sm="3"
-              class="text-right"
-              style="left: -35px; top: -16px; transition: none 0s ease 0s; cursor: move;"
-            >
-            <v-text-field 
-                v-model="cash_withdrawal.cash_amount = totalAmount"
-                single-line
-                type="number"
-                readonly
-            ></v-text-field>
-            </v-col>
-
-            <v-col
-              cols="12"
-              sm="3"
-              class="text-right"
-              style="left: -35px; top: -16px; transition: none 0s ease 0s; cursor: move;"
-            >
-            <v-text-field 
-                :value="formtSumCardInvoices(this.total_card_amount)"
-                single-line
-                readonly
-            ></v-text-field>
-            </v-col>
-
-            <v-col
-              cols="12"
-              sm="3"
-              class="text-right"
-              style="left: -35px; top: -16px; transition: none 0s ease 0s; cursor: move;"
-            >
-            <v-text-field 
-                single-line
-                type="number"
-                readonly
-            ></v-text-field>
-            </v-col>
-          </v-row>
-        </template> -->
-
         <template>
           <v-row no-gutters class="ml-5 mr-5 pa-0" style="height: 0%; margin-left: 5px;">
             <v-col cols="4">
@@ -267,16 +210,6 @@
                 hide-details
               ></v-text-field>
             </v-col>
-            <!-- <v-col cols="3">
-              <v-text-field
-                v-model="total_denom_amount = TotalDenomAmount"
-                label="TOTAL"
-                outlined
-                dense
-                readonly
-                hide-details
-              ></v-text-field>
-            </v-col> -->
           </v-row> 
         </template>
         <br>

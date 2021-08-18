@@ -202,7 +202,7 @@
               label="Discount Type"
               background-color="white"
               hide-details
-              :value="invoice_doc.additional_discount_type"
+              v-model="invoice_doc.additional_discount_type"
               disabled
             ></v-text-field>
           </v-col>
