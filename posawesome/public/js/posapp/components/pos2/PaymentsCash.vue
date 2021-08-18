@@ -302,6 +302,7 @@ export default {
       evntBus.$emit('set_customer_readonly', false);
     },
     on_confirm_dialog() {
+      this.invoice_doc.is_credit_sale = this.is_credit_sale;
       evntBus.$emit("open_confirmation_dialog", this.invoice_doc);
     },
     submit() {
