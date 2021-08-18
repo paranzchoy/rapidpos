@@ -1597,6 +1597,7 @@ def apply_coupons(coupon_list, invoice_doc):
     data={}
     error_messages = []
     discount_return = []
+    valid_coupon_list = []
     invoice_data = json.loads(invoice_doc)
     coupon_data = json.loads(coupon_list)
     for item in coupon_data:
@@ -1629,8 +1630,20 @@ def apply_coupons(coupon_list, invoice_doc):
         if incrementUsage == False:
             error_messages.append("Allowed quantity is exhausted")
         discount_return.append({'discount_type': disc_type, 'discount_value': disc_val, 'customer': customer_name, 'coupon_type': coupon_type})
+        valid_coupon_list.append({'coupon_name': coupon.coupon_name, 'qty': item["qty"]})
+
     data["error_messages"] = error_messages
     data["discount"] = discount_return
+
+    #save to Sales Invoice db
+    if len(error_messages)==0:
+       invoice_doc = frappe.get_doc('Sales Invoice', invoice_data["name"])
+       for item in valid_coupon_list:
+          invoice_doc.append("coupon_list", {
+              "coupon_name": item["coupon_name"],
+			  "qty": item["qty"]
+          })
+       invoice_doc.save()
     return data
 		
 def update_coupon_code_count(coupon_name,transaction_type,quantity):
