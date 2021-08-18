@@ -118,7 +118,7 @@ export default {
     },
     submit() {
       this.validate();
-      if (!this.pos_profile.posa_allow_partial_payment && this.total_payments < this.invoice_doc.grand_total) {
+      if (!this.pos_profile.posa_allow_partial_payment && this.total_payments < this.invoice_doc.grand_total && !this.invoice_doc.is_credit_sale) {
         evntBus.$emit('show_mesage', {
           text: `The amount paid is not complete`,
           color: 'error',
