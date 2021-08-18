@@ -927,10 +927,10 @@ export default {
       if (!this.validate()) {
         return;
       }
-      evntBus.$emit('show_payment', 'true');
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;
       evntBus.$emit('send_invoice_doc_payment', invoice_doc);
+      evntBus.$emit('show_payment', 'true');
 
       this.enableDisable = true;
     },
