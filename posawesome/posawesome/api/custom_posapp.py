@@ -1131,17 +1131,25 @@ def get_denominations():
 
 @frappe.whitelist()
 def get_card_invoices(opening_shift):
-	get_invoices = []
-	invoices = frappe.db.get_list('Sales Invoice',  filters={"posa_pos_opening_shift": opening_shift}, fields=["name"], order_by='name')
-	for item in invoices:
-		get_invoice = frappe.get_doc('Sales Invoice', item.name)
-		if(get_invoice.status == 'Paid' or get_invoice.status == 'Unpaid'):
-			for i in get_invoice.payments:
-				if(i.mode_of_payment == 'Credit Card'):
-					get_invoices.append({'card_number': i.card_number, 'card_number_hidden':i.card_number_hidden, 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
-				if(i.mode_of_payment == 'Debit Card'):
-					get_invoices.append({'card_number': "", 'card_number_hidden': "N/A", 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
-	return get_invoices
+    get_invoices = []
+    withdrawn_invoices = []
+    opening_shift_doc = frappe.get_doc("POS Opening Shift", opening_shift)
+    for item in opening_shift_doc.opening_shift_withdrawal:
+        shift_withdrawal_doc = frappe.get_doc("POS Opening Shift Withdrawal Details", item.withdrawal_details)
+        for card_item in shift_withdrawal_doc.withdrawal_card_details:
+            withdrawn_invoices.append(card_item.salesinvoicenumber)
+
+    invoices = frappe.db.get_list('Sales Invoice',  filters={"posa_pos_opening_shift": opening_shift}, fields=["name"], order_by='name')
+    for item in invoices:
+        get_invoice = frappe.get_doc('Sales Invoice', item.name)
+       # get_invoice.status == 'Paid' or get_invoice.status == 'Unpaid'
+        if(item.name not in withdrawn_invoices and get_invoice.status == 'Paid' or get_invoice.status == 'Unpaid'):
+            for i in get_invoice.payments:
+                if(i.mode_of_payment == 'Credit Card'):
+                    get_invoices.append({'card_number': i.card_number, 'card_number_hidden':i.card_number_hidden, 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
+                if(i.mode_of_payment == 'Debit Card'):
+                    get_invoices.append({'card_number': "", 'card_number_hidden': "N/A", 'name': get_invoice.name, 'amount': i.amount, 'mode_of_payment': i.mode_of_payment})
+    return get_invoices
 
 
 @frappe.whitelist()
@@ -1621,7 +1629,6 @@ def apply_coupons(coupon_list, invoice_doc):
         if incrementUsage == False:
             error_messages.append("Allowed quantity is exhausted")
         discount_return.append({'discount_type': disc_type, 'discount_value': disc_val, 'customer': customer_name, 'coupon_type': coupon_type})
-
     data["error_messages"] = error_messages
     data["discount"] = discount_return
     return data
