@@ -185,6 +185,18 @@
               :prefix="invoice_doc.currency"
             ></v-text-field>
           </v-col>
+          <v-col cols="6">
+            <v-text-field
+              dense
+              outlined
+              color="indigo"
+              label="Discount Type"
+              background-color="white"
+              hide-details
+              v-model="invoice_doc.additional_discount_type"
+              disabled
+            ></v-text-field>
+          </v-col>
         </v-row>
         <v-divider></v-divider>
         <v-row class="px-1 py-0">
