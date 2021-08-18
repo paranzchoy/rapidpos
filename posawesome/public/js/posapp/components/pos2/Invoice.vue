@@ -511,7 +511,7 @@
                 large
                 color="primary"
                 rounded
-                @click="show_payment"
+                @click="show_payment_method"
                 dark
                 >PAY</v-btn
               >
@@ -953,6 +953,7 @@ export default {
       if (!this.validate()) {
         return;
       }
+      this.close_payments();
       this.determine_payment_method(payment_method);
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;

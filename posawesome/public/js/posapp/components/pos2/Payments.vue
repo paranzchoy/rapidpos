@@ -479,7 +479,7 @@ export default {
       let total_change =
         parseInt(this.paid_change) + parseInt(-this.credit_change);
 
-      if (this.is_cashback && total_change != -this.diff_payment) {
+      if (this.is_cashback && total_change != -this.diff_payment && !this.is_credit_sale) {
         evntBus.$emit('show_mesage', {
           text: `Error in change calculations!`,
           color: 'error',
