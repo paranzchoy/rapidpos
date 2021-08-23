@@ -1610,11 +1610,13 @@ def apply_coupons(coupon_list, invoice_doc):
         else:
             customer_name = invoice_data["customer_name"]
 
-        discount_type = frappe.db.get_value('Pricing Rule', {'name': pricing_rule}, ['rate_or_discount'])
-        if discount_type == 'Discount Percentage':
+        discount_type = frappe.get_doc('Pricing Rule', pricing_rule)
+        if discount_type.disable==1:
+             error_messages.append("Invalid discount for coupon " + coupon.coupon_name+ ". It may be disabled or removed.")
+        if discount_type.rate_or_discount == 'Discount Percentage':
             disc_val = frappe.db.get_value('Pricing Rule', {'name': pricing_rule}, ['discount_percentage']) * item["qty"]
             disc_type = "Percentage"
-        elif discount_type == 'Discount Amount':
+        elif discount_type.rate_or_discount == 'Discount Amount':
             disc_val = frappe.db.get_value('Pricing Rule', {'name': pricing_rule}, ['discount_amount']) * item["qty"]
             disc_type = "Amount"
         min_amt = frappe.db.get_value('Pricing Rule', {'name': pricing_rule}, ['min_amt'])
