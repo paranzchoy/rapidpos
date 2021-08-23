@@ -594,8 +594,12 @@ export default {
     
     total_items_discount_amount() {
       let sum = 0;
-      sum += flt(this.discount_amount);
-      return flt(sum).toFixed(2);
+      let extra_sum = 0;
+      this.items.forEach((item) => {
+        sum += item.qty * item.discount_amount;
+      });
+      extra_sum += flt(this.discount_amount);
+      return flt(sum + extra_sum).toFixed(2);
     },
   },
   methods: {
