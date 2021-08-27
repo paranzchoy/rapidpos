@@ -1248,12 +1248,11 @@ def submit_invoice(data):
             enqueue(method=submit_in_background_job, queue='short',
                     timeout=1000, is_async=True, kwargs=invoice.name)
     else:
-        invoice_doc.submit()
-
         append_opening_shift = frappe.get_doc("POS Opening Shift",
             invoice_doc.posa_pos_opening_shift
         )
-
+        invoice_doc.checkout_counter = append_opening_shift.checkout_counter
+        invoice_doc.submit()
         for item in append_opening_shift.sales_invoices:
             if invoice_doc == item.sales_invoice:
                 item.grand_total = invoice_doc.grand_total
