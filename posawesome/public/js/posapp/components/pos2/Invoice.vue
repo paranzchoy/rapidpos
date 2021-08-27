@@ -594,12 +594,8 @@ export default {
     
     total_items_discount_amount() {
       let sum = 0;
-      let extra_sum = 0;
-      this.items.forEach((item) => {
-        sum += item.qty * item.discount_amount;
-      });
-      extra_sum += flt(this.discount_amount);
-      return flt(sum + extra_sum).toFixed(2);
+      sum += flt(this.discount_amount);
+      return flt(sum).toFixed(2);
     },
   },
   methods: {
@@ -630,6 +626,7 @@ export default {
       let item_sum = 0;
       let coupon_percentage_discount = 0;
       let coupon_amount_discount = 0;
+      let total_amount_discount = 0;
 
       this.items.forEach((item) => {
         
@@ -642,6 +639,7 @@ export default {
             }
         }
         item_sum += item.qty * item.rate;
+        total_amount_discount += item.discount_amount;
       });
 
       if(this.coupon_activated){
@@ -657,7 +655,7 @@ export default {
       
       consumable_discount = consumable_sum * 0.05;
       medical_discount = medical_sum * 0.20;
-      this.discount_amount = consumable_discount + medical_discount + coupon_percentage_discount + coupon_amount_discount;
+      this.discount_amount = consumable_discount + medical_discount + coupon_percentage_discount + coupon_amount_discount + total_amount_discount;
       return this.discount_amount;
     },
 
