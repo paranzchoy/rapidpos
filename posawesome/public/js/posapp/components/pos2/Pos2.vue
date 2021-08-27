@@ -46,7 +46,7 @@
 <script>
 //Original POSAwesome components
 import { evntBus } from "../../bus";
-import ItemsSelector from "../pos/ItemsSelector.vue";
+// import ItemsSelector from "../pos/ItemsSelector.vue";
 // import Payments from "../pos/Payments.vue";
 import Drafts from "../pos/Drafts.vue";
 import ClosingDialog from "../pos/ClosingDialog.vue";
@@ -57,7 +57,7 @@ import OpeningDialog from "./OpeningDialog.vue";
 import PaymentsConfirmation from "./PaymentsConfirmation.vue";
 import ClosePosShift from "./ClosePosShift2.vue";
 import Payments from "./Payments.vue";
-// import ClosePosShift from "./ClosePosShift.vue";
+import ItemsSelector from "./ItemsSelector.vue";
 import Help from "./Help.vue";
 import PaymentsCash from "./PaymentsCash.vue";
 import PaymentsCreditCard from "./PaymentsCreditCard.vue";
