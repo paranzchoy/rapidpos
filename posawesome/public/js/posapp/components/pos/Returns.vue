@@ -16,6 +16,7 @@
               dense
               clearable
               class="mx-4"
+              @keyup.enter="search_invoices"
             ></v-text-field>
             <v-btn
               text
