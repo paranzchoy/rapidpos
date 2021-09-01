@@ -428,17 +428,6 @@ def submit_invoice(data):
 
     return {"name": invoice_doc.name, "status": invoice_doc.docstatus}
 
-def cardNumberHide(card_number):
-    first_two = ''
-    search_last_four = ''
-    asterisks=''
-    first_two = first_two.join(re.findall(r"\d(?<!\d{3})", card_number, re.IGNORECASE))
-    search_last_four = search_last_four.join(re.findall(r"\d(?!\d{4})", card_number, re.IGNORECASE))
-    asterisks_loop= len(card_number)-6
-    for item in range(asterisks_loop):
-        asterisks = asterisks + '*'
-    return first_two + asterisks + search_last_four
-
 def redeeming_customer_credit(
     invoice_doc, data, is_payment_entry, total_cash, cash_account
 ):
