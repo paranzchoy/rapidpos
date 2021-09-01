@@ -381,7 +381,6 @@ export default {
       }
     },
   },
-
   computed: {
     filtred_items() {
       this.search = this.get_search(this.first_search);
