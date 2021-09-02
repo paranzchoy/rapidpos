@@ -18,6 +18,17 @@
             :items-per-page="itemsPerPage"
             hide-default-footer
           >
+            <template v-slot:item.sub_items="{ item }">
+              <v-btn
+                v-if="item.is_parent_item == 1"
+                small
+                color="warning"
+                depressed
+                @click="manage_subitems_dialog(item)"
+              >
+                <v-icon>mdi-format-list-bulleted-square</v-icon>
+              </v-btn>
+            </template>
             <template v-slot:item.qty="{ item }">{{
               formtCurrency(item.qty)
             }}</template>
@@ -328,8 +339,11 @@
     </v-card>
     <v-row>
       <v-col class="pt-0 pr-0" cols="8">
-        <v-card
+          <!-- <v-card
           style="max-height: 25vh; height: 25vh"
+          class="cards mb-0 mt-3 py-0 grey lighten-5"
+        > -->
+        <v-card
           class="cards mb-0 mt-3 py-0 grey lighten-5"
         >
           <v-row no-gutters class="pa-1 pt-2" style="height: 100%">
@@ -356,18 +370,8 @@
                     :prefix="pos_profile.currency"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12">
-                  <v-autocomplete
-                      v-model="selectedDiscount"
-                      :items="discount_types"
-                      dense
-                      outlined
-                      label="Select Discount Type"
-                      :disabled="enableDisable"
-                      ref="discount"
-                      item-text="discount_type"
-                    ></v-autocomplete>
-                  <!-- <v-text-field
+                 <v-col cols="12">
+                  <v-text-field
                     v-model="discount_amount"
                     label="ِAdditional Discount"
                     ref="discount"
@@ -381,7 +385,19 @@
                         ? true
                         : false
                     "
-                  ></v-text-field> -->
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <v-autocomplete
+                      v-model="selectedDiscount"
+                      :items="discount_types"
+                      dense
+                      outlined
+                      label="Select Discount Type"
+                      :disabled="enableDisable"
+                      ref="discount"
+                      item-text="discount_type"
+                    ></v-autocomplete>
                 </v-col>
                 <v-col cols="12">
                   <v-text-field
@@ -550,6 +566,7 @@ export default {
       discount_types: [],
       coupon_activated: false,
       coupon_discounts: [],
+      discount_return_coupon:[],
       options: [
         { text: '0%', value: '0' },
         { text: 'SRCT', value: '5' },
@@ -562,6 +579,7 @@ export default {
           sortable: true,
           value: 'item_name',
         },
+        { text: 'Subitems', value: 'sub_items', align: 'center' },
         { text: 'QTY', value: 'qty', align: 'center' },
         { text: 'UOM', value: 'uom', align: 'center' },
         { text: 'Rate', value: 'rate', align: 'center' },
@@ -602,7 +620,9 @@ export default {
     enableDiscount() {		
         this.enableDisable = false;
     },
-
+    manage_subitems_dialog(item){
+      evntBus.$emit('open_items_selector', item);
+    },
     get_discount() {
       const vm = this;
         frappe.call({
@@ -849,6 +869,7 @@ export default {
       doc.customer = this.customer;
       doc.items = this.get_invoice_items();
       doc.total = this.subtotal;
+      doc.coupon_list = this.save_coupon_to_invoice(this.discount_return_coupon);
       doc.discount_amount = flt(this.discount_amount);
       doc.additional_discount_type = this.selectedDiscount;
       doc.posa_pos_opening_shift = this.pos_opening_shift.name;
@@ -866,6 +887,8 @@ export default {
           qty: item.qty,
           rate: item.rate,
           uom: item.uom,
+          sub_items: item.sub_items,
+          is_parent_item: item.is_parent_item,
           conversion_factor: item.conversion_factor,
           serial_no: item.serial_no,
           discount_percentage: item.discount_percentage,
@@ -1476,12 +1499,36 @@ export default {
     },
     submit_coupon_codes(discount){
       this.coupon_discounts = discount;
+      this.save_coupon_to_invoice(discount);
       this.coupon_activated = true;
       evntBus.$emit("show_mesage", {
             text: `Coupon Payments added!`,
             color: "success",
           });
-    }
+    },
+    save_coupon_to_invoice(discount){
+        let coupon_percentage_discount = 0;
+        let coupon_amount_discount = 0;
+        let item_sum = 0;
+        let coupon_list = [];
+
+        //for inserting purposes
+        this.items.forEach((item) => {
+          item_sum += item.qty * item.rate;
+        });
+
+        discount.forEach((element) => {
+              if(element.discount_type == "Percentage"){
+                coupon_percentage_discount += item_sum*(element.discount_value/100);
+                coupon_list.push({coupon_name:element.coupon_name, qty: element.qty, discounted_amount:coupon_percentage_discount})
+              }
+              if (element.discount_type == "Amount"){
+                coupon_amount_discount += element.discount_value;
+                coupon_list.push({coupon_name:element.coupon_name, qty: element.qty, discounted_amount:coupon_amount_discount})
+              }
+            });
+        return coupon_list;
+    },
   },
   created() {
     evntBus.$on('register_pos_profile', (data) => {
@@ -1517,6 +1564,7 @@ export default {
     });
     evntBus.$on("submit_coupon", (discount) => {
       this.submit_coupon_codes(discount);
+      this.discount_return_coupon = discount;
     });
 
     this.$nextTick(function (){

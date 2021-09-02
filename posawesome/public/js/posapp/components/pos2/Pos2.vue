@@ -8,6 +8,7 @@
     <XReading></XReading>
     <ZReading></ZReading>
     <ApplyCoupon></ApplyCoupon>
+    <SubItemsSelector></SubItemsSelector>
     <Help></Help>
     <PaymentsConfirmation></PaymentsConfirmation>
     <ClosePosShift></ClosePosShift>
@@ -58,6 +59,7 @@ import PaymentsConfirmation from "./PaymentsConfirmation.vue";
 import ClosePosShift from "./ClosePosShift2.vue";
 import Payments from "./Payments.vue";
 import ItemsSelector from "./ItemsSelector.vue";
+import SubItemsSelector from "./SubItemsSelector.vue";
 import Help from "./Help.vue";
 import PaymentsCash from "./PaymentsCash.vue";
 import PaymentsCreditCard from "./PaymentsCreditCard.vue";
@@ -92,6 +94,7 @@ export default {
 
   components: {
     ItemsSelector,
+    SubItemsSelector,
     OpeningDialog,
     Payments,
     PaymentsConfirmation,

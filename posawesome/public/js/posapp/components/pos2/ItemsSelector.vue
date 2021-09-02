@@ -196,7 +196,8 @@ export default {
         vm.loading = false;
       }
       frappe.call({
-        method: 'posawesome.posawesome.api.posapp.get_items',
+        // method: 'posawesome.posawesome.api.posapp.get_items',
+        method: 'posawesome.posawesome.api.custom_posapp.get_items',
         args: { pos_profile: vm.pos_profile },
         callback: function (r) {
           if (r.message) {

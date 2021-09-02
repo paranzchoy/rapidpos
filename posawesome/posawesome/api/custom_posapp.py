@@ -1232,6 +1232,13 @@ def submit_invoice(data):
                 break
     if len(payments) == 0:
         payments = [invoice_doc.payments[0]]
+    # invoice_doc.coupon_list = data.get("coupon_list")
+    for item in data.get("coupon_list"):
+        invoice_doc.append("coupon_list", {
+              "coupon_name": item["coupon_name"],
+              "qty": item["qty"],
+              "discounted_amount": item["discounted_amount"]
+        })
     invoice_doc.payments = payments
     invoice_doc.due_date = data.get("due_date")
     invoice_doc.flags.ignore_permissions = True
@@ -1260,7 +1267,8 @@ def submit_invoice(data):
 
     return {
         "name": invoice_doc.name,
-        "status": invoice_doc.docstatus
+        "status": invoice_doc.docstatus,
+        "coupon_list": data.get("coupon_list")
     }
 
 def cardNumberHide(card_number):
@@ -1630,21 +1638,21 @@ def apply_coupons(coupon_list, invoice_doc):
         incrementUsage = update_coupon_code_count(coupon.coupon_name, "used", item["qty"])
         if incrementUsage == False:
             error_messages.append("Allowed quantity is exhausted")
-        discount_return.append({'discount_type': disc_type, 'discount_value': disc_val, 'customer': customer_name, 'coupon_type': coupon_type})
-        valid_coupon_list.append({'coupon_name': coupon.coupon_name, 'qty': item["qty"]})
+        discount_return.append({'discount_type': disc_type, 'discount_value': disc_val, 'customer': customer_name, 'coupon_type': coupon_type, 'coupon_name': coupon.coupon_name, 'qty': item["qty"]})
+        # valid_coupon_list.append({'coupon_name': coupon.coupon_name, 'qty': item["qty"]})
 
     data["error_messages"] = error_messages
     data["discount"] = discount_return
 
     #save to Sales Invoice db
-    if len(error_messages)==0:
-       invoice_doc = frappe.get_doc('Sales Invoice', invoice_data["name"])
-       for item in valid_coupon_list:
-          invoice_doc.append("coupon_list", {
-              "coupon_name": item["coupon_name"],
-			  "qty": item["qty"]
-          })
-       invoice_doc.save()
+    # if len(error_messages)==0:
+    #    invoice_doc = frappe.get_doc('Sales Invoice', invoice_data["name"])
+    #    for item in valid_coupon_list:
+    #       invoice_doc.append("coupon_list", {
+    #           "coupon_name": item["coupon_name"],
+	# 		  "qty": item["qty"]
+    #       })
+    #    invoice_doc.save()
     return data
 		
 def update_coupon_code_count(coupon_name,transaction_type,quantity):
@@ -1658,3 +1666,103 @@ def update_coupon_code_count(coupon_name,transaction_type,quantity):
                     return True
                 else:
                     return False
+
+@frappe.whitelist()
+def get_items(pos_profile):
+    pos_profile = json.loads(pos_profile)
+    price_list = pos_profile.get("selling_price_list")
+
+    item_groups_list = []
+    if pos_profile.get("item_groups"):
+        for group in pos_profile.get("item_groups"):
+            if not frappe.db.exists("Item Group", group.get("item_group")):
+                item_group = get_root_of(group.get("item_group"))
+                item_groups_list.append(item_group)
+            else:
+                item_groups_list.append(group.get("item_group"))
+
+    conditon = ""
+    if len(item_groups_list) > 0:
+        if len(item_groups_list) == 1:
+            conditon = "AND item_group = '{0}'".format(item_groups_list[0])
+        else:
+            conditon = "AND item_group in {0}".format(tuple(item_groups_list))
+
+    result = []
+
+    items_data = frappe.db.sql(
+        """
+        SELECT
+            name AS item_code,
+            item_name,
+            description,
+            stock_uom,
+            image,
+            is_stock_item,
+            has_variants,
+            variant_of,
+            item_group,
+            idx as idx,
+            has_batch_no,
+            has_serial_no,
+            is_parent_item AS is_parent_item
+        FROM
+            `tabItem`
+        WHERE
+            disabled = 0
+                AND is_sales_item = 1
+                AND is_fixed_asset = 0
+                {0}
+        ORDER BY
+            name asc
+            """.format(
+            conditon
+        ),
+        as_dict=1,
+    )
+
+    if items_data:
+        items = [d.item_code for d in items_data]
+        item_prices_data = frappe.get_all(
+            "Item Price",
+            fields=["item_code", "price_list_rate", "currency"],
+            filters={"price_list": price_list, "item_code": ["in", items]},
+        )
+
+        item_prices = {}
+        for d in item_prices_data:
+            item_prices[d.item_code] = d
+
+        for item in items_data:
+            item_is_parent_item = item.is_parent_item
+            item_code = item.item_code
+            item_price = item_prices.get(item_code) or {}
+            item_barcode = frappe.get_all(
+                "Item Barcode",
+                filters={"parent": item_code},
+                fields=["barcode", "posa_uom"],
+            )
+
+            if pos_profile.get("posa_display_items_in_stock"):
+                item_stock_qty = get_stock_availability(
+                    item_code, pos_profile.get("warehouse")
+                )
+            if pos_profile.get("posa_display_items_in_stock") and (
+                not item_stock_qty or item_stock_qty < 0
+            ):
+                pass
+            else:
+                row = {}
+                row.update(item)
+                row.update(
+                    {
+                        "rate": item_price.get("price_list_rate") or 0,
+                        "currency": item_price.get("currency")
+                        or pos_profile.get("currency"),
+                        "item_barcode": item_barcode or [],
+                        "actual_qty": 0,
+                    }
+                )
+                result.append(row)
+
+    return result
