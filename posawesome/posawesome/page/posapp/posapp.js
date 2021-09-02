@@ -2,8 +2,12 @@
 frappe.pages['posapp'].on_page_load = function(wrapper) {
 	var page = frappe.ui.make_app_page({
 		parent: wrapper,
+<<<<<<< HEAD
 		// title: 'POS Awesome',
 		title: 'RapidPOS',
+=======
+		title: 'POS Awesome',
+>>>>>>> cf7fba39a6d58e2117efe254bfd06b221d37b6eb
 		single_column: true
 	});
 

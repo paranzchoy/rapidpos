@@ -1,7 +1,10 @@
 {
   "dependencies": {
     "lodash": "^4.17.21",
+<<<<<<< HEAD
     "vuelidate": "^0.7.6",
+=======
+>>>>>>> cf7fba39a6d58e2117efe254bfd06b221d37b6eb
     "vuetify": "^2.3.10"
   }
 }
