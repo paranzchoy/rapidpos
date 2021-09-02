@@ -594,7 +594,8 @@ export default {
     },
     TotalDenomAmount: function(){
 
-      return this.totalAmount + this.formtSumCardInvoices(this.total_card_amount) + this.formtSumCoupon(this.total_coupon_amount);
+      //this.formtSumCoupon(this.total_coupon_amount);
+      return this.totalAmount + this.formtSumCardInvoices(this.total_card_amount);
      
     },
   }
