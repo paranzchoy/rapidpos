@@ -621,7 +621,12 @@ export default {
         this.enableDisable = false;
     },
     manage_subitems_dialog(item){
-      evntBus.$emit('open_items_selector', item);
+      const invoice_doc = this.proces_invoice();
+      let data ={}
+      data.item = item;
+      data.pos_profile = this.pos_profile;
+      data.invoice_doc = invoice_doc;
+      evntBus.$emit('open_items_selector', data);
     },
     get_discount() {
       const vm = this;
@@ -889,6 +894,7 @@ export default {
           uom: item.uom,
           sub_items: item.sub_items,
           is_parent_item: item.is_parent_item,
+          max_subitem_quantity: item.max_subitem_quantity,
           conversion_factor: item.conversion_factor,
           serial_no: item.serial_no,
           discount_percentage: item.discount_percentage,

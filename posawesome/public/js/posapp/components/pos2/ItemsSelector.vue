@@ -195,6 +195,7 @@ export default {
         vm.items = JSON.parse(localStorage.getItem('items_storage'));
         vm.loading = false;
       }
+      vm.pos_profile.subitem_trigger = false;
       frappe.call({
         // method: 'posawesome.posawesome.api.posapp.get_items',
         method: 'posawesome.posawesome.api.custom_posapp.get_items',
