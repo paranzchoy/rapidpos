@@ -88,21 +88,11 @@ doctype_js = {"POS Profile": "posawesome/api/pos_profile.js"}
 # ---------------
 # Hook on document methods and events
 
-<<<<<<< HEAD
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
-=======
 doc_events = {
     "Sales Invoice": {
         "before_submit": "posawesome.posawesome.api.invoice.before_submit",
     }
 }
->>>>>>> cf7fba39a6d58e2117efe254bfd06b221d37b6eb
 
 # Scheduled Tasks
 # ---------------
@@ -179,8 +169,6 @@ fixtures = [
                     "POS Profile-use_customer_credit",
                     "POS Profile-use_cashback",
                     "POS Profile-posa_hide_closing_shift",
-<<<<<<< HEAD
-=======
                     "Customer-posa_discount",
                     "POS Profile-posa_apply_customer_discount",
                     "Sales Invoice-posa_offers",
@@ -204,7 +192,6 @@ fixtures = [
                     "POS Profile-posa_column_break_112",
                     "POS Profile-posa_show_template_items",
                     "POS Profile-posa_hide_variants_items",
->>>>>>> cf7fba39a6d58e2117efe254bfd06b221d37b6eb
                 ),
             ]
         ],

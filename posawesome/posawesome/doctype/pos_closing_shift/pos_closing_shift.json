@@ -198,11 +198,7 @@
  ],
  "is_submittable": 1,
  "links": [],
-<<<<<<< HEAD
- "modified": "2021-08-24 13:32:58.776265",
-=======
  "modified": "2020-09-29 04:59:47.560610",
->>>>>>> cf7fba39a6d58e2117efe254bfd06b221d37b6eb
  "modified_by": "Administrator",
  "module": "POSAwesome",
  "name": "POS Closing Shift",
