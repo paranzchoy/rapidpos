@@ -220,7 +220,15 @@ export default {
       if (!this.filtred_items.length || !this.first_search) {
         return;
       }
-      const qty = this.get_item_qty(this.first_search);
+
+    // let qty = this.get_item_qty(this.first_search);
+    let qty = this.item_qtty;
+    // if(this.item_qtty)
+    // {
+    //   qty = this.item_qtty;
+    // }
+
+      // const qty = this.get_item_qty(this.first_search);
       const new_item = { ...this.filtred_items[0] };
       new_item.qty = flt(qty);
       new_item.item_barcode.forEach((element) => {
