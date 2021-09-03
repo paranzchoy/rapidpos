@@ -35,7 +35,6 @@
                 cols="4"
                 min-height="50"
               >
-                <!-- <v-card hover="hover" @click="add_item(item)"> -->
                 <v-card hover="hover" @click="add_item(item)">
                       <v-col cols="12">
                         <v-img
@@ -73,7 +72,7 @@
         <v-divider></v-divider>
         <v-card-actions class="mt-4">
           <v-spacer></v-spacer>
-          <v-btn color="blue-grey" dark @click="close_dialog">Reset</v-btn>
+          <v-btn color="blue-grey" dark @click="reset">Reset</v-btn>
           <v-btn color="error" dark @click="close_dialog">Cancel</v-btn>
           <v-btn
             color="primary"
@@ -116,7 +115,7 @@ export default {
           this.dialog_state = false;
       },
       add_item(item){
-        if (this.item_doc.max_subitem_quantity == this.total_qty){
+        if (this.total_qty>=this.item_doc.max_subitem_quantity){
             evntBus.$emit('show_mesage', {
               text: `Quantity allowed exceeded!`,
               color: 'error',
@@ -132,7 +131,39 @@ export default {
         }
       },
       submit_dialog(){
-        
+        let data = {};
+        let selected_items = [];
+        this.filtred_items.forEach((item) => {
+            if (item.actual_qty){
+              selected_items.push({'item_name': item.name, 'qty': item.actual_qty, 'rate': item.rate, 'uom': item.uom});
+            }
+        });
+        data.item_doc = this.item_doc;
+        data.selected_items = selected_items;
+        evntBus.$emit('show_mesage', {
+              text: `Subitems added!`,
+              color: 'success',
+        });
+        frappe.utils.play_sound('submit');
+        this.close_dialog();
+        // const vm = this;
+        // frappe.call({
+        //   method: 'posawesome.posawesome.api.custom_posapp.submit_subitems',
+        //   args: {
+        //     data: data,
+        //   },
+        //   async: true,
+        //   callback: function (r) {
+        //     if (r.message) {
+        //       vm.load_print_page();
+        //       evntBus.$emit('show_mesage', {
+        //         text: `Invoice ${r.message.name} is Submited`,
+        //         color: 'success',
+        //       });
+        //       frappe.utils.play_sound('submit');
+        //     }
+        //   },
+        // });
       },
 
       formtCurrency(value) {
@@ -157,29 +188,6 @@ export default {
             },
           });
       },
-      update_items_details(items) {
-        const vm = this;
-        frappe.call({
-          method: 'posawesome.posawesome.api.posapp.get_items_details',
-          args: {
-            pos_profile: vm.pos_profile,
-            items_data: items,
-          },
-          callback: function (r) {
-            if (r.message) {
-              items.forEach((item) => {
-                const updated_item = r.message.find(
-                  (element) => element.item_code == item.item_code
-                );
-                item.actual_qty = updated_item.actual_qty;
-                item.serial_no_data = updated_item.serial_no_data;
-                item.batch_no_data = updated_item.batch_no_data;
-                item.item_uoms = updated_item.item_uoms;
-              });
-            }
-          },
-        });
-      },
     get_search(first_search) {
       let search_term = '';
         if (first_search && first_search.startsWith(this.pos_profile.posa_scale_barcode_start)) {
@@ -190,6 +198,11 @@ export default {
         }
       return search_term;
     },
+    reset(){
+      this.filtred_items.forEach((element) => {
+          element.actual_qty = '';
+      });
+    }
   },
   created: function () {
     evntBus.$on('open_items_selector', (data) => {
@@ -211,9 +224,6 @@ export default {
       let diff_qty = (
         this.item_doc.max_subitem_quantity - this.total_qty
       )
-      if(diff_qty<0 && this.total_qty <= this.item_doc.max_subitem_quantity){
-        diff_qty = 0;
-      }
       return diff_qty;
     },
     total_qty(){
