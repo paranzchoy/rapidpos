@@ -1,4 +1,3 @@
-<!-- test -->
 <template>
   <v-row justify="center">
     <v-dialog v-model="closingDialog" max-width="900px">
@@ -19,7 +18,7 @@
                     :items-per-page="itemsPerPage"
                     hide-default-footer
                   >
-                    <!-- <template v-slot:item.closing_amount="props">
+                    <template v-slot:item.closing_amount="props">
                       <v-edit-dialog
                         :return-value.sync="props.item.closing_amount"
                       >
@@ -35,31 +34,7 @@
                           ></v-text-field>
                         </template>
                       </v-edit-dialog>
-                    </template> -->
-                    <template v-slot:item.closing_amount="props">
-                    <template v-if="props.item.mode_of_payment === 'Cash'">{{
-                      (
-                        props.item.closing_amount = formtCurrency(totalAmount)
-                      )
-                    }}</template>
-                    <template v-else-if="props.item.mode_of_payment === 'Credit Card'">
-                      <v-edit-dialog
-                      :return-value.sync="props.item.closing_amount"
-                      >
-                        {{ formtCurrency(props.item.closing_amount) }}
-                        <template v-slot:input>
-                          <v-text-field
-                            v-model="props.item.closing_amount"
-                            :rules="[max25chars]"
-                            label="Edit"
-                            single-line
-                            counter
-                            type="number"
-                          ></v-text-field>
-                        </template>
-                      </v-edit-dialog>
                     </template>
-                  </template>
                     <template v-slot:item.difference="{ item }">{{
                       (item.difference = formtCurrency(
                         item.expected_amount - item.closing_amount
@@ -71,52 +46,7 @@
                     <template v-slot:item.expected_amount="{ item }">{{
                       formtCurrency(item.expected_amount)
                     }}</template>
-                </v-data-table>
-                   <v-expansion-panels>
-                    <v-expansion-panel
-                      v-for="(item,i) in 1"
-                      :key="i"
-                    >
-                      <v-expansion-panel-header>
-                        Cash Denomination Breakdown
-                      </v-expansion-panel-header>
-                      <v-expansion-panel-content>
-                        <template>
-                          <div>
-                            <v-data-table
-                              :headers = "denomHeaders"
-                              :items = "denominations"
-                              item-key = "denom"
-                              class="elevation-1"
-                            >
-                            <template v-slot:item.qty="props">
-                              <v-edit-dialog
-                                :return-value.sync="props.item.qty"
-                              >
-                                {{ props.item.qty }}
-                                <template v-slot:input>
-                                  <v-text-field
-                                    v-model="props.item.qty"
-                                    :rules="[max25chars]"
-                                    label="Edit"
-                                    single-line
-                                    counter
-                                    type="number"
-                                  ></v-text-field>
-                                </template>
-                              </v-edit-dialog>
-                            </template>
-                            <template v-slot:item.total="{ item }">{{
-                              (item.total = formtCurrency(
-                                item.denom * item.qty
-                              ))
-                            }}</template>
-                            </v-data-table>
-                          </div>
-                        </template>
-                      </v-expansion-panel-content>
-                    </v-expansion-panel>
-                  </v-expansion-panels>
+                  </v-data-table>
                 </template>
               </v-col>
             </v-row>
@@ -171,86 +101,6 @@ export default {
         sortable: false,
       },
     ],
-      denominations: [
-      {
-        denom: 1000,
-        qty: 0,
-        total: 0,
-      },
-      {
-        denom: 500,
-        qty: 0,
-        total: 0,
-      },
-      {
-        denom: 200,
-        qty: 0,
-        total: 0,
-      },
-      {
-        denom: 100,
-        qty: 0,
-        total: 0,
-      },
-      {
-        denom: 50,
-        qty: 0,
-        total: 0,
-      },
-      {
-        denom: 20,
-        qty: 0,
-        total: 0,
-      },
-      {
-        denom: 10,
-        qty: 0,
-        total: 0,
-      },
-      {
-        denom: 5,
-        qty: 0,
-        total: 0,
-      },
-      {
-        denom: 1,
-        qty: 0,
-        total: 0,
-      },
-      {
-        denom: 0.25,
-        qty: 0,
-        total: 0,
-      },
-      {
-        denom: 0.05,
-        qty: 0,
-        total: 0,
-      },
-      {
-        denom: 0.01,
-        qty: 0,
-        total: 0,
-      },
-    ],
-    denomHeaders: [
-      {
-        text: 'DENOMINATION',
-        align: 'start',
-        sortable: false,
-        value: 'denom',
-      },
-      {
-        text: 'QTY',
-        sortable: false,
-        value: 'qty',
-      },
-      {
-        text: 'TOTAL',
-        sortable: false,
-        value: 'total',
-      },
-    ],
     max25chars: (v) => v.length <= 20 || 'Input too long!', // TODO : should validate as number
     pagination: {},
   }),
@@ -258,20 +108,6 @@ export default {
   methods: {
     close_dialog() {
       this.closingDialog = false;
-    },
-
-     calculate_totals() {
-      const vm = this;
-      frappe.call({
-        method: 'posawesome.posawesome.api.posapp.submit_total_closing_readings',
-        args: {
-          opening_shift:this.pos_closing_shift.name
-        },
-        async: true,
-        callback: function (r) {
-          //do nothing
-        },
-      });
     },
 
     submit_dialog() {
@@ -289,14 +125,5 @@ export default {
       this.dialog_data = data;
     });
   },
-  computed: {
-    totalAmount: function(){
-
-      return this.denominations.reduce(function(totalSum, item){
-
-        return totalSum + (item.denom * item.qty);
-      },0);
-    },
-  }
 };
 </script>
