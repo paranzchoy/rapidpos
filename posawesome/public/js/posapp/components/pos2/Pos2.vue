@@ -8,6 +8,7 @@
     <XReading></XReading>
     <ZReading></ZReading>
     <ApplyCoupon></ApplyCoupon>
+    <SubItemsSelector></SubItemsSelector>
     <Help></Help>
     <PaymentsConfirmation></PaymentsConfirmation>
     <ClosePosShift></ClosePosShift>
@@ -46,7 +47,7 @@
 <script>
 //Original POSAwesome components
 import { evntBus } from "../../bus";
-import ItemsSelector from "../pos/ItemsSelector.vue";
+// import ItemsSelector from "../pos/ItemsSelector.vue";
 // import Payments from "../pos/Payments.vue";
 import Drafts from "../pos/Drafts.vue";
 import ClosingDialog from "../pos/ClosingDialog.vue";
@@ -57,7 +58,8 @@ import OpeningDialog from "./OpeningDialog.vue";
 import PaymentsConfirmation from "./PaymentsConfirmation.vue";
 import ClosePosShift from "./ClosePosShift2.vue";
 import Payments from "./Payments.vue";
-// import ClosePosShift from "./ClosePosShift.vue";
+import ItemsSelector from "./ItemsSelector.vue";
+import SubItemsSelector from "./SubItemsSelector.vue";
 import Help from "./Help.vue";
 import PaymentsCash from "./PaymentsCash.vue";
 import PaymentsCreditCard from "./PaymentsCreditCard.vue";
@@ -92,6 +94,7 @@ export default {
 
   components: {
     ItemsSelector,
+    SubItemsSelector,
     OpeningDialog,
     Payments,
     PaymentsConfirmation,
@@ -155,7 +158,7 @@ export default {
             this.pos_opening_shift = r.message.pos_opening_shift;
             evntBus.$emit("register_pos_profile", r.message);
             evntBus.$emit("set_company", r.message.company);
-            console.log("LoadPosProfile");
+            console.log("LoadPosProfile v2");
           } else {
             this.create_opening_voucher();
           }
@@ -246,7 +249,7 @@ export default {
         this.pos_profile = data.pos_profile;
         this.pos_opening_shift = data.pos_opening_shift;
         evntBus.$emit("register_pos_profile", data);
-        console.log("LoadPosProfile");
+        console.log("LoadPosProfile v2");
       });
       evntBus.$on("show_payment", (data) => {
         this.payment = true ? data ==="true": false;

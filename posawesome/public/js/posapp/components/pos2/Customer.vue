@@ -67,13 +67,16 @@ export default {
 
   methods: {
     get_customer_names() {
+      console.log("get_customer_names()");
       const vm = this;
       if (vm.pos_profile.posa_local_storage && localStorage.customer_storage) {
         vm.customers = JSON.parse(localStorage.getItem('customer_storage'));
       }
       frappe.call({
         method: 'posawesome.posawesome.api.posapp.get_customer_names',
-        args: {},
+        args: {
+          pos_profile: vm.pos_profile,
+        },
         callback: function (r) {
           if (r.message) {
             vm.customers = r.message;
@@ -139,6 +142,9 @@ export default {
   computed: {},
 
   created: function () {
+    console.log("mounting Customer2.vue...");
+
+
     this.$nextTick(function () {
       evntBus.$on('register_pos_profile', (pos_profile) => {
         this.pos_profile = pos_profile;
