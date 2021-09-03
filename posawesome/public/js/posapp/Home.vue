@@ -10,13 +10,13 @@
 </template>
 
 <script>
-import Navbar from "./components/pos2/Navbar2.vue";
-import POS from "./components/pos2/Pos2.vue";
+import Navbar from './components/Navbar.vue';
+import POS from './components/pos/Pos.vue';
 
 export default {
   data: function () {
     return {
-      page: "POS",
+      page: 'POS',
     };
   },
   components: {
@@ -29,8 +29,8 @@ export default {
     },
     remove_frappe_nav() {
       this.$nextTick(function () {
-        $(".page-head").remove();
-        $(".navbar.navbar-default.navbar-fixed-top").remove();
+        $('.page-head').remove();
+        $('.navbar.navbar-default.navbar-fixed-top').remove();
       });
     },
   },
