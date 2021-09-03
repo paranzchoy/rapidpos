@@ -245,11 +245,12 @@ export default {
         return;
       }
 
-    let qty = this.get_item_qty(this.first_search);
-    if(this.item_qtty)
-    {
-      qty = this.item_qtty;
-    }
+    // let qty = this.get_item_qty(this.first_search);
+    let qty = this.item_qtty;
+    // if(this.item_qtty)
+    // {
+    //   qty = this.item_qtty;
+    // }
 
       // const qty = this.get_item_qty(this.first_search);
       const new_item = { ...this.filtred_items[0] };
