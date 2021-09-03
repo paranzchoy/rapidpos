@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="dialog_state" max-width="700px" scrollable>
+    <v-dialog v-model="dialog_state" max-width="1000px" scrollable>
       <v-card>
         <v-card-title>
           <span class="headline indigo--text">Select subitems for {{item_doc.item_name}}</span>
@@ -9,7 +9,7 @@
           <v-row>
              <v-col cols="4">
                 <v-combobox
-                  v-model="select"
+                  v-model="item_group"
                   :items="subitem_item_group"
                   label="Item Group"
                   outlined
@@ -26,7 +26,7 @@
         <v-card-text>
           <v-row>
                <v-col
-                v-for="(item) in items"
+                v-for="(item) in filtred_items"
                 :key="item.name"
                 xl="2"
                 lg="3"
@@ -36,7 +36,7 @@
                 min-height="50"
               >
                 <!-- <v-card hover="hover" @click="add_item(item)"> -->
-                <v-card hover="hover">
+                <v-card hover="hover" @click="add_item(item)">
                       <v-col cols="12">
                         <v-img
                           :src="
@@ -53,17 +53,17 @@
                           ></v-card-text>
                         </v-img>
                       </v-col>
+                     <div class="text-caption indigo--text accent-3">
+                        {{ item.rate || 0 }} {{ item.currency || '' }}
+                     </div>
                 </v-card>
                 <v-col cols="12">
                         <v-card-text class="text--primary pa-1">
-                          <div class="text-caption indigo--text accent-3">
-                            <!-- {{ item.rate || 0 }} {{ item.currency || '' }} -->
                             <v-text-field
-                              v-model="item.total_qty"
+                              v-model="item.actual_qty"
                               label="Qty"
-                              type="number"
-                            ></v-text-field>
-                          </div>
+                              type="number">
+                            </v-text-field>
                         </v-card-text>
                 </v-col>
 
@@ -93,9 +93,11 @@ export default {
       invoice_doc:'',
       item_doc:'',
       dialog_state: false,
+      hakdog:'',
       select: '',
       total_inputted_qty:0,
       items:[],
+      item_group:'ALL',
       subitem_item_group:['ALL'],
       items_headers: [
       { text: 'Name', align: 'start', sortable: true, value: 'item_name' },
@@ -107,15 +109,28 @@ export default {
       itemsPerPage: 12,
   }),
   watch: {
-    filtred_items(data_value) {
-      this.update_items_details(data_value);
-    },
+
   },
   methods: { 
       close_dialog(){
           this.dialog_state = false;
       },
-      
+      add_item(item){
+        if (this.item_doc.max_subitem_quantity == this.total_qty){
+            evntBus.$emit('show_mesage', {
+              text: `Quantity allowed exceeded!`,
+              color: 'error',
+            });
+            frappe.utils.play_sound('error');
+        }
+        else{
+            this.filtred_items.forEach((element) => {
+              if (element===item){
+                element.actual_qty++;
+              }
+            });
+        }
+      },
       submit_dialog(){
         
       },
@@ -126,6 +141,7 @@ export default {
       },
       get_items(){
           const vm = this;
+          vm.items.splice(0);
           vm.pos_profile.subitem_trigger = true;
           frappe.call({
           method: 'posawesome.posawesome.api.custom_posapp.get_items',
@@ -164,6 +180,16 @@ export default {
           },
         });
       },
+    get_search(first_search) {
+      let search_term = '';
+        if (first_search && first_search.startsWith(this.pos_profile.posa_scale_barcode_start)) {
+          search_term = first_search.substr(0, 7);
+        } 
+        else {
+          search_term = first_search;
+        }
+      return search_term;
+    },
   },
   created: function () {
     evntBus.$on('open_items_selector', (data) => {
@@ -183,10 +209,58 @@ export default {
   computed: {
     remaining_qty(){
       let diff_qty = (
-        this.item_doc.max_subitem_quantity - this.total_inputted_qty
+        this.item_doc.max_subitem_quantity - this.total_qty
       )
+      if(diff_qty<0 && this.total_qty <= this.item_doc.max_subitem_quantity){
+        diff_qty = 0;
+      }
       return diff_qty;
-    }
+    },
+    total_qty(){
+        let total = 0;
+          this.filtred_items.forEach((element) => {
+              total += element.actual_qty;
+          }
+        )
+        return total;
+    },
+     filtred_items() {
+      this.search = this.get_search(this.first_search);
+      let filtred_list = [];
+      let filtred_group_list = [];
+      if (this.item_group != 'ALL') {
+        filtred_group_list = this.items.filter((item) =>
+          item.item_group.toLowerCase().includes(this.item_group.toLowerCase())
+        );
+      } else {
+        filtred_group_list = this.items;
+      }
+      if (!this.search || this.search.length < 3) {
+        return (filtred_list = filtred_group_list.slice(0, 50));
+      } else if (this.search) {
+        filtred_list = filtred_group_list.filter((item) => {
+          let found = false;
+          for (let element of item.item_barcode) {
+            if (element.barcode == this.search) {
+              found = true;
+              break;
+            }
+          }
+          return found;
+        });
+        if (filtred_list.length == 0) {
+          filtred_list = filtred_group_list.filter((item) =>
+            item.item_name.toLowerCase().includes(this.search.toLowerCase())
+          );
+          if (filtred_list.length == 0) {
+            filtred_list = filtred_group_list.filter((item) =>
+              item.item_code.toLowerCase().includes(this.search.toLowerCase())
+            );
+          }
+        }
+      }
+      return filtred_list.slice(0, 50);
+    },
 
   }
 };
