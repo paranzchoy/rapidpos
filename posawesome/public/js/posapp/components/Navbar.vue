@@ -11,7 +11,6 @@
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
-
       <div class="text-center">
         <v-menu offset-y>
           <template v-slot:activator="{ on, attrs }">
@@ -251,7 +250,7 @@ export default {
       this.$emit('changePage', key);
     },
     go_desk() {
-      frappe.set_route('');
+      frappe.set_route('/');
       location.reload();
     },
     go_about() {

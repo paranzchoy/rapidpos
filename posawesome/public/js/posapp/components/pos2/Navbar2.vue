@@ -116,32 +116,6 @@
           </v-card>
         </v-menu>
       </div>
-<!-- // TEST COMMIT1 -->
-      <!-- <div class="text-center">
-        <v-menu offset-y>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn color="grey" dark text v-bind="attrs" v-on="on">Pages</v-btn>
-          </template>
-          <v-card class="mx-auto" max-width="300" tile>
-            <v-list dense>
-              <v-list-item-group v-model="item" color="primary">
-                <v-list-item
-                  v-for="(item, index) in items"
-                  :key="item.text"
-                  @click="[changePage(item.text), (item = index)]"
-                >
-                  <v-list-item-icon>
-                    <v-icon v-text="item.icon"></v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title v-text="item.text"></v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-          </v-card>
-        </v-menu>
-      </div> -->
       <v-btn text color="black" @click="go_desk">
         <span right>Desk</span>
       </v-btn>
@@ -184,9 +158,6 @@
     </v-navigation-drawer>
     <v-snackbar v-model="snack" :timeout="5000" :color="snackColor" top right>
       {{ snackText }}
-      <!-- <template v-slot:action="{ attrs }"> -->
-      <!-- <v-btn v-bind="attrs" text @click="snack = false">Close</v-btn> -->
-      <!-- </template> -->
     </v-snackbar>
   </nav>
 </template>
@@ -322,7 +293,6 @@ export default {
       });
       evntBus.$on('register_pos_profile', (data) => {
         this.pos_profile = data.pos_profile;
-        // this.pos_opening_shift = data.pos_opening_shift;
       });
     });
 
