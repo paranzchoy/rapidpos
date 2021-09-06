@@ -110,7 +110,7 @@ export default {
   watch: {
 
   },
-  methods: { 
+  methods: {
       close_dialog(){
           this.dialog_state = false;
       },
@@ -130,49 +130,75 @@ export default {
             });
         }
       },
-      submit_dialog(){
-        let data = {};
-        let selected_items = [];
-        this.filtred_items.forEach((item) => {
-            if (item.actual_qty){
-              selected_items.push({'item_name': item.name, 'qty': item.actual_qty, 'rate': item.rate, 'uom': item.uom});
-            }
-        });
-        data.item_doc = this.item_doc;
-        data.selected_items = selected_items;
-        evntBus.$emit('show_mesage', {
-              text: `Subitems added!`,
-              color: 'success',
-        });
-        frappe.utils.play_sound('submit');
-        this.close_dialog();
-        // const vm = this;
-        // frappe.call({
-        //   method: 'posawesome.posawesome.api.custom_posapp.submit_subitems',
-        //   args: {
-        //     data: data,
-        //   },
-        //   async: true,
-        //   callback: function (r) {
-        //     if (r.message) {
-        //       vm.load_print_page();
-        //       evntBus.$emit('show_mesage', {
-        //         text: `Invoice ${r.message.name} is Submited`,
-        //         color: 'success',
-        //       });
-        //       frappe.utils.play_sound('submit');
-        //     }
-        //   },
-        // });
-      },
+    submit_dialog(){
+      let data = {};
+      let selected_items = [];
+      this.filtred_items.forEach((item) => {
+          if (item.actual_qty){
+            selected_items.push({'item_name': item.item_name, 'qty': item.actual_qty, 'rate': item.rate, 'uom': item.stock_uom});
+          }
+      });
+      data.item_doc = this.item_doc;
+      data.selected_items = selected_items;
+      console.log(selected_items);
+      this.save_subitems(data);
+      evntBus.$emit('show_mesage', {
+            text: `Subitems added!`,
+            color: 'success',
+      });
+      frappe.utils.play_sound('submit');
+      this.close_dialog();
 
-      formtCurrency(value) {
+    },
+    save_subitems(data){
+        const vm = this;
+        frappe.call({
+          method: 'posawesome.posawesome.api.custom_posapp.save_sub_items',
+          args: {
+            data: data,
+            invoice_doc: vm.invoice_doc
+          },
+          async: true,
+          callback: function (r) {
+            if (r.message) {
+              evntBus.$emit('show_mesage', {
+                text: `Invoice ${r.message.name} is Submited`,
+                color: 'success',
+              });
+              frappe.utils.play_sound('submit');
+            }
+          },
+        });
+    },
+    formtCurrency(value) {
         value = parseFloat(value);
         return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-      },
-      get_items(){
+    },
+    get_item_groups(){
+       let item_groups = [];
+       const vm = this;
+       frappe.call({
+          method: 'posawesome.posawesome.api.custom_posapp.get_product_item_groups',
+          args: { item_doc: vm.item_doc },
+          callback: function (r) {
+            if (r.message) {
+              r.message.forEach(element => {
+                if (element.item_group !== 'All Item Groups') {
+                  vm.subitem_item_group.push(element.item_group);
+                  item_groups.push({item_group:element.item_group});
+                }
+              });
+              // item_groups = r.message;
+              }
+            vm.select = vm.subitem_item_group[0];
+            },
+          });
+      return item_groups;
+    },
+    get_items(){
           const vm = this;
           vm.items.splice(0);
+          vm.pos_profile.subitem_item_group = vm.get_item_groups();
           vm.pos_profile.subitem_trigger = true;
           frappe.call({
           method: 'posawesome.posawesome.api.custom_posapp.get_items',
@@ -180,19 +206,28 @@ export default {
           callback: function (r) {
             if (r.message) {
               vm.items = r.message;
-              if (vm.pos_profile.posa_local_storage) {
-                localStorage.setItem('items_storage', '');
-                localStorage.setItem('items_storage', JSON.stringify(r.message));
-                }
               }
             },
           });
-      },
+    },
+    get_existing_subitems(){
+      const vm = this;
+          vm.items.splice(0);
+          frappe.call({
+          method: 'posawesome.posawesome.api.custom_posapp.get_sub_items',
+          args: { invoice_doc: vm.invoice_doc, item_doc: vm.item_doc },
+          callback: function (r) {
+            if (r.message) {
+              vm.items = r.message;
+              }
+            },
+          });
+    },
     get_search(first_search) {
       let search_term = '';
         if (first_search && first_search.startsWith(this.pos_profile.posa_scale_barcode_start)) {
           search_term = first_search.substr(0, 7);
-        } 
+        }
         else {
           search_term = first_search;
         }
@@ -202,6 +237,15 @@ export default {
       this.filtred_items.forEach((element) => {
           element.actual_qty = '';
       });
+    },
+    check_item_subitems(){
+      const check = this.invoice_doc.items.find(element => element.item_name === this.item_doc.item_name);
+      if(!check.sub_items){
+        this.get_existing_subitems();
+      }
+      else{
+        this.get_items();
+      }
     }
   },
   created: function () {
@@ -209,13 +253,8 @@ export default {
         this.item_doc = data.item;
         this.pos_profile = data.pos_profile;
         this.invoice_doc = data.invoice_doc;
-        this.pos_profile.subitem_item_group.forEach(element => {
-          if (element.item_group !== 'All Item Groups') {
-            this.subitem_item_group.push(element.item_group);
-          }
-          this.select = this.subitem_item_group[0];
-        });
-        this.get_items();
+        this.get_item_groups();
+        this.check_item_subitems();
         this.dialog_state = true;
     });
   },
@@ -234,7 +273,7 @@ export default {
         )
         return total;
     },
-     filtred_items() {
+    filtred_items() {
       this.search = this.get_search(this.first_search);
       let filtred_list = [];
       let filtred_group_list = [];
@@ -270,7 +309,7 @@ export default {
         }
       }
       return filtred_list.slice(0, 50);
-    },
+  },
 
   }
 };

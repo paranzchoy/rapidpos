@@ -1741,7 +1741,6 @@ def get_items(pos_profile):
 
         for item in items_data:
             item_is_parent_item = item.is_parent_item
-            item_max_subitem_quantity = item.max_subitem_quantity
             item_code = item.item_code
             item_price = item_prices.get(item_code) or {}
             item_barcode = frappe.get_all(
@@ -1777,3 +1776,45 @@ def get_items(pos_profile):
                     result.append(row)
 
     return result
+
+def get_root_of(doctype):
+    """Get root element of a DocType with a tree structure"""
+    result = frappe.db.sql(
+        """select t1.name from `tab{0}` t1 where
+		(select count(*) from `tab{1}` t2 where
+			t2.lft < t1.lft and t2.rgt > t1.rgt) = 0
+		and t1.rgt > t1.lft""".format(
+            doctype, doctype
+        )
+    )
+    return result[0][0] if result else None
+
+@frappe.whitelist()
+def get_product_item_groups(item_doc):
+    item_details = json.loads(item_doc)
+    item_groups = frappe.get_doc("Product Bundle Mixed", item_details.get("item_name"))
+    return item_groups.item_groups
+
+# for getting already added subitems to an item
+@frappe.whitelist()
+def get_sub_items(invoice_doc, item_doc):
+    sub_items=[]
+    invoice = frappe.get_doc("Sales Invoice", invoice_doc.name)
+    for item in invoice.items:
+        if item.item_name == item_doc.item_name:
+           sub_items=item.sub_items
+    return sub_items
+
+@frappe.whitelist()
+def save_sub_items(data, invoice_doc):
+    data = json.loads(data)
+    # subitems=[]
+    invoice = json.loads(invoice_doc)
+    invoice_doc = frappe.get_doc('Sales Invoice', invoice)
+    item_doc = frappe.get_doc('Item', data.get("item_doc"))
+    for item in invoice_doc.items:
+        if item.item_name == item_doc.item_name:
+            # subitems.append("sub_items", data.get("selected_items"))
+            item.update({'sub_items': data.get("selected_items")})
+    invoice_doc.save()
+    return invoice_doc
