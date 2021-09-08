@@ -18,7 +18,6 @@
     <OpeningDialog v-if="dialog" :dialog="dialog"></OpeningDialog>
     <v-row v-show="!dialog">
       <v-col v-show="!payment&&!payment_cash&&!payment_credit_card&&!payment_debit_card" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
-      <!-- <v-col v-show="!payment" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0"> -->
         <ItemsSelector></ItemsSelector>
       </v-col>
       <v-col v-show="payment" xl="5" lg="6" md="6" sm="6" cols="12" class="pos pr-0">
