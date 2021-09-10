@@ -755,6 +755,7 @@ export default {
       if (!item.qty) {
         item.qty = 1;
       }
+      new_item.subitems_reference = '';
       new_item.stock_qty = item.qty;
       new_item.discount_amount = 0;
       new_item.selectedDiscount = null;
@@ -900,6 +901,7 @@ export default {
           discount_percentage: item.discount_percentage,
           discount_amount: item.discount_amount,
           batch_no: item.batch_no,
+          subitems_reference: item.subitems_reference
         });
       });
       return items_list;
@@ -1559,6 +1561,13 @@ export default {
     evntBus.$on("submit_coupon", (discount) => {
       this.submit_coupon_codes(discount);
       this.discount_return_coupon = discount;
+    });
+    evntBus.$on("submit_subitems", (data) => {
+      this.items.forEach((element)=>{
+        if (element.item_name === data.item_name){
+          element.subitems_reference = data.subitem_reference;
+        }
+      });
     });
 
     this.$nextTick(function (){
