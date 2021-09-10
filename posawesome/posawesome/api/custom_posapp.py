@@ -1125,8 +1125,7 @@ def generate_keys(user):
 
 @frappe.whitelist()
 def get_denominations():
-	data = {}
-	data["get_denom"] = frappe.db.get_list("Breakdown Denomination", fields=["amount","quantity","total"], limit= 20, order_by='amount desc')
+	data = frappe.db.get_list("Breakdown Denomination", fields=["amount","quantity","total"], limit= 20, order_by='amount desc')
 	return data
 
 @frappe.whitelist()
@@ -1284,11 +1283,8 @@ def cardNumberHide(card_number):
 
 @frappe.whitelist()
 def get_bank_names_data():
-    bank_list = []
     get_bank = frappe.get_list("Bank", fields=["name"], order_by='name')
-    for i in get_bank:
-        bank_list.append(i.name)
-    return bank_list
+    return get_bank
 
 @frappe.whitelist()
 def submit_pos_opening_shift_withdrawal(withdrawal):
@@ -1778,116 +1774,11 @@ def get_items(pos_profile):
 
     return result
 
-# @frappe.whitelist()
-# def get_items_sub(pos_profile, sub_item_groups):
-#     pos_profile = json.loads(pos_profile)
-#     sub_item_groups = json.loads(sub_item_groups)
-#     # price_list = pos_profile.get("selling_price_list")
-#     # item_groups_list = []
-#     # subitem_trigger = pos_profile.get("subitem_trigger")
-#     # if subitem_trigger==False:
-#     #       item_group_to_use = pos_profile.get("item_groups")
-#     # else:
-#     #       item_group_to_use = pos_profile.get("subitem_item_group")
-
-#     # if item_group_to_use:
-#     #     for group in item_group_to_use:
-#     #         if not frappe.db.exists("Item Group", group.get("item_group")):
-#     #             item_group = get_root_of(group.get("item_group"))
-#     #             item_groups_list.append(item_group)
-#     #         else:
-#     #             item_groups_list.append(group.get("item_group"))
-
-#     # conditon = ""
-#     # if len(item_groups_list) > 0:
-#     #     if len(item_groups_list) == 1:
-#     #         conditon = "AND item_group = '{0}'".format(item_groups_list[0])
-#     #     else:
-#     #         conditon = "AND item_group in {0}".format(tuple(item_groups_list))
-
-#     # result = []
-
-#     # items_data = frappe.db.sql(
-#     #     """
-#     #     SELECT
-#     #         name AS item_code,
-#     #         item_name,
-#     #         description,
-#     #         stock_uom,
-#     #         image,
-#     #         is_stock_item,
-#     #         has_variants,
-#     #         variant_of,
-#     #         item_group,
-#     #         idx as idx,
-#     #         has_batch_no,
-#     #         has_serial_no,
-#     #         is_parent_item,
-#     #         max_subitem_quantity
-#     #     FROM
-#     #         `tabItem`
-#     #     WHERE
-#     #         disabled = 0
-#     #             AND is_sales_item = 1
-#     #             AND is_fixed_asset = 0
-#     #             {0}
-#     #     ORDER BY
-#     #         name asc
-#     #         """.format(
-#     #         conditon
-#     #     ),
-#     #     as_dict=1,
-#     # )
-
-#     # if items_data:
-#     #     items = [d.item_code for d in items_data]
-#     #     item_prices_data = frappe.get_all(
-#     #         "Item Price",
-#     #         fields=["item_code", "price_list_rate", "currency"],
-#     #         filters={"price_list": price_list, "item_code": ["in", items]},
-#     #     )
-
-#     #     item_prices = {}
-#     #     for d in item_prices_data:
-#     #         item_prices[d.item_code] = d
-
-#     #     for item in items_data:
-#     #         item_is_parent_item = item.is_parent_item
-#     #         item_code = item.item_code
-#     #         item_price = item_prices.get(item_code) or {}
-#     #         item_barcode = frappe.get_all(
-#     #             "Item Barcode",
-#     #             filters={"parent": item_code},
-#     #             fields=["barcode", "posa_uom"],
-#     #         )
-
-#     #         if pos_profile.get("posa_display_items_in_stock"):
-#     #             item_stock_qty = get_stock_availability(
-#     #                 item_code, pos_profile.get("warehouse")
-#     #             )
-#     #         if pos_profile.get("posa_display_items_in_stock") and (
-#     #             not item_stock_qty or item_stock_qty < 0
-#     #         ):
-#     #             pass
-#     #         else:
-#     #             row = {}
-#     #             row.update(item)
-#     #             row.update(
-#     #                 {
-#     #                     "rate": item_price.get("price_list_rate") or 0,
-#     #                     "currency": item_price.get("currency")
-#     #                     or pos_profile.get("currency"),
-#     #                     "item_barcode": item_barcode or [],
-#     #                     "actual_qty": 0,
-#     #                 }
-#     #             )
-#     #             if subitem_trigger==True:
-#     #                 if item_is_parent_item ==False:
-#     #                     result.append(row)
-#     #             else:
-#     #                 result.append(row)
-
-#     return sub_item_groups
+#for testing purposes
+@frappe.whitelist()
+def get_items_sub(pos_profile):
+    pos_profile = json.loads(pos_profile)
+    return pos_profile
 
 def get_root_of(doctype):
     """Get root element of a DocType with a tree structure"""
@@ -1907,33 +1798,34 @@ def get_product_item_groups(item_doc):
     item_groups = frappe.get_doc("Product Bundle Mixed", item_details.get("item_name"))
     return item_groups.item_groups
 
-# for getting already added subitems to an item
+# for getting existing subitems from an item
 @frappe.whitelist()
-def get_sub_items(invoice_doc, item_doc):
-    sub_items=[]
-    invoice = frappe.get_doc("Sales Invoice", invoice_doc.name)
-    for item in invoice.items:
-        if item.item_name == item_doc.item_name:
-           sub_items=item.sub_items
-    return sub_items
+def get_sub_items(subitems_reference):
+    reference = frappe.get_doc("Sales Invoice Subitems Reference", subitems_reference)
+    return reference.sub_items
 
+#for adding subitems if from scratch//should also update if there're existing subitems
 @frappe.whitelist()
-def save_sub_items(data, invoice_doc):
+def save_sub_items(data):
     data = json.loads(data)
-    # subitems=[]
-    invoice = json.loads(invoice_doc)
-    invoice_doc = frappe.get_doc('Sales Invoice', invoice)
-    item_doc = frappe.get_doc('Item', data.get("item_doc"))
+    result={}
+    invoice_doc = frappe.get_doc('Sales Invoice', data.get("invoice_name"))
+    new_subitem_reference = frappe.get_doc({
+        'doctype': 'Sales Invoice Subitems Reference'
+    })
+    items=[]
+    new_subitem_reference.set("sub_items", data.get("selected_items"))
+    new_subitem_reference.insert()
+
     for item in invoice_doc.items:
-        if item.item_name == item_doc.item_name:
-            # subitems.append("sub_items", data.get("selected_items"))
-			   # for i in data.get("selected_items"):
-                # item.append("sub_items", {
-                #     "item_name": i.item_name,
-                #     "qty": i.qty,
-                #     "rate": i.rate,
-                #     "uom": i.uom
-                # })
-            item.update({'sub_items': data.get("selected_items")})
+        if item.item_name == data.get("item_name"):
+            item.subitems_reference = new_subitem_reference.name
+        items.append(item)
+
+    invoice_doc.update({"items": items})
     invoice_doc.save()
-    return invoice_doc
+
+    result["item_name"] = data.get("item_name")
+    result["subitem_reference"] = new_subitem_reference.name
+
+    return result

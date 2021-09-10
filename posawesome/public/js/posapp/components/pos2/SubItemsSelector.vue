@@ -92,7 +92,6 @@ export default {
       invoice_doc:'',
       item_doc:'',
       dialog_state: false,
-      hakdog:'',
       select: '',
       total_inputted_qty:0,
       items:[],
@@ -138,34 +137,29 @@ export default {
             selected_items.push({'item_name': item.item_name, 'qty': item.actual_qty, 'rate': item.rate, 'uom': item.stock_uom});
           }
       });
-      data.item_doc = this.item_doc;
+      data.item_name = this.item_doc.item_name;
+      data.invoice_name = this.invoice_doc.name;
       data.selected_items = selected_items;
-      console.log(selected_items);
       this.save_subitems(data);
-      evntBus.$emit('show_mesage', {
-            text: `Subitems added!`,
-            color: 'success',
-      });
-      frappe.utils.play_sound('submit');
       this.close_dialog();
-
     },
     save_subitems(data){
         const vm = this;
         frappe.call({
           method: 'posawesome.posawesome.api.custom_posapp.save_sub_items',
           args: {
-            data: data,
-            invoice_doc: vm.invoice_doc
+            data: data
           },
-          async: true,
           callback: function (r) {
             if (r.message) {
-              evntBus.$emit('show_mesage', {
-                text: `Invoice ${r.message.name} is Submited`,
-                color: 'success',
-              });
-              frappe.utils.play_sound('submit');
+                evntBus.$emit("submit_subitems", r.message);
+                evntBus.$emit('show_mesage', {
+                  text: `Subitems added!`,
+                  color: 'success',
+                });
+                frappe.utils.play_sound('submit');
+                
+                
             }
           },
         });
@@ -185,15 +179,15 @@ export default {
               r.message.forEach(element => {
                 if (element.item_group !== 'All Item Groups') {
                   vm.subitem_item_group.push(element.item_group);
-                  item_groups.push({item_group:element.item_group});
+                  item_groups.push({"item_group":element.item_group});
                 }
               });
-              // item_groups = r.message;
               }
             vm.select = vm.subitem_item_group[0];
             },
           });
       return item_groups;
+
     },
     get_items(){
           const vm = this;
@@ -205,20 +199,30 @@ export default {
           args: { pos_profile: vm.pos_profile },
           callback: function (r) {
             if (r.message) {
-              vm.items = r.message;
+                vm.items = r.message;
+                // console.log(r.message);
               }
             },
           });
     },
-    get_existing_subitems(){
+    get_existing_subitems(subitems_reference){
+      this.get_item_groups();
+      let items_with_qty = [];
+      let fin_items = [];
       const vm = this;
           vm.items.splice(0);
           frappe.call({
           method: 'posawesome.posawesome.api.custom_posapp.get_sub_items',
-          args: { invoice_doc: vm.invoice_doc, item_doc: vm.item_doc },
+          args: { subitems_reference: subitems_reference},
           callback: function (r) {
             if (r.message) {
-              vm.items = r.message;
+              vm.items.push({'item_name': r.message.item_name, 'actual_qty': r.message.qty, 'rate': r.message.rate, 'stock_uom': r.message.uom});
+              // this.get_items();
+              // vm.items.forEach((element)=>{
+                
+              // });
+              // const found = vm.items.find(element)
+              // const exists = (element) => element.name
               }
             },
           });
@@ -235,13 +239,12 @@ export default {
     },
     reset(){
       this.filtred_items.forEach((element) => {
-          element.actual_qty = '';
+          element.actual_qty = 0;
       });
     },
     check_item_subitems(){
-      const check = this.invoice_doc.items.find(element => element.item_name === this.item_doc.item_name);
-      if(!check.sub_items){
-        this.get_existing_subitems();
+      if(this.item_doc.subitems_reference){
+        this.get_existing_subitems(this.item_doc.subitems_reference);
       }
       else{
         this.get_items();
@@ -251,9 +254,9 @@ export default {
   created: function () {
     evntBus.$on('open_items_selector', (data) => {
         this.item_doc = data.item;
+        console.log(this.item_doc);
         this.pos_profile = data.pos_profile;
         this.invoice_doc = data.invoice_doc;
-        this.get_item_groups();
         this.check_item_subitems();
         this.dialog_state = true;
     });
