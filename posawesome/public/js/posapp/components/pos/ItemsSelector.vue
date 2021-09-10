@@ -222,6 +222,7 @@ export default {
       }
 
     // let qty = this.get_item_qty(this.first_search);
+    
     let qty = this.item_qtty;
     // if(this.item_qtty)
     // {
