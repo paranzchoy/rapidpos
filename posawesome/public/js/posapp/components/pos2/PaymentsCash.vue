@@ -11,7 +11,7 @@
         top
         color="deep-purple accent-4"
       ></v-progress-linear>
-      <h2 style="font-weight:bold;" class="px-2 pt-2">Cash Payment</h2>
+      <h2 style="font-weight:bold; color:black;" class="px-2 pt-2">Cash Payment</h2>
       <div class="overflow-y-auto px-2 pt-2" style="max-height: 78vh">
             <v-row
           class="pyments px-1 py-0"

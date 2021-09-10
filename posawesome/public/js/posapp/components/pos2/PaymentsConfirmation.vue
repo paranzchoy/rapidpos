@@ -24,7 +24,6 @@
           <v-btn color="success" dark @click="cash_payment_dialog">Cash (1)</v-btn>
           <v-btn color="secondary" dark @click="cc_payment_dialog">Credit Card (2)</v-btn>
           <v-btn color="primary" dark @click="dc_payment_dialog">Debit Card (3)</v-btn>
-          <!-- <v-btn color="warning" dark @click="coupon_payment_dialog">Coupon</v-btn> -->
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -99,18 +98,10 @@ export default {
       evntBus.$emit('show_payment_dc', 'true');
       evntBus.$emit('another_payment_dc', this.invoice_doc);
     },
-    coupon_payment_dialog(){
-      this.close_dialog();
-      this.close_payment_dialog();
-      this.close_all_payment_dialog();
-      evntBus.$emit('show_payment_coupon', 'true');
-      evntBus.$emit('another_payment_coupon', this.invoice_doc);
-    },
     close_all_payment_dialog(){
       evntBus.$emit('show_payment_cash', 'false');
       evntBus.$emit('show_payment_cc', 'false');
       evntBus.$emit('show_payment_dc', 'false');
-      evntBus.$emit('show_payment_coupon', 'false');
     },
     back_to_invoice() {
       this.close_all_payment_dialog();
@@ -284,14 +275,6 @@ export default {
         this.dc_payment_dialog();
       }
     },
-
-  //   shortPay(e) {
-  //     //  if (e.key === '4' && e.ctrlKey){
-  //     //   this.coupon_payment_dialog();
-  //     // }
-      
-  //   // }
-  // },
   computed:{
     total_payments() {
       let total = flt(this.invoice_doc.loyalty_amount);
