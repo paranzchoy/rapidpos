@@ -751,6 +751,7 @@ export default {
       if (!item.qty) {
         item.qty = 1;
       }
+      new_item.subitems_reference = '';
       new_item.stock_qty = item.qty;
       new_item.discount_amount = 0;
       new_item.selectedDiscount = null;
@@ -896,6 +897,7 @@ export default {
           discount_percentage: item.discount_percentage,
           discount_amount: item.discount_amount,
           batch_no: item.batch_no,
+          subitems_reference: item.subitems_reference
         });
       });
       return items_list;
@@ -994,9 +996,6 @@ export default {
       else if (payment_method==="Debit Card"){
         evntBus.$emit('send_invoice_doc_dc', invoice_doc);
       }
-      else if (payment_method==="Coupon"){
-        evntBus.$emit('send_invoice_doc_coupon', invoice_doc);
-      }
       else{
        evntBus.$emit('send_invoice_doc_payment', invoice_doc);
       }
@@ -1007,7 +1006,6 @@ export default {
       if (payment_method === "Cash") return evntBus.$emit('show_payment_cash', 'true')
       if (payment_method === "Credit Card") return evntBus.$emit('show_payment_cc', 'true')
       if (payment_method === "Debit Card") return evntBus.$emit('show_payment_dc', 'true')
-      // if (payment_method === "Coupon") return evntBus.$emit('show_payment_coupon', 'true')
       return evntBus.$emit('show_payment', 'true')
     },
     validate() {
@@ -1124,7 +1122,6 @@ export default {
       evntBus.$emit('show_payment_cash', 'false');
       evntBus.$emit('show_payment_cc', 'false');
       evntBus.$emit('show_payment_dc', 'false');
-      evntBus.$emit('show_payment_coupon', 'false');
     },
     update_items_details(items) {
       if (!items.length > 0) {
@@ -1414,13 +1411,6 @@ export default {
         this.show_payment_method("Debit Card");
       }
     },
-    shortOpenCouponPayment(e) {
-      if (e.key === '4' && (e.ctrlKey || e.metaKey)) {
-        e.preventDefault();
-        this.close_payments();
-        this.show_payment_method("Coupon");
-      }
-    },
     shortDeleteFirstItem(e) {
       if (e.key === 'd' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
@@ -1568,6 +1558,13 @@ export default {
       this.submit_coupon_codes(discount);
       this.discount_return_coupon = discount;
     });
+    evntBus.$on("submit_subitems", (data) => {
+      this.items.forEach((element)=>{
+        if (element.item_name === data.item_name){
+          element.subitems_reference = data.subitem_reference;
+        }
+      });
+    });
 
     this.$nextTick(function (){
       this.get_discount();
@@ -1580,7 +1577,6 @@ export default {
     document.addEventListener('keydown', this.shortOpenCashPayment.bind(this));
     document.addEventListener('keydown', this.shortOpenCCPayment.bind(this));
     document.addEventListener('keydown', this.shortOpenDCPayment.bind(this));
-    // document.addEventListener('keydown', this.shortOpenCouponPayment.bind(this));
     document.addEventListener('keydown', this.shortDeleteFirstItem.bind(this));
     document.addEventListener('keydown', this.shortOpenFirstItem.bind(this));
     document.addEventListener('keydown', this.shortSelectDiscount.bind(this));
@@ -1597,7 +1593,6 @@ export default {
     document.removeEventListener('keydown', this.shortOpenCashPayment);
     document.removeEventListener('keydown', this.shortOpenCCPayment);
     document.removeEventListener('keydown', this.shortOpenDCPayment);
-    // document.removeEventListener('keydown', this.shortOpenCouponPayment);
     document.removeEventListener('keydown', this.shortDeleteFirstItem);
     document.removeEventListener('keydown', this.shortOpenFirstItem);
     document.removeEventListener('keydown', this.shortSelectDiscount);

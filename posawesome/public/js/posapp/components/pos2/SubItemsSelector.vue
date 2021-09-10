@@ -92,7 +92,6 @@ export default {
       invoice_doc:'',
       item_doc:'',
       dialog_state: false,
-      hakdog:'',
       select: '',
       total_inputted_qty:0,
       items:[],
@@ -110,7 +109,7 @@ export default {
   watch: {
 
   },
-  methods: { 
+  methods: {
       close_dialog(){
           this.dialog_state = false;
       },
@@ -130,69 +129,109 @@ export default {
             });
         }
       },
-      submit_dialog(){
-        let data = {};
-        let selected_items = [];
-        this.filtred_items.forEach((item) => {
-            if (item.actual_qty){
-              selected_items.push({'item_name': item.name, 'qty': item.actual_qty, 'rate': item.rate, 'uom': item.uom});
+    submit_dialog(){
+      let data = {};
+      let selected_items = [];
+      this.filtred_items.forEach((item) => {
+          if (item.actual_qty){
+            selected_items.push({'item_name': item.item_name, 'qty': item.actual_qty, 'rate': item.rate, 'uom': item.stock_uom});
+          }
+      });
+      data.item_name = this.item_doc.item_name;
+      data.invoice_name = this.invoice_doc.name;
+      data.selected_items = selected_items;
+      this.save_subitems(data);
+      this.close_dialog();
+    },
+    save_subitems(data){
+        const vm = this;
+        frappe.call({
+          method: 'posawesome.posawesome.api.custom_posapp.save_sub_items',
+          args: {
+            data: data
+          },
+          callback: function (r) {
+            if (r.message) {
+                evntBus.$emit("submit_subitems", r.message);
+                evntBus.$emit('show_mesage', {
+                  text: `Subitems added!`,
+                  color: 'success',
+                });
+                frappe.utils.play_sound('submit');
+                
+                
             }
+          },
         });
-        data.item_doc = this.item_doc;
-        data.selected_items = selected_items;
-        evntBus.$emit('show_mesage', {
-              text: `Subitems added!`,
-              color: 'success',
-        });
-        frappe.utils.play_sound('submit');
-        this.close_dialog();
-        // const vm = this;
-        // frappe.call({
-        //   method: 'posawesome.posawesome.api.custom_posapp.submit_subitems',
-        //   args: {
-        //     data: data,
-        //   },
-        //   async: true,
-        //   callback: function (r) {
-        //     if (r.message) {
-        //       vm.load_print_page();
-        //       evntBus.$emit('show_mesage', {
-        //         text: `Invoice ${r.message.name} is Submited`,
-        //         color: 'success',
-        //       });
-        //       frappe.utils.play_sound('submit');
-        //     }
-        //   },
-        // });
-      },
-
-      formtCurrency(value) {
+    },
+    formtCurrency(value) {
         value = parseFloat(value);
         return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-      },
-      get_items(){
+    },
+    get_item_groups(){
+       let item_groups = [];
+       const vm = this;
+       frappe.call({
+          method: 'posawesome.posawesome.api.custom_posapp.get_product_item_groups',
+          args: { item_doc: vm.item_doc },
+          callback: function (r) {
+            if (r.message) {
+              r.message.forEach(element => {
+                if (element.item_group !== 'All Item Groups') {
+                  vm.subitem_item_group.push(element.item_group);
+                  item_groups.push({"item_group":element.item_group});
+                }
+              });
+              }
+            vm.select = vm.subitem_item_group[0];
+            },
+          });
+      return item_groups;
+
+    },
+    get_items(){
           const vm = this;
           vm.items.splice(0);
+          vm.pos_profile.subitem_item_group = vm.get_item_groups();
           vm.pos_profile.subitem_trigger = true;
           frappe.call({
           method: 'posawesome.posawesome.api.custom_posapp.get_items',
           args: { pos_profile: vm.pos_profile },
           callback: function (r) {
             if (r.message) {
-              vm.items = r.message;
-              if (vm.pos_profile.posa_local_storage) {
-                localStorage.setItem('items_storage', '');
-                localStorage.setItem('items_storage', JSON.stringify(r.message));
-                }
+                vm.items = r.message;
+                // console.log(r.message);
               }
             },
           });
-      },
+    },
+    get_existing_subitems(subitems_reference){
+      this.get_item_groups();
+      let items_with_qty = [];
+      let fin_items = [];
+      const vm = this;
+          vm.items.splice(0);
+          frappe.call({
+          method: 'posawesome.posawesome.api.custom_posapp.get_sub_items',
+          args: { subitems_reference: subitems_reference},
+          callback: function (r) {
+            if (r.message) {
+              vm.items.push({'item_name': r.message.item_name, 'actual_qty': r.message.qty, 'rate': r.message.rate, 'stock_uom': r.message.uom});
+              // this.get_items();
+              // vm.items.forEach((element)=>{
+                
+              // });
+              // const found = vm.items.find(element)
+              // const exists = (element) => element.name
+              }
+            },
+          });
+    },
     get_search(first_search) {
       let search_term = '';
         if (first_search && first_search.startsWith(this.pos_profile.posa_scale_barcode_start)) {
           search_term = first_search.substr(0, 7);
-        } 
+        }
         else {
           search_term = first_search;
         }
@@ -200,22 +239,25 @@ export default {
     },
     reset(){
       this.filtred_items.forEach((element) => {
-          element.actual_qty = '';
+          element.actual_qty = 0;
       });
+    },
+    check_item_subitems(){
+      if(this.item_doc.subitems_reference){
+        this.get_existing_subitems(this.item_doc.subitems_reference);
+      }
+      else{
+        this.get_items();
+      }
     }
   },
   created: function () {
     evntBus.$on('open_items_selector', (data) => {
         this.item_doc = data.item;
+        console.log(this.item_doc);
         this.pos_profile = data.pos_profile;
         this.invoice_doc = data.invoice_doc;
-        this.pos_profile.subitem_item_group.forEach(element => {
-          if (element.item_group !== 'All Item Groups') {
-            this.subitem_item_group.push(element.item_group);
-          }
-          this.select = this.subitem_item_group[0];
-        });
-        this.get_items();
+        this.check_item_subitems();
         this.dialog_state = true;
     });
   },
@@ -234,7 +276,7 @@ export default {
         )
         return total;
     },
-     filtred_items() {
+    filtred_items() {
       this.search = this.get_search(this.first_search);
       let filtred_list = [];
       let filtred_group_list = [];
@@ -270,7 +312,7 @@ export default {
         }
       }
       return filtred_list.slice(0, 50);
-    },
+  },
 
   }
 };
