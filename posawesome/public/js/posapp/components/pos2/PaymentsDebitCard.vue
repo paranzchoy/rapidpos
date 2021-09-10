@@ -12,7 +12,7 @@
         color="deep-purple accent-4"
       ></v-progress-linear>
       <div class="overflow-y-auto px-2 pt-2" style="max-height: 78vh">
-        <h2 style="font-weight:bold;" class="px-2 pt-2">Debit Card Payment</h2>
+        <h2 style="font-weight:bold; color:black;" class="px-2 pt-2">Debit Card Payment</h2>
        <v-row>
               <v-col cols="6">
                 <v-row
