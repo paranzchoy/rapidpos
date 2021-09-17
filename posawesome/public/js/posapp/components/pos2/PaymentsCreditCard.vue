@@ -363,7 +363,7 @@ export default {
         callback: function (r) {
           if (r.message) {
             r.message.forEach((element) => {
-              vm.bank_names.push(element)
+              vm.bank_names.push(element.name);
             })
           }
         },
