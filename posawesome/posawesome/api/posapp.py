@@ -5,50 +5,26 @@
 from __future__ import unicode_literals
 import json
 import frappe
-<<<<<<< HEAD
-from frappe.model.document import Document
-from frappe.utils import (
-    getdate,
-    now_datetime,
-    nowdate,
-    flt,
-    cint,
-    get_datetime_str,
-    nowdate,
-)
-=======
 from frappe.utils import nowdate, flt, cstr
->>>>>>> 2343a1e27667b56ffe54b0d96bb32b10a69cf8db
 from frappe import _
-from erpnext.accounts.party import get_party_account
-from erpnext.stock.get_item_details import get_item_details
-import json
-from frappe.utils.background_jobs import enqueue
-<<<<<<< HEAD
-from posawesome import console
-from posawesome.posawesome.api.posapp_customization import get_available_credit
 from erpnext.accounts.doctype.sales_invoice.sales_invoice import get_bank_cash_account
-from frappe.utils import getdate, nowdate, flt
+from erpnext.stock.get_item_details import get_item_details
 from erpnext.accounts.doctype.pos_profile.pos_profile import get_item_groups
-=======
+from frappe.utils.background_jobs import enqueue
 from erpnext.accounts.party import get_party_bank_account
->>>>>>> 2343a1e27667b56ffe54b0d96bb32b10a69cf8db
 from erpnext.stock.doctype.batch.batch import get_batch_no, get_batch_qty, set_batch_nos
 from erpnext.accounts.doctype.payment_request.payment_request import (
     get_gateway_details,
     get_dummy_message,
     get_existing_payment_request_amount,
 )
-<<<<<<< HEAD
-=======
 from erpnext.controllers.accounts_controller import add_taxes_from_tax_template
 from erpnext.accounts.doctype.loyalty_program.loyalty_program import (
     get_loyalty_program_details_with_points,
 )
 from posawesome.posawesome.doctype.pos_coupon.pos_coupon import check_coupon_code
->>>>>>> 2343a1e27667b56ffe54b0d96bb32b10a69cf8db
 
-
+# from posawesome import console
 
 @frappe.whitelist()
 def get_opening_dialog_data():
@@ -350,45 +326,6 @@ def get_customer_names(pos_profile):
 
 
 @frappe.whitelist()
-<<<<<<< HEAD
-def save_draft_invoice(data):
-    data = json.loads(data)
-    invoice_doc = frappe.get_doc(data)
-    invoice_doc.flags.ignore_permissions = True
-    frappe.flags.ignore_account_permission = True
-    invoice_doc.set_missing_values()
-
-    if invoice_doc.is_return and get_version() == 12:
-        for payment in invoice_doc.payments:
-            if payment.default == 1:
-                payment.amount = data.get("total")
-
-    if invoice_doc.get("taxes"):
-        for tax in invoice_doc.taxes:
-            tax.included_in_print_rate = 1
-    invoice_doc.save()
-    
-    append_opening_shift = frappe.get_doc("POS Opening Shift",
-        invoice_doc.posa_pos_opening_shift
-    )
-    append_opening_shift.no_of_invoices+=1
-
-    if(len(append_opening_shift.sales_invoices)==0):
-        append_opening_shift.first_sales_invoice = invoice_doc.name
-        
-    append_opening_shift.append("sales_invoices", {
-        "sales_invoice": invoice_doc.name,
-        "posting_date": invoice_doc.posting_date,
-        "customer": invoice_doc.customer,
-        "grand_total": invoice_doc.grand_total
-    })
-    append_opening_shift.submit()
-    return invoice_doc
-
-
-@frappe.whitelist()
-=======
->>>>>>> 2343a1e27667b56ffe54b0d96bb32b10a69cf8db
 def update_invoice(data):
     data = json.loads(data)
     if data.get("name"):
