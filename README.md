@@ -1,6 +1,6 @@
 ## POS AWESOME
 
-### An open-source Point of Sale for [Erpnext](https://github.com/frappe/erpnext) using [Vue.js](https://github.com/vuejs/vue) and [Vuteify](https://github.com/vuetifyjs/vuetify)
+### An open-source Point of Sale for [Erpnext](https://github.com/frappe/erpnext) using [Vue.js](https://github.com/vuejs/vue) and [Vuetify](https://github.com/vuetifyjs/vuetify)
 
 ---
 
@@ -37,7 +37,15 @@
 19. Search and add items by Serial Number
 20. Create Sales Order from POS directly
 21. Supports template items with variants
+<<<<<<< HEAD
 >>>>>>> cf7fba39a6d58e2117efe254bfd06b221d37b6eb
+=======
+22. Supports multiple languages
+23. Supports Mpesa mobile payment
+24. POS Coupons
+25. Supports Referral Code
+26. Supports Customer and Customer Group price list
+>>>>>>> 2343a1e27667b56ffe54b0d96bb32b10a69cf8db
 
 ---
 
