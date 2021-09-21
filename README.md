@@ -9,19 +9,11 @@
 1. Supports Erpnext Version 12 & 13
 2. User friendly and provides a good user experience and speed of use
 3. The cashier has the option of either using list view or card view during sales transactions. Card view shows the images of the items
-<<<<<<< HEAD
-4. Supports invoice submission after printing the receipt for faster printing
-5. Supports batch & serial numbering
-6. Supports batch based pricing
-7. Supports UOM specific barcode and pricing
-8. Supports sales of [scale (weighted) products](https://github.com/yrestom/POS-Awesome/discussions/30#discussioncomment-381369)
-=======
 4. Supports enqueue invoice submission after printing the receipt for faster processing
 5. Supports batch & serial numbering
 6. Supports batch based pricing
 7. Supports UOM specific barcode and pricing
 8. Supports sales of scale (weighted) products
->>>>>>> cf7fba39a6d58e2117efe254bfd06b221d37b6eb
 9. Ability to make returns from POS
 10. Supports Making returns for either cash or customer credit
 11. Supports using customer credit note for payment
@@ -29,23 +21,17 @@
 13. Allows user to choose a due date for credit sales
 14. Supports customer loyalty points
 15. Shortcuts keys
-<<<<<<< HEAD
-=======
 16. Supports Customer Discount
 17. Supports POS Offers
 18. Auto apply batches for bundle items
 19. Search and add items by Serial Number
 20. Create Sales Order from POS directly
 21. Supports template items with variants
-<<<<<<< HEAD
->>>>>>> cf7fba39a6d58e2117efe254bfd06b221d37b6eb
-=======
 22. Supports multiple languages
 23. Supports Mpesa mobile payment
 24. POS Coupons
 25. Supports Referral Code
 26. Supports Customer and Customer Group price list
->>>>>>> 2343a1e27667b56ffe54b0d96bb32b10a69cf8db
 
 ---
 
@@ -60,15 +46,12 @@
 
 ---
 
-<<<<<<< HEAD
-=======
 ### How To Use:
 
 [POS Awesome Wiki](https://github.com/yrestom/POS-Awesome/wiki)
 
 ---
 
->>>>>>> cf7fba39a6d58e2117efe254bfd06b221d37b6eb
 ### Shortcuts:
 
 - `CTRL or CMD + S` open payments
@@ -100,8 +83,5 @@ Will using for this the same guidelines from Erpnext
 ### License
 
 GNU/General Public License (see [license.txt](https://github.com/yrestom/POS-Awesome/blob/master/license.txt))
-<<<<<<< HEAD
-=======
 
->>>>>>> cf7fba39a6d58e2117efe254bfd06b221d37b6eb
 The POS Awesome code is licensed as GNU General Public License (v3)
