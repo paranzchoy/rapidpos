@@ -505,9 +505,6 @@ export default {
       this.cash_withdrawal.cash_details = this.cash_details_push;
       this.cash_withdrawal.card_amount = this.formtSumCardInvoices(this.total_card_amount);
       // this.cash_withdrawal.coupon = this.formtSumCoupon(this.total_coupon_amount);
-      const cash_withdrawal_temp = this.cash_withdrawal;
-      console.log({cash_withdrawal_temp});
-
       frappe
         .call("rapidposcustom.rapidposcustom.api.rapidposcustom.submit_pos_opening_shift_withdrawal2", {
           withdrawal: this.cash_withdrawal

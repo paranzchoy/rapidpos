@@ -106,7 +106,9 @@
                     <v-icon>mdi-folder-open</v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
-                    <v-list-item-title>Close Shift</v-list-item-title>
+                    <v-list-item-title>{{
+                      __('Close Shift')
+                    }}</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item
@@ -125,7 +127,11 @@
                     <v-icon>mdi-help-circle</v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
+<<<<<<< HEAD
                     <v-list-item-title>Help &nbsp;&nbsp; <span  style="color:gray">F1</span></v-list-item-title>
+=======
+                    <v-list-item-title>{{ __('Logout') }}</v-list-item-title>
+>>>>>>> 2343a1e27667b56ffe54b0d96bb32b10a69cf8db
                   </v-list-item-content>
                 </v-list-item>
                 <v-divider class="my-0"></v-divider>
@@ -164,7 +170,11 @@
                     <v-icon v-text="item.icon"></v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
+<<<<<<< HEAD
                     <v-list-item-title v-text="item.text"></v-list-item-title>
+=======
+                    <v-list-item-title>{{ __('About') }}</v-list-item-title>
+>>>>>>> 2343a1e27667b56ffe54b0d96bb32b10a69cf8db
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
@@ -213,10 +223,15 @@
     </v-navigation-drawer>
     <v-snackbar v-model="snack" :timeout="5000" :color="snackColor" top right>
       {{ snackText }}
-      <!-- <template v-slot:action="{ attrs }"> -->
-      <!-- <v-btn v-bind="attrs" text @click="snack = false">Close</v-btn> -->
-      <!-- </template> -->
     </v-snackbar>
+    <v-dialog v-model="freeze" persistent max-width="290">
+      <v-card>
+        <v-card-title class="text-h5">
+          {{ freezeTitle }}
+        </v-card-title>
+        <v-card-text>{{ freezeMsg }}</v-card-text>
+      </v-card>
+    </v-dialog>
   </nav>
 </template>
 
@@ -243,6 +258,9 @@ export default {
       company: 'POS Awesome',
       company_img: '/assets/erpnext/images/erp-icon.svg',
       pos_profile: '',
+      freeze: false,
+      freezeTitle: '',
+      freezeMsg: '',
     };
   },
   methods: {
@@ -361,6 +379,16 @@ export default {
       evntBus.$on('register_pos_profile', (data) => {
         this.pos_profile = data.pos_profile;
         // this.pos_opening_shift = data.pos_opening_shift;
+      });
+      evntBus.$on('freeze', (data) => {
+        this.freeze = true;
+        this.freezeTitle = data.title;
+        this.freezeMsg = data.msg;
+      });
+      evntBus.$on('unfreeze', () => {
+        this.freeze = false;
+        this.freezTitle = '';
+        this.freezeMsg = '';
       });
     });
 
