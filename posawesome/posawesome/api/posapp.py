@@ -801,21 +801,6 @@ def get_stock_availability(item_code, warehouse):
     sle_qty = latest_sle[0].qty_after_transaction or 0 if latest_sle else 0
     return sle_qty
 
-
-# @frappe.whitelist()
-# def create_customer(customer_name, tax_id, mobile_no, email_id):
-    # if not frappe.db.exists("Customer", {"customer_name": customer_name}):
-        # customer = frappe.get_doc(
-            # {
-                # "doctype": "Customer",
-                # "customer_name": customer_name,
-                # "tax_id": tax_id,
-                # "mobile_no": mobile_no,
-                # "email_id": email_id,
-            # }
-        # ).insert(ignore_permissions=True)
-        # return customer
-
 @frappe.whitelist()
 def create_customer(
     customer_name,
