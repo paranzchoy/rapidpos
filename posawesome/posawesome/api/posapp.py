@@ -113,10 +113,11 @@ def update_opening_shift_data(data, pos_profile):
 
 
 @frappe.whitelist()
-def get_items(pos_profile, price_list=None):
+def get_items(pos_profile):
     pos_profile = json.loads(pos_profile)
     if not price_list:
         price_list = pos_profile.get("selling_price_list")
+
     condition = ""
     condition += get_item_group_condition(pos_profile.get("name"))
     if not pos_profile.get("posa_show_template_items"):
@@ -255,19 +256,6 @@ def get_items_groups():
         as_dict=1,
     )
 
-
-# @frappe.whitelist()
-# def get_customer_names():
-#     customers = frappe.db.sql(
-#         """
-#         select name, mobile_no, email_id, tax_id, customer_name
-#         from `tabCustomer`
-#         order by name
-#         LIMIT 0, 10000 """,
-#         as_dict=1,
-#     )
-#     return customers
-
 def get_customer_groups(pos_profile):
     customer_groups = []
     if pos_profile.get("customer_groups"):
@@ -326,11 +314,47 @@ def get_customer_names(pos_profile):
 
 
 @frappe.whitelist()
+def save_draft_invoice(data):
+    data = json.loads(data)
+    invoice_doc = frappe.get_doc(data)
+    invoice_doc.flags.ignore_permissions = True
+    frappe.flags.ignore_account_permission = True
+    invoice_doc.set_missing_values()
+
+    if invoice_doc.is_return and get_version() == 12:
+        for payment in invoice_doc.payments:
+            if payment.default == 1:
+                payment.amount = data.get("total")
+
+    if invoice_doc.get("taxes"):
+        for tax in invoice_doc.taxes:
+            tax.included_in_print_rate = 1
+    invoice_doc.save()
+    
+    append_opening_shift = frappe.get_doc("POS Opening Shift",
+        invoice_doc.posa_pos_opening_shift
+    )
+    append_opening_shift.no_of_invoices+=1
+
+    if(len(append_opening_shift.sales_invoices)==0):
+        append_opening_shift.first_sales_invoice = invoice_doc.name
+        
+    append_opening_shift.append("sales_invoices", {
+        "sales_invoice": invoice_doc.name,
+        "posting_date": invoice_doc.posting_date,
+        "customer": invoice_doc.customer,
+        "grand_total": invoice_doc.grand_total
+    })
+    append_opening_shift.submit()
+    return invoice_doc
+
+
+@frappe.whitelist()
 def update_invoice(data):
     data = json.loads(data)
     if data.get("name"):
-        invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
-        invoice_doc.update(data)
+       invoice_doc = frappe.get_doc("Sales Invoice", data.get("name"))
+       invoice_doc.update(data)
     else:
         invoice_doc = frappe.get_doc(data)
     invoice_doc.flags.ignore_permissions = True
@@ -598,7 +622,6 @@ def redeeming_customer_credit(
         payment_entry_doc.save()
         payment_entry_doc.submit()
 
-
 def submit_in_background_job(kwargs):
     invoice = kwargs.get("invoice")
     invoice_doc = kwargs.get("invoice_doc")
@@ -612,7 +635,6 @@ def submit_in_background_job(kwargs):
     redeeming_customer_credit(
         invoice_doc, data, is_payment_entry, total_cash, cash_account
     )
-
 
 @frappe.whitelist()
 def get_available_credit(customer, company):
@@ -664,7 +686,6 @@ def get_available_credit(customer, company):
 
     return total_credit
 
-
 @frappe.whitelist()
 def get_draft_invoices(pos_opening_shift):
     invoices_list = frappe.get_list(
@@ -683,14 +704,12 @@ def get_draft_invoices(pos_opening_shift):
         data.append(frappe.get_doc("Sales Invoice", invoice["name"]))
     return data
 
-
 @frappe.whitelist()
 def delete_invoice(invoice):
     if frappe.get_value("Sales Invoice", invoice, "posa_is_printed"):
         frappe.throw(_("This invoice {0} cannot be deleted").format(invoice))
     frappe.delete_doc("Sales Invoice", invoice, force=1)
     return _("Invoice {0} Deleted").format(invoice)
-
 
 @frappe.whitelist()
 def get_items_details(pos_profile, items_data):
@@ -782,6 +801,20 @@ def get_stock_availability(item_code, warehouse):
     sle_qty = latest_sle[0].qty_after_transaction or 0 if latest_sle else 0
     return sle_qty
 
+
+# @frappe.whitelist()
+# def create_customer(customer_name, tax_id, mobile_no, email_id):
+    # if not frappe.db.exists("Customer", {"customer_name": customer_name}):
+        # customer = frappe.get_doc(
+            # {
+                # "doctype": "Customer",
+                # "customer_name": customer_name,
+                # "tax_id": tax_id,
+                # "mobile_no": mobile_no,
+                # "email_id": email_id,
+            # }
+        # ).insert(ignore_permissions=True)
+        # return customer
 
 @frappe.whitelist()
 def create_customer(
@@ -1086,8 +1119,6 @@ def make_address(args):
 
     return address
 
-
-
 def build_item_cache(item_code):
 		parent_item_code = item_code
 
@@ -1134,7 +1165,6 @@ def get_item_optional_attributes(item_code):
 
 		return frappe.cache().hget('optional_attributes', item_code)
 
-
 @frappe.whitelist()
 def get_item_attributes(item_code):
     attributes = frappe.db.get_all(
@@ -1145,7 +1175,7 @@ def get_item_attributes(item_code):
     )
 
     optional_attributes = get_item_optional_attributes(item_code)
-
+ 
     for a in attributes:
         values = frappe.db.get_all(
             "Item Attribute Value",
@@ -1158,7 +1188,6 @@ def get_item_attributes(item_code):
             a.optional = True
 
     return attributes
-
 
 @frappe.whitelist()
 def create_payment_request(doc):
