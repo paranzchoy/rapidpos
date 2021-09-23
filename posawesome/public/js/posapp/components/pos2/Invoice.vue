@@ -476,7 +476,6 @@
                 large
                 color="warning"
                 dark
-                rounded
                 @click="get_draft_invoices"
                 >Get Hold</v-btn
               >
@@ -489,7 +488,6 @@
                 large
                 color="info"
                 dark
-                rounded
                 @click="open_returns"
                 >Return</v-btn
               >
@@ -501,7 +499,6 @@
                 large
                 color="error"
                 dark
-                rounded
                 @click="cancel_invoice"
                 >Cancel</v-btn
               >
@@ -513,7 +510,6 @@
                 large
                 color="success"
                 dark
-                rounded
                 @click="new_invoice"
                 >New</v-btn
               >
