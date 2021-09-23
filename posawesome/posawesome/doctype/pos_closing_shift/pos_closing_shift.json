@@ -180,15 +180,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "POS Closing Shift",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "fieldname": "pos_opening_shift",
    "fieldtype": "Link",
    "label": "POS Opening Shift",
@@ -198,7 +189,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-09-03 09:21:20.318462",
+ "modified": "2021-09-22 14:00:08.199903",
  "modified_by": "Administrator",
  "module": "POSAwesome",
  "name": "POS Closing Shift",
