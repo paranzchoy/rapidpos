@@ -1795,7 +1795,7 @@ def get_root_of(doctype):
 @frappe.whitelist()
 def get_product_item_groups(item_doc):
     item_details = json.loads(item_doc)
-    item_groups = frappe.get_doc("Product Bundle Mixed", item_details.get("item_name"))
+    item_groups = frappe.get_doc("Product Bundle Mixed", item_details.get("item_code"))
     return item_groups.item_groups
 
 # for getting existing subitems from an item
