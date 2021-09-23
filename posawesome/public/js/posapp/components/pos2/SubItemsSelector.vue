@@ -59,7 +59,7 @@
                 <v-col cols="12">
                         <v-card-text class="text--primary pa-1">
                             <v-text-field
-                              v-model="item.actual_qty"
+                              v-model.number="item.actual_qty"
                               label="Qty"
                               type="number">
                             </v-text-field>
