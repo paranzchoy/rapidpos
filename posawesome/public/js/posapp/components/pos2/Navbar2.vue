@@ -1,15 +1,15 @@
 <template>
   <nav>
-    <v-app-bar app height="40" class="elevation-2" style="background-image: linear-gradient(to right, white, #f2ce2c);">
+    <v-app-bar app height="40" class="elevation-2" style="background-image: linear-gradient(to right, #09203f, #537895);">
       <v-app-bar-nav-icon
         @click.stop="mini = !mini"
-        class="grey--text"
+        class="white--text"
       ></v-app-bar-nav-icon>
       <v-toolbar-title class="text-uppercase indigo--text">
         <!-- <span><img src="/assets/rapidposcustom/images/Jacobs-removebg-preview.png"  class="brand-image" style="max-width: 100px; max-height: 100px;"></span>
         <span class="font-weight-light"><img src="/assets/rapidposcustom/images/Breadnuts-removebg-preview.png"  class="brand-image" style="max-width: 200px; max-height: 100px;"></span> -->
         <span><img src="/assets/rapidposcustom/images/TacurongLogo.png"  class="brand-image" style="max-width: 100px; max-height: 30px;"></span>
-        <span class="font-weight-bold" style="color:black;">RSE Store</span>
+        <span class="font-weight-bold" style="color:white;">RSE Store</span>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -17,7 +17,7 @@
       <div class="text-center">
         <v-menu offset-y>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn color="grey" dark text v-bind="attrs" v-on="on">Menu</v-btn>
+            <v-btn color="white" dark text v-bind="attrs" v-on="on">Menu</v-btn>
           </template>
           <v-card class="mx-auto" max-width="300" tile>
             <v-list dense>
@@ -115,7 +115,7 @@
           </v-card>
         </v-menu>
       </div>
-      <v-btn text color="grey" @click="go_desk">
+      <v-btn text color="white" @click="go_desk">
         <span right>Desk</span>
       </v-btn>
     </v-app-bar>
@@ -124,7 +124,7 @@
       :mini-variant.sync="mini"
       app
       class="indigo margen-top"
-      style="background-image: linear-gradient(#a4de1d, #ffffff);"
+      style="background-image: linear-gradient(#380036, #0cbaba);"
     >
       <v-list dark>
         <v-list-item class="px-2">
