@@ -1813,7 +1813,7 @@ def save_subitems(data):
         'doctype': 'Sales Invoice Subitems Reference'
     })
     for item in invoice_doc.items:
-        if item.item_name == data.get("item_name"):
+        if item.item_code == data.get("item_code"):
             if item.subitems_reference != "":
                 new_subitem_reference = frappe.get_doc("Sales Invoice Subitems Reference", item.subitems_reference)
                 new_subitem_reference.update({"sub_items": data.get("selected_items")})
@@ -1829,7 +1829,7 @@ def save_subitems(data):
     invoice_doc.update({"items": items})
     invoice_doc.save()
 
-    result["item_name"] = data.get("item_name")
+    result["item_code"] = data.get("item_code")
     result["invoice_doc"] = invoice_doc
 
     return result
