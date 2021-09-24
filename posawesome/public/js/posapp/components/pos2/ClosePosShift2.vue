@@ -177,7 +177,7 @@
            <template>
              <v-row>
                 <v-col cols="6">
-                  <img src="/assets/rapidposcustom/images/TacurongDoctorsLogo.png" style="height:90%; width:90%;">
+                  <img src="/assets/rapidposcustom/images/TacurongLogo.png" style="height:90%; width:90%;">
                 </v-col>
                 <v-col cols="6">
                   <v-data-table

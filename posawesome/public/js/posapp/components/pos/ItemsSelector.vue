@@ -361,7 +361,6 @@ export default {
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
   },
-
   computed: {
     filtred_items() {
       this.search = this.get_search(this.first_search);
