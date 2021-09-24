@@ -476,7 +476,6 @@
                 large
                 color="warning"
                 dark
-                rounded
                 @click="get_draft_invoices"
                 >Get Hold</v-btn
               >
@@ -489,7 +488,6 @@
                 large
                 color="info"
                 dark
-                rounded
                 @click="open_returns"
                 >Return</v-btn
               >
@@ -501,7 +499,6 @@
                 large
                 color="error"
                 dark
-                rounded
                 @click="cancel_invoice"
                 >Cancel</v-btn
               >
@@ -513,7 +510,6 @@
                 large
                 color="success"
                 dark
-                rounded
                 @click="new_invoice"
                 >New</v-btn
               >
@@ -557,6 +553,7 @@ export default {
       discount_amount: 0,
       total_tax: 0,
       total: 0,
+      subitems: [],
       items: [],
       itemsPerPage: 1000,
       expanded: [],
@@ -640,7 +637,6 @@ export default {
           }
         },
         });
-        console.log(vm.discount_types);
     },
 
     calculate_discount() {
@@ -893,7 +889,6 @@ export default {
           qty: item.qty,
           rate: item.rate,
           uom: item.uom,
-          sub_items: item.sub_items,
           is_parent_item: item.is_parent_item,
           max_subitem_quantity: item.max_subitem_quantity,
           conversion_factor: item.conversion_factor,
@@ -990,6 +985,8 @@ export default {
       this.determine_payment_method(payment_method);
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;
+      console.log(this.invoice_doc);
+      console.log();
       // evntBus.$emit('send_invoice_doc_payment', invoice_doc);
       if(payment_method==="Cash"){
         evntBus.$emit('send_invoice_doc_cash', invoice_doc);
@@ -1562,12 +1559,20 @@ export default {
       this.submit_coupon_codes(discount);
       this.discount_return_coupon = discount;
     });
+    evntBus.$on("save_subitems", (filtred_items, data) => {
+       this.items.forEach((element)=>{
+        if (element.item_name === data.item_name){
+          element.subitems = filtred_items;
+        }
+      });
+    });
     evntBus.$on("submit_subitems", (data) => {
       this.items.forEach((element)=>{
         if (element.item_name === data.item_name){
           element.subitems_reference = data.subitem_reference;
         }
       });
+      this.invoice_doc = data.invoice_doc;
     });
 
     this.$nextTick(function (){

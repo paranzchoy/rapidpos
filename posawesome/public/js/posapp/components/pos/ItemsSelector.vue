@@ -248,7 +248,6 @@ export default {
     // }
 
       // const qty = this.get_item_qty(this.first_search);
-      //const qty = this.get_item_qty(this.first_search);
       const new_item = { ...this.filtred_items[0] };
       new_item.qty = flt(qty);
       new_item.item_barcode.forEach((element) => {
@@ -362,7 +361,6 @@ export default {
       return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
   },
-
   computed: {
     filtred_items() {
       this.search = this.get_search(this.first_search);

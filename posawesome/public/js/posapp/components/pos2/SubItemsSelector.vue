@@ -18,7 +18,7 @@
             </v-col>
             <v-spacer></v-spacer>
             <v-col cols="3">
-              Max. Qty left: {{remaining_qty}}
+              Max. Qty left: {{remaining_qty * item_doc.qty}}
             </v-col>
           </v-row>
         </v-container>
@@ -97,8 +97,9 @@ export default {
       select: '',
       total_inputted_qty:0,
       items:[],
+      item_groups:[],
       item_group:'ALL',
-      subitem_item_group:['ALL'],
+      subitem_item_group:[],
       items_headers: [
       { text: 'Name', align: 'start', sortable: true, value: 'item_name' },
       { text: 'Rate', value: 'rate', align: 'start' },
@@ -137,25 +138,32 @@ export default {
       let data = {};
       let selected_items = [];
       this.filtred_items.forEach((item) => {
-          if (item.actual_qty){
-            selected_items.push({'item_name': item.item_name, 'qty': item.actual_qty, 'rate': item.rate, 'uom': item.stock_uom});
+          if (item.actual_qty!=0){
+            selected_items.push({'item_name': item.item_name, 'qty': item.actual_qty, 'rate': item.rate*item.actual_qty, 'uom': item.stock_uom});
           }
       });
       data.item_name = this.item_doc.item_name;
       data.invoice_name = this.invoice_doc.name;
       data.selected_items = selected_items;
+      this.send_subitems_to_invoice(data);
       this.save_subitems(data);
       this.close_dialog();
     },
+
+    send_subitems_to_invoice(data){
+        evntBus.$emit("save_subitems", this.filtred_items, data);
+    },
+
     save_subitems(data){
         const vm = this;
         frappe.call({
-          method: 'posawesome.posawesome.api.custom_posapp.save_sub_items',
+          method: 'posawesome.posawesome.api.custom_posapp.save_subitems',
           args: {
             data: data
           },
           callback: function (r) {
             if (r.message) {
+                vm.invoice_doc = r.message.invoice_doc;
                 evntBus.$emit("submit_subitems", r.message);
                 evntBus.$emit('show_mesage', {
                   text: `Subitems added!`,
@@ -173,8 +181,10 @@ export default {
         return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
     },
     get_item_groups(){
-       let item_groups = [];
        const vm = this;
+       vm.subitem_item_group.splice(0);
+       vm.subitem_item_group.push('ALL');
+
        frappe.call({
           method: 'posawesome.posawesome.api.custom_posapp.get_product_item_groups',
           args: { item_doc: vm.item_doc },
@@ -183,54 +193,37 @@ export default {
               r.message.forEach(element => {
                 if (element.item_group !== 'All Item Groups') {
                   vm.subitem_item_group.push(element.item_group);
-                  item_groups.push({"item_group":element.item_group});
+                  vm.item_groups.push({"item_group":element.item_group});
                 }
               });
               }
             vm.select = vm.subitem_item_group[0];
             },
           });
-      return item_groups;
 
     },
     get_items(){
+          this.get_item_groups();
+          this.items.splice(0);
+          this.pos_profile.subitem_item_group = this.item_groups;
+          this.pos_profile.subitem_trigger = true;
+
           const vm = this;
-          vm.items.splice(0);
-          vm.pos_profile.subitem_item_group = vm.get_item_groups();
-          vm.pos_profile.subitem_trigger = true;
           frappe.call({
           method: 'posawesome.posawesome.api.custom_posapp.get_items',
           args: { pos_profile: vm.pos_profile },
           callback: function (r) {
             if (r.message) {
                 vm.items = r.message;
-                // console.log(r.message);
               }
             },
           });
     },
-    get_existing_subitems(subitems_reference){
+    get_existing_subitems(subitems){
       this.get_item_groups();
-      let items_with_qty = [];
-      let fin_items = [];
-      const vm = this;
-          vm.items.splice(0);
-          frappe.call({
-          method: 'posawesome.posawesome.api.custom_posapp.get_sub_items',
-          args: { subitems_reference: subitems_reference},
-          callback: function (r) {
-            if (r.message) {
-              vm.items.push({'item_name': r.message.item_name, 'actual_qty': r.message.qty, 'rate': r.message.rate, 'stock_uom': r.message.uom});
-              // this.get_items();
-              // vm.items.forEach((element)=>{
-                
-              // });
-              // const found = vm.items.find(element)
-              // const exists = (element) => element.name
-              }
-            },
-          });
+      this.filtred_items=subitems;
     },
+
     get_search(first_search) {
       let search_term = '';
         if (first_search && first_search.startsWith(this.pos_profile.posa_scale_barcode_start)) {
@@ -249,8 +242,8 @@ export default {
       this.disable_qty = false;
     },
     check_item_subitems(){
-      if(this.item_doc.subitems_reference){
-        this.get_existing_subitems(this.item_doc.subitems_reference);
+      if(this.item_doc.subitems){
+        this.get_existing_subitems(this.item_doc.subitems);
       }
       else{
         this.get_items();
@@ -260,7 +253,6 @@ export default {
   created: function () {
     evntBus.$on('open_items_selector', (data) => {
         this.item_doc = data.item;
-        console.log(this.item_doc);
         this.pos_profile = data.pos_profile;
         this.invoice_doc = data.invoice_doc;
         this.check_item_subitems();
@@ -327,7 +319,6 @@ export default {
       }
       return filtred_list.slice(0, 50);
   },
-
   }
 };
 </script>
