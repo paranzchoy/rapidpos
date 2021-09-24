@@ -18,7 +18,7 @@
             </v-col>
             <v-spacer></v-spacer>
             <v-col cols="3">
-              Max. Qty left: {{remaining_qty}}
+              Max. Qty left: {{remaining_qty * item_doc.qty}}
             </v-col>
           </v-row>
         </v-container>
@@ -98,9 +98,8 @@ export default {
       total_inputted_qty:0,
       items:[],
       item_groups:[],
-      selected_item_groups:[],
       item_group:'ALL',
-      subitem_item_group:['ALL'],
+      subitem_item_group:[],
       items_headers: [
       { text: 'Name', align: 'start', sortable: true, value: 'item_name' },
       { text: 'Rate', value: 'rate', align: 'start' },
@@ -183,12 +182,14 @@ export default {
     },
     get_item_groups(){
        const vm = this;
+       vm.subitem_item_group.splice(0);
+       vm.subitem_item_group.push('ALL');
+
        frappe.call({
           method: 'posawesome.posawesome.api.custom_posapp.get_product_item_groups',
           args: { item_doc: vm.item_doc },
           callback: function (r) {
             if (r.message) {
-              console.log(r.message);
               r.message.forEach(element => {
                 if (element.item_group !== 'All Item Groups') {
                   vm.subitem_item_group.push(element.item_group);
@@ -202,6 +203,7 @@ export default {
 
     },
     get_items(){
+          this.get_item_groups();
           this.items.splice(0);
           this.pos_profile.subitem_item_group = this.item_groups;
           this.pos_profile.subitem_trigger = true;
@@ -218,6 +220,7 @@ export default {
           });
     },
     get_existing_subitems(subitems){
+      this.get_item_groups();
       this.filtred_items=subitems;
     },
 
@@ -252,7 +255,6 @@ export default {
         this.item_doc = data.item;
         this.pos_profile = data.pos_profile;
         this.invoice_doc = data.invoice_doc;
-        this.get_item_groups();
         this.check_item_subitems();
         this.dialog_state = true;
     });
