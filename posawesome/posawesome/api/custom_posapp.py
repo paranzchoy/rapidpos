@@ -1210,7 +1210,6 @@ def submit_invoice(data):
         invoice_doc.redeem_loyalty_points = data.get("redeem_loyalty_points")
         invoice_doc.loyalty_points = data.get("loyalty_points")
     payments = []
-    
     for payment in data.get("payments"): 
         for i in invoice_doc.payments:
             if i.mode_of_payment == payment["mode_of_payment"]:
@@ -1804,28 +1803,34 @@ def get_sub_items(subitems_reference):
     reference = frappe.get_doc("Sales Invoice Subitems Reference", subitems_reference)
     return reference.sub_items
 
-#for adding subitems if from scratch//should also update if there're existing subitems
 @frappe.whitelist()
-def save_sub_items(data):
+def save_subitems(data):
     data = json.loads(data)
     result={}
     invoice_doc = frappe.get_doc('Sales Invoice', data.get("invoice_name"))
+    items=[]
     new_subitem_reference = frappe.get_doc({
         'doctype': 'Sales Invoice Subitems Reference'
     })
-    items=[]
-    new_subitem_reference.set("sub_items", data.get("selected_items"))
-    new_subitem_reference.insert()
-
     for item in invoice_doc.items:
         if item.item_name == data.get("item_name"):
-            item.subitems_reference = new_subitem_reference.name
+            if item.subitems_reference != "":
+                new_subitem_reference = frappe.get_doc("Sales Invoice Subitems Reference", item.subitems_reference)
+                new_subitem_reference.update({"sub_items": data.get("selected_items")})
+                new_subitem_reference.save()
+                result["subitem_reference"] = new_subitem_reference.name 
+            else:
+                new_subitem_reference.set("sub_items", data.get("selected_items"))
+                new_subitem_reference.insert()
+                item.subitems_reference = new_subitem_reference.name
+                result["subitem_reference"] = new_subitem_reference.name 
         items.append(item)
 
     invoice_doc.update({"items": items})
     invoice_doc.save()
 
     result["item_name"] = data.get("item_name")
-    result["subitem_reference"] = new_subitem_reference.name
+    result["invoice_doc"] = invoice_doc
 
     return result
+
