@@ -241,9 +241,9 @@ export default {
     },
     add_item(item) {
       evntBus.$emit('add_item', item);
-      if (item.is_parent_item === 1){
-          this.open_subitem_modal(item);
-      }
+      // if (item.is_parent_item === 1){
+      //     this.open_subitem_modal(item);
+      // }
     },
     //
     open_subitem_modal(item){
