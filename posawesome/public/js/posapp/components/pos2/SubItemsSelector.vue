@@ -56,12 +56,14 @@
                         {{ item.rate || 0 }} {{ item.currency || '' }}
                      </div>
                 </v-card>
+                <!-- :disabled="enableDisable" -->
                 <v-col cols="12">
                         <v-card-text class="text--primary pa-1">
                             <v-text-field
-                              v-model="item.actual_qty"
+                              v-model.number="item.actual_qty"
                               label="Qty"
-                              type="number">
+                              type="number"
+                              :disabled="disable_qty">
                             </v-text-field>
                         </v-card-text>
                 </v-col>
@@ -105,13 +107,15 @@ export default {
       { text: 'UOM', value: 'stock_uom', align: 'start' },
       ],
       itemsPerPage: 12,
+      enableDisable: false,
   }),
   watch: {
-
   },
   methods: {
       close_dialog(){
           this.dialog_state = false;
+          //this.enableDisable = false;
+          this.disable_qty = false;
       },
       add_item(item){
         if (this.total_qty>=this.item_doc.max_subitem_quantity){
@@ -241,6 +245,8 @@ export default {
       this.filtred_items.forEach((element) => {
           element.actual_qty = 0;
       });
+      //this.enableDisable = false;
+      this.disable_qty = false;
     },
     check_item_subitems(){
       if(this.item_doc.subitems_reference){
@@ -275,6 +281,14 @@ export default {
           }
         )
         return total;
+    },
+    disable_qty(){
+      if (this.total_qty === this.item_doc.max_subitem_quantity){
+        return true;
+      }
+      else {
+        return false;
+      }
     },
     filtred_items() {
       this.search = this.get_search(this.first_search);
