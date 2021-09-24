@@ -1561,14 +1561,14 @@ export default {
     });
     evntBus.$on("save_subitems", (filtred_items, data) => {
        this.items.forEach((element)=>{
-        if (element.item_name === data.item_name){
+        if (element.item_code === data.item_code){
           element.subitems = filtred_items;
         }
       });
     });
     evntBus.$on("submit_subitems", (data) => {
       this.items.forEach((element)=>{
-        if (element.item_name === data.item_name){
+        if (element.item_code === data.item_code){
           element.subitems_reference = data.subitem_reference;
         }
       });
