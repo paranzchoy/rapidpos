@@ -3,7 +3,7 @@
     <v-app-bar app height="40" class="elevation-2" style="background-image: linear-gradient(to right, #ffffff, #d7e1ec);">
       <v-app-bar-nav-icon
         @click.stop="mini = !mini"
-        class="grey--text"
+        class="white--text"
       ></v-app-bar-nav-icon>
       <v-toolbar-title class="text-uppercase indigo--text">
         <!-- <span><img src="/assets/rapidposcustom/images/Jacobs-removebg-preview.png"  class="brand-image" style="max-width: 100px; max-height: 100px;"></span>

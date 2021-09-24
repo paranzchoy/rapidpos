@@ -241,7 +241,20 @@ export default {
     },
     add_item(item) {
       evntBus.$emit('add_item', item);
+      // if (item.is_parent_item === 1){
+      //     this.open_subitem_modal(item);
+      // }
     },
+    //
+    open_subitem_modal(item){
+      // const invoice_doc = this.proces_invoice();
+      let data ={}
+      data.item = item;
+      data.pos_profile = this.pos_profile;
+      // data.invoice_doc = invoice_doc;
+      evntBus.$emit('open_items_selector', data);
+    },
+    //
     enter_event() {
       if (!this.filtred_items.length || !this.first_search) {
         return;
