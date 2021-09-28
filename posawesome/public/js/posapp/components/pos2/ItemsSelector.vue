@@ -241,6 +241,7 @@ export default {
     },
     add_item(item) {
       evntBus.$emit('add_item', item);
+      this.$refs.search_items_field.focus();
     },
     enter_event() {
       if (!this.filtred_items.length || !this.first_search) {
@@ -441,7 +442,6 @@ export default {
     evntBus.$on('update_cur_items_details', () => {
       this.update_cur_items_details();
     });
-
      document.addEventListener('keydown', this.gotoSearchItemsField.bind(this));
      document.addEventListener('keydown', this.gotoQuantityField.bind(this));
   },
