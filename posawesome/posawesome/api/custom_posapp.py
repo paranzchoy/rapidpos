@@ -1673,8 +1673,10 @@ def get_items(pos_profile):
           item_group_to_use = pos_profile.get("item_groups")
     else:
           item_group_to_use = pos_profile.get("subitem_item_group")
+    if pos_profile.get("packagingitem_trigger"):
+          item_groups_list.append(pos_profile.get("packaging_item_group"))
 
-    if item_group_to_use:
+    if item_group_to_use and pos_profile.get("packagingitem_trigger") == False:
         for group in item_group_to_use:
             if not frappe.db.exists("Item Group", group.get("item_group")):
                 item_group = get_root_of(group.get("item_group"))
