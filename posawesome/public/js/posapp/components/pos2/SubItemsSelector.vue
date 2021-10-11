@@ -204,12 +204,13 @@ export default {
             frappe.utils.play_sound('error');
         }
         else{
-          // this.add_item_details(item);
-            this.filtred_items.forEach((element) => {
+          this.add_item_details(item);
+            this.items.forEach((element) => {
               if (element===item){
                 element.actual_qty++;
               }
             });
+          console.log(this.items_with_qty);
         }
       },
       // combine code to select only those items with quantity here in this method
@@ -217,7 +218,7 @@ export default {
         if (!item.uom) {
           item.uom = item.stock_uom;
         }
-        const index = this.items.findIndex(
+        const index = this.items_with_qty.findIndex(
           (el) => el.item_code === item.item_code && el.uom === item.uom
         );
         if (index === -1) {
@@ -226,6 +227,7 @@ export default {
           this.update_item_detail(new_item);
         } 
         else {
+
           const cur_item = this.items[index];
           this.update_items_details([cur_item]);
           if (!cur_item.has_batch_no) {
@@ -336,7 +338,7 @@ export default {
           },
           callback: function (r) {
             if (r.message) {
-              items_with_qty.forEach((item) => {
+              this.items_with_qty.forEach((item) => {
                 const updated_item = r.message.find(
                   (element) => element.item_id == item.item_id
                 );
@@ -363,12 +365,12 @@ export default {
       },
       submit_dialog(){
           let data = {};
-          let selected_items = [];
-          this.filtred_items.forEach((item) => {
-              if (item.actual_qty!=0){
-                selected_items.push({'item_name': item.item_code, 'qty': item.actual_qty, 'rate': item.rate*item.actual_qty, 'uom': item.stock_uom});
-              }
-          });
+          let selected_items = this.items_with_qty;
+          // this.filtred_items.forEach((item) => {
+          //     if (item.actual_qty!=0){
+          //       selected_items.push({'item_name': item.item_code, 'qty': item.actual_qty, 'rate': item.rate*item.actual_qty, 'uom': item.stock_uom});
+          //     }
+          // });
           data.item_code = this.item_doc.item_code;
           data.item_name = this.item_doc.item_name;
           data.invoice_name = this.invoice_doc.name;
