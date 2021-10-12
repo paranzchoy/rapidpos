@@ -12,18 +12,20 @@
         color="deep-purple accent-4"
       ></v-progress-linear>
       <v-row class="items px-2 py-1">
-        <!-- QTY Filter -->
+        <!-- QTTY Filter -->
         <v-col cols="3" class="pb-0 mb-2">
           <v-text-field
             dense
-            clearable
             outlined
             color="indigo"
             label="Qtty (F2)"
             background-color="white"
-            hide-details
-            v-model="item_qtty"
+            v-model.number="item_qtty"
             ref="quantity_field"
+            type="number"
+            hint="Adjust item quantity to add"
+            :min="1"
+            :max="100"
           ></v-text-field>
         </v-col> 
         <!-- Search Item Filter -->
@@ -165,7 +167,7 @@ export default {
     items_group: ['ALL'],
     items: [],
     search: '',
-    item_qtty: '',
+    item_qtty: '1',
     first_search: '',
     itemsPerPage: 1000,
     items_headers: [
