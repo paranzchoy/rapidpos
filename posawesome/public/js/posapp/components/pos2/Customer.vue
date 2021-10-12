@@ -8,13 +8,13 @@
         outlined
         color="indigo"
         label="Customer (F4)"
+        hint="Search, select, or add customer. Default customer is 'Walk-in'"
         v-model="customer"
         :items="customers"
         item-text="customer_name"
         item-value="name"
         background-color="white"
         no-data-text="Customer not found"
-        hide-details
         :filter="customFilter"
         :disabled="readonly"
         ref="customer_field"
