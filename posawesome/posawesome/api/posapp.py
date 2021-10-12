@@ -1111,10 +1111,6 @@ def make_address(args):
 
     return address
 
-<<<<<<< HEAD
-=======
-
->>>>>>> develop
 def build_item_cache(item_code):
     parent_item_code = item_code
 

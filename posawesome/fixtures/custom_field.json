@@ -756,9 +756,6 @@
   "dt": "Customer",
   "fetch_from": null,
   "fetch_if_empty": 0,
-<<<<<<< HEAD
-  "fieldname": "posa_discount",
-=======
   "fieldname": "posa_use_percentage_discount",
   "fieldtype": "Check",
   "hidden": 0,
@@ -813,7 +810,6 @@
   "fetch_from": null,
   "fetch_if_empty": 0,
   "fieldname": "posa_max_discount_allowed",
->>>>>>> develop
   "fieldtype": "Float",
   "hidden": 0,
   "hide_border": 0,
@@ -825,13 +821,8 @@
   "in_list_view": 0,
   "in_preview": 0,
   "in_standard_filter": 0,
-<<<<<<< HEAD
-  "insert_after": "lead_name",
-  "label": "Discount %",
-=======
   "insert_after": "posa_use_percentage_discount",
   "label": "Max Discount Percentage Allowed ",
->>>>>>> develop
   "length": 0,
   "mandatory_depends_on": null,
   "modified": "2021-06-04 21:02:31.784347",
@@ -1878,13 +1869,8 @@
   "dt": "Company",
   "fetch_from": null,
   "fetch_if_empty": 0,
-<<<<<<< HEAD
-  "fieldname": "posa_customer_offer",
-  "fieldtype": "Link",
-=======
   "fieldname": "posa_column_break_22",
   "fieldtype": "Column Break",
->>>>>>> develop
   "hidden": 0,
   "hide_border": 0,
   "hide_days": 0,
@@ -1895,21 +1881,12 @@
   "in_list_view": 0,
   "in_preview": 0,
   "in_standard_filter": 0,
-<<<<<<< HEAD
-  "insert_after": "posa_column_break_22",
-  "label": "Final Customer Offer",
-  "length": 0,
-  "mandatory_depends_on": "posa_auto_referral",
-  "modified": "2021-07-29 23:11:04.891539",
-  "name": "Company-posa_customer_offer",
-=======
   "insert_after": "posa_auto_referral",
   "label": "",
   "length": 0,
   "mandatory_depends_on": null,
   "modified": "2021-07-29 23:11:04.558635",
   "name": "Company-posa_column_break_22",
->>>>>>> develop
   "no_copy": 0,
   "non_negative": 0,
   "options": "POS Offer",
@@ -1998,13 +1975,8 @@
   "dt": "Customer",
   "fetch_from": null,
   "fetch_if_empty": 0,
-<<<<<<< HEAD
-  "fieldname": "posa_birthday",
-  "fieldtype": "Date",
-=======
   "fieldname": "posa_customer_offer",
   "fieldtype": "Link",
->>>>>>> develop
   "hidden": 0,
   "hide_border": 0,
   "hide_days": 0,
@@ -2015,21 +1987,12 @@
   "in_list_view": 0,
   "in_preview": 0,
   "in_standard_filter": 0,
-<<<<<<< HEAD
-  "insert_after": "contact_html",
-  "label": "Birthday",
-  "length": 0,
-  "mandatory_depends_on": null,
-  "modified": "2021-07-31 00:12:09.417519",
-  "name": "Customer-posa_birthday",
-=======
   "insert_after": "posa_column_break_22",
   "label": "Final Customer Offer",
   "length": 0,
   "mandatory_depends_on": "posa_auto_referral",
   "modified": "2021-07-29 23:11:04.891539",
   "name": "Company-posa_customer_offer",
->>>>>>> develop
   "no_copy": 0,
   "non_negative": 0,
   "options": "POS Offer",
@@ -2118,11 +2081,7 @@
   "dt": "Company",
   "fetch_from": null,
   "fetch_if_empty": 0,
-<<<<<<< HEAD
-  "fieldname": "posa_referral_campaign",
-=======
   "fieldname": "posa_primary_offer",
->>>>>>> develop
   "fieldtype": "Link",
   "hidden": 0,
   "hide_border": 0,
@@ -2134,21 +2093,12 @@
   "in_list_view": 0,
   "in_preview": 0,
   "in_standard_filter": 0,
-<<<<<<< HEAD
-  "insert_after": "posa_primary_offer",
-  "label": "Referral Campaign",
-  "length": 0,
-  "mandatory_depends_on": null,
-  "modified": "2021-07-29 23:11:05.723688",
-  "name": "Company-posa_referral_campaign",
-=======
   "insert_after": "posa_customer_offer",
   "label": "Primary Customer Offer",
   "length": 0,
   "mandatory_depends_on": null,
   "modified": "2021-07-29 23:11:05.290809",
   "name": "Company-posa_primary_offer",
->>>>>>> develop
   "no_copy": 0,
   "non_negative": 0,
   "options": "Campaign",
@@ -2237,13 +2187,8 @@
   "dt": "Customer",
   "fetch_from": null,
   "fetch_if_empty": 0,
-<<<<<<< HEAD
-  "fieldname": "posa_referral_company",
-  "fieldtype": "Link",
-=======
   "fieldname": "posa_birthday",
   "fieldtype": "Date",
->>>>>>> develop
   "hidden": 0,
   "hide_border": 0,
   "hide_days": 0,
@@ -2254,17 +2199,6 @@
   "in_list_view": 0,
   "in_preview": 0,
   "in_standard_filter": 0,
-<<<<<<< HEAD
-  "insert_after": "posa_referral_code",
-  "label": "Referral Company",
-  "length": 0,
-  "mandatory_depends_on": null,
-  "modified": "2021-07-29 23:24:11.207034",
-  "name": "Customer-posa_referral_company",
-  "no_copy": 1,
-  "non_negative": 0,
-  "options": "Company",
-=======
   "insert_after": "contact_html",
   "label": "Birthday",
   "length": 0,
@@ -2274,7 +2208,6 @@
   "no_copy": 0,
   "non_negative": 0,
   "options": null,
->>>>>>> develop
   "parent": null,
   "parentfield": null,
   "parenttype": null,
@@ -2304,19 +2237,11 @@
   "description": null,
   "docstatus": 0,
   "doctype": "Custom Field",
-<<<<<<< HEAD
-  "dt": "Sales Invoice Item",
-  "fetch_from": null,
-  "fetch_if_empty": 0,
-  "fieldname": "posa_offers",
-  "fieldtype": "Small Text",
-=======
   "dt": "Company",
   "fetch_from": null,
   "fetch_if_empty": 0,
   "fieldname": "posa_referral_campaign",
   "fieldtype": "Link",
->>>>>>> develop
   "hidden": 0,
   "hide_border": 0,
   "hide_days": 0,
@@ -2327,21 +2252,12 @@
   "in_list_view": 0,
   "in_preview": 0,
   "in_standard_filter": 0,
-<<<<<<< HEAD
-  "insert_after": "pricing_rules",
-  "label": "POS Offers",
-  "length": 0,
-  "mandatory_depends_on": null,
-  "modified": "2021-06-07 01:51:16.390447",
-  "name": "Sales Invoice Item-posa_offers",
-=======
   "insert_after": "posa_primary_offer",
   "label": "Referral Campaign",
   "length": 0,
   "mandatory_depends_on": null,
   "modified": "2021-07-29 23:11:05.723688",
   "name": "Company-posa_referral_campaign",
->>>>>>> develop
   "no_copy": 0,
   "non_negative": 0,
   "options": "Campaign",
@@ -2469,64 +2385,7 @@
   "width": null
  },
  {
-<<<<<<< HEAD
-  "allow_in_quick_entry": 0,
-  "allow_on_submit": 0,
-  "bold": 0,
-  "collapsible": 0,
-  "collapsible_depends_on": null,
-  "columns": 0,
-  "default": null,
-  "depends_on": "",
-  "description": null,
-  "docstatus": 0,
-  "doctype": "Custom Field",
-  "dt": "Sales Invoice Item",
-  "fetch_from": null,
-  "fetch_if_empty": 0,
-  "fieldname": "posa_is_replace",
-  "fieldtype": "Data",
-  "hidden": 0,
-  "hide_border": 0,
-  "hide_days": 0,
-  "hide_seconds": 0,
-  "ignore_user_permissions": 0,
-  "ignore_xss_filter": 0,
-  "in_global_search": 0,
-  "in_list_view": 0,
-  "in_preview": 0,
-  "in_standard_filter": 0,
-  "insert_after": "posa_is_offer",
-  "label": "Is Offer Replace For item Row ID",
-  "length": 0,
-  "mandatory_depends_on": null,
-  "modified": "2021-06-17 18:10:36.233226",
-  "name": "Sales Invoice Item-posa_is_replace",
-  "no_copy": 0,
-  "non_negative": 0,
-  "options": null,
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "permlevel": 0,
-  "precision": "",
-  "print_hide": 0,
-  "print_hide_if_no_value": 0,
-  "print_width": null,
-  "read_only": 1,
-  "read_only_depends_on": null,
-  "report_hide": 0,
-  "reqd": 0,
-  "search_index": 0,
-  "translatable": 1,
-  "unique": 0,
-  "width": null
- },
- {
-  "allow_in_quick_entry": 0,
-=======
   "allow_in_quick_entry": 1,
->>>>>>> develop
   "allow_on_submit": 0,
   "bold": 0,
   "collapsible": 1,
