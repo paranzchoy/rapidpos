@@ -748,7 +748,6 @@ export default {
       if(item.is_parent_item){
         this.manage_subitems_dialog(item);
       }
-
     },
     get_new_item(item) {
       const new_item = { ...item };
