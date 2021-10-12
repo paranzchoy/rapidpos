@@ -39,7 +39,6 @@
             label="Search Items (F3)"
             hint="Search by item code, serial number, batch no or barcode"
             background-color="white"
-            hide-details
             v-model="debounce_search"
             @keydown.esc="esc_event"
             @keydown.enter="enter_event"
