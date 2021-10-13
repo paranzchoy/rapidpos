@@ -92,7 +92,7 @@
                   class="elevation-1"
                   :items-per-page="itemsPerPage"
                   hide-default-footer
-                  @click:row="add_item"
+                  @click:row="select_item"
                 >
                   <template v-slot:item.rate="{ item }">
                     {{ formtCurrency(item.rate) }}
@@ -241,6 +241,19 @@ export default {
     },
     add_item(item) {
       evntBus.$emit('add_item', item);
+    },
+    select_item(item){
+      if(this.item_qtty){
+        let qty = this.item_qtty
+        const new_item = item;
+        new_item.qty = flt(qty);
+
+        this.add_item(new_item);
+        // this.item_qtty = null;
+      }
+      else{
+       this.add_item(item)
+      }
     },
     enter_event() {
       if (!this.filtred_items.length || !this.first_search) {
