@@ -228,17 +228,17 @@ export default {
         } 
         else {
 
-          const cur_item = this.items[index];
+          const cur_item = this.items_with_qty[index];
           this.update_items_details([cur_item]);
           if (!cur_item.has_batch_no) {
-            cur_item.qty += item.qty;
+            cur_item.qty += item.actual_qty;
             this.calc_sotck_gty(cur_item, cur_item.qty);
           } else {
             if (
               cur_item.stock_qty < cur_item.actual_batch_qty ||
               !cur_item.batch_no
             ) {
-              cur_item.qty += item.qty;
+              cur_item.qty += item.actual_qty;
               this.calc_sotck_gty(cur_item, cur_item.qty);
             } else {
               const new_item = this.get_new_item(cur_item);
@@ -261,7 +261,7 @@ export default {
         new_item.discount_percentage = 0;
         new_item.discount_amount_per_item = 0;
         new_item.price_list_rate = item.rate;
-        new_item.qty = item.qty;
+        new_item.qty = item.actual_qty;
         new_item.uom = item.uom ? item.uom : item.stock_uom;
         new_item.actual_batch_qty = '';
         new_item.conversion_factor = 1;
@@ -340,7 +340,7 @@ export default {
           },
           callback: function (r) {
             if (r.message) {
-              this.items_with_qty.forEach((item) => {
+              vm.items_with_qty.forEach((item) => {
                 const updated_item = r.message.find(
                   (element) => element.item_id == item.item_id
                 );
@@ -367,16 +367,16 @@ export default {
       },
       submit_dialog(){
           let data = {};
-          let selected_items = this.items_with_qty;
           // this.filtred_items.forEach((item) => {
           //     if (item.actual_qty!=0){
           //       selected_items.push({'item_name': item.item_code, 'qty': item.actual_qty, 'rate': item.rate*item.actual_qty, 'uom': item.stock_uom});
           //     }
           // });
+          console.log(this.items_with_qty);
           data.item_code = this.item_doc.item_code;
           data.item_name = this.item_doc.item_name;
           data.invoice_name = this.invoice_doc.name;
-          data.selected_items = selected_items;
+          data.selected_items = this.items_with_qty;
           this.send_subitems_to_invoice(data);
           this.save_subitems(data);
           this.close_dialog();

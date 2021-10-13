@@ -1760,7 +1760,7 @@ def get_items(pos_profile):
                 row.update(item)
                 row.update(
                     {
-                        "warehouse": pos_profile.get("warehouse"),
+                        # "warehouse": pos_profile.get("warehouse"),
                         "rate": item_price.get("price_list_rate") or 0,
                         "currency": item_price.get("currency")
                         or pos_profile.get("currency"),
