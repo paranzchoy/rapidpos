@@ -165,7 +165,7 @@ export default {
     items_group: ['ALL'],
     items: [],
     search: '',
-    item_qtty: '',
+    item_qtty: 1,
     first_search: '',
     itemsPerPage: 1000,
     items_headers: [
