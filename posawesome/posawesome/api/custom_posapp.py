@@ -1760,7 +1760,7 @@ def get_items(pos_profile):
                 row.update(item)
                 row.update(
                     {
-                        # "warehouse": pos_profile.get("warehouse"),
+                        "warehouse": pos_profile.get("warehouse"),
                         "rate": item_price.get("price_list_rate") or 0,
                         "currency": item_price.get("currency")
                         or pos_profile.get("currency"),
@@ -1851,3 +1851,10 @@ def save_subitems(data):
 
     return result
 
+@frappe.whitelist()
+def save_packaging_items(data):
+   data = json.loads(data)
+   invoice_doc = frappe.get_doc('Sales Invoice', data.get("invoice_doc"))
+   invoice_doc.packaging_details = data.get("packaging_details")
+   invoice_doc.update()
+   return invoice_doc
