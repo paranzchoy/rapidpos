@@ -106,27 +106,25 @@
             <form>
             <div class="content">
               <!-- TAB: Cash -->
-                <template> 
+                <template>
                   <v-data-table
                     :headers="packaging_headers"
                     :items="packaging_details"
                     :items-per-page="5"
-                    v-model="item_doc.packaging_list"
                     class="elevation-1"
-                    hide-default-footer 
+                    hide-default-footer
                     disable-pagination
                     dense
-                    height="320px"  
+                    height="320px"
                   >
-                  
-                  <template v-slot:item.quantity="props">
+
+                  <template v-slot:item.actual_qty="props">
                     <v-row justify="center">
                       <v-col
                         sm="7"
                       >
-                      <v-text-field
-                          v-model="item_doc.packaging_list=props.item.quantity"
-                          :rules="[max25chars]"
+                       <v-text-field
+                          v-model="props.item.actual_qty"
                           label="0"
                           single-line
                           type="number"
@@ -142,7 +140,7 @@
             </form>
           </template>
         </v-card-text>
-        
+
         <!-- Buttons -->
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -205,11 +203,12 @@ export default {
         }
         else{
           // this.add_item_details(item);
-            this.filtred_items.forEach((element) => {
+          this.items.forEach((element) => {
               if (element===item){
                 element.actual_qty++;
               }
             });
+          console.log(this.items_with_qty);
         }
       },
       // combine code to select only those items with quantity here in this method
@@ -217,33 +216,34 @@ export default {
         if (!item.uom) {
           item.uom = item.stock_uom;
         }
-        const index = this.items.findIndex(
+        const index = this.items_with_qty.findIndex(
           (el) => el.item_code === item.item_code && el.uom === item.uom
         );
         if (index === -1) {
           const new_item = this.get_new_item(item);
           this.items_with_qty.unshift(new_item);
           this.update_item_detail(new_item);
-        } 
+        }
         else {
-          const cur_item = this.items[index];
+
+          const cur_item = this.items_with_qty[index];
           this.update_items_details([cur_item]);
           if (!cur_item.has_batch_no) {
-            cur_item.qty += item.qty;
+            cur_item.qty += item.actual_qty;
             this.calc_sotck_gty(cur_item, cur_item.qty);
           } else {
             if (
               cur_item.stock_qty < cur_item.actual_batch_qty ||
               !cur_item.batch_no
             ) {
-              cur_item.qty += item.qty;
+              cur_item.qty += item.actual_qty;
               this.calc_sotck_gty(cur_item, cur_item.qty);
             } else {
               const new_item = this.get_new_item(cur_item);
               new_item.batch_no = '';
               new_item.batch_no_expiry_date = '';
               new_item.actual_batch_qty = '';
-              new_item.qty = item.qty || 1;
+              new_item.qty = item.actual_qty || 1;
               this.items_with_qty.unshift(new_item);
             }
           }
@@ -251,15 +251,15 @@ export default {
       },
       get_new_item(item) {
         const new_item = { ...item };
-        if (!item.qty) {
-          item.qty = 1;
-        }
+        // if (!item.qty) {
+        //   item.qty = 1;
+        // }
         new_item.stock_qty = item.qty;
         new_item.discount_amount = 0;
         new_item.discount_percentage = 0;
         new_item.discount_amount_per_item = 0;
         new_item.price_list_rate = item.rate;
-        new_item.qty = item.qty;
+        new_item.qty = item.actual_qty;
         new_item.uom = item.uom ? item.uom : item.stock_uom;
         new_item.actual_batch_qty = '';
         new_item.conversion_factor = 1;
@@ -276,12 +276,14 @@ export default {
             item_code: item.item_code,
             customer: this.invoice_doc.customer,
             doctype: 'Sales Invoice',
-            name: 'New Sales Invoice 1',
+            name: this.invoice_doc.name,
+            // name: 'New Sales Invoice 1',
             company: this.pos_profile.company,
             conversion_rate: 1,
             qty: item.qty,
             price_list_rate: item.price_list_rate,
-            child_docname: 'New Sales Invoice Item 1',
+            // child_docname: 'New Sales Invoice Item 1',
+            child_docname: this.item_doc.item_name,
             cost_center: this.pos_profile.cost_center,
             currency: this.pos_profile.currency,
             // plc_conversion_rate: 1,
@@ -336,11 +338,11 @@ export default {
           },
           callback: function (r) {
             if (r.message) {
-              items_with_qty.forEach((item) => {
+              vm.items_with_qty.forEach((item) => {
                 const updated_item = r.message.find(
                   (element) => element.item_id == item.item_id
                 );
-                item.actual_qty = updated_item.actual_qty;
+                // item.actual_qty = updated_item.actual_qty;
                 item.serial_no_data = updated_item.serial_no_data;
                 item.batch_no_data = updated_item.batch_no_data;
                 item.item_uoms = updated_item.item_uoms;
@@ -363,21 +365,33 @@ export default {
       },
       submit_dialog(){
           let data = {};
-          let selected_items = [];
           this.filtred_items.forEach((item) => {
               if (item.actual_qty!=0){
-                selected_items.push({'item_name': item.item_code, 'qty': item.actual_qty, 'rate': item.rate*item.actual_qty, 'uom': item.stock_uom});
+                // selected_items.push({'item_name': item.item_code, 'qty': item.actual_qty, 'rate': item.rate*item.actual_qty, 'uom': item.stock_uom});
+                this.add_item_details(item);
               }
           });
+          console.log(this.items_with_qty);
           data.item_code = this.item_doc.item_code;
-          data.item_name = this.item_doc.item_name;
           data.invoice_name = this.invoice_doc.name;
-          data.selected_items = selected_items;
+          data.selected_items = this.items_with_qty;
           this.send_subitems_to_invoice(data);
           this.save_subitems(data);
           this.close_dialog();
       },
-
+      submit_packaging_dialog(){
+        let data={};
+        this.packaging_details.forEach((element)=> {
+          if(!element.actual_qty<=0){
+            data.packaging_details.push(element);
+          }
+        })
+        this.item_doc.packaging_items = this.packaging_details;
+        data.invoice_doc = this.invoice_doc;
+        data.item_doc = this.item_doc;
+        this.send_packitems_to_invoice(this.item_doc);
+        this.save_packaging_items(data);
+      },
       get_new_item(item) {
           const new_item = { ...item };
           if (!item.qty) {
@@ -402,9 +416,11 @@ export default {
       },
 
       send_subitems_to_invoice(data){
-          evntBus.$emit("save_subitems", this.filtred_items, data);
+          evntBus.$emit("save_subitems", this.items, this.item_doc.item_code);
       },
-
+      send_packitems_to_invoice(data){
+          evntBus.$emit("save_packaging_items", data);
+      },
       save_subitems(data){
           const vm = this;
           frappe.call({
@@ -421,8 +437,30 @@ export default {
                     color: 'success',
                   });
                   frappe.utils.play_sound('submit');
-                  
-                  
+
+
+              }
+            },
+          });
+      },
+      save_packaging_items(data){
+         const vm = this;
+          frappe.call({
+            method: 'posawesome.posawesome.api.custom_posapp.save_packaging_items',
+            args: {
+              data: data
+            },
+            callback: function (r) {
+              if (r.message) {
+                  vm.invoice_doc = r.message;
+                  evntBus.$emit("submit_packaging_items", r.message);
+                  evntBus.$emit('show_mesage', {
+                    text: `Packaging items added!`,
+                    color: 'success',
+                  });
+                  frappe.utils.play_sound('submit');
+
+
               }
             },
           });
@@ -467,6 +505,7 @@ export default {
             callback: function (r) {
               if (r.message) {
                   vm.items = r.message;
+                  console.log(vm.items);
                 }
               },
             });
@@ -477,7 +516,12 @@ export default {
       },
       open_packaging_items(){
         this.packaging_modal = true;
-        this.get_packaging_items();
+        if (!this.item_doc.packaging_items){
+          this.get_packaging_items();
+        }
+        else{
+          this.packaging_details = this.item_doc.packaging_items;
+        }
       },
       get_packaging_items(){
             this.pos_profile.packagingitem_trigger = true;
