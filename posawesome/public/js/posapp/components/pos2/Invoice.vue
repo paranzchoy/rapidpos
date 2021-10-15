@@ -712,6 +712,7 @@ export default {
       // this.$forceUpdate();
     },
     add_item(item) {
+      console.log(item);
       if (!item.uom) {
         item.uom = item.stock_uom;
       }
@@ -753,6 +754,9 @@ export default {
       const new_item = { ...item };
       if (!item.qty) {
         item.qty = 1;
+      }
+      if (item.rate===0){
+        new_item.is_packaging_item = 1;
       }
       new_item.subitems_reference = '';
       new_item.stock_qty = item.qty;
@@ -899,7 +903,8 @@ export default {
           discount_percentage: item.discount_percentage,
           discount_amount: item.discount_amount,
           batch_no: item.batch_no,
-          subitems_reference: item.subitems_reference
+          subitems_reference: item.subitems_reference,
+          is_packaging_item: item.is_packaging_item
         });
       });
       return items_list;
