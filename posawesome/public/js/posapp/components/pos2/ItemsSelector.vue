@@ -92,7 +92,7 @@
                   class="elevation-1"
                   :items-per-page="itemsPerPage"
                   hide-default-footer
-                  @click:row="add_item"
+                  @click:row="select_item"
                 >
                   <template v-slot:item.rate="{ item }">
                     {{ formtCurrency(item.rate) }}
@@ -165,7 +165,7 @@ export default {
     items_group: ['ALL'],
     items: [],
     search: '',
-    item_qtty: '',
+    item_qtty: 1,
     first_search: '',
     itemsPerPage: 1000,
     items_headers: [
@@ -241,6 +241,20 @@ export default {
     },
     add_item(item) {
       evntBus.$emit('add_item', item);
+      this.$refs.search_items_field.focus();
+    },
+    select_item(item){
+      if(this.item_qtty){
+        let qty = this.item_qtty
+        const new_item = item;
+        new_item.qty = flt(qty);
+
+        this.add_item(new_item);
+        // this.item_qtty = null;
+      }
+      else{
+       this.add_item(item)
+      }
     },
     enter_event() {
       if (!this.filtred_items.length || !this.first_search) {
@@ -441,7 +455,6 @@ export default {
     evntBus.$on('update_cur_items_details', () => {
       this.update_cur_items_details();
     });
-
      document.addEventListener('keydown', this.gotoSearchItemsField.bind(this));
      document.addEventListener('keydown', this.gotoQuantityField.bind(this));
   },

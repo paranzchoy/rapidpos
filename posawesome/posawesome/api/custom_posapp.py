@@ -1673,8 +1673,10 @@ def get_items(pos_profile):
           item_group_to_use = pos_profile.get("item_groups")
     else:
           item_group_to_use = pos_profile.get("subitem_item_group")
+    if pos_profile.get("packagingitem_trigger"):
+          item_groups_list.append(pos_profile.get("packaging_item_group"))
 
-    if item_group_to_use:
+    if item_group_to_use and pos_profile.get("packagingitem_trigger") == False:
         for group in item_group_to_use:
             if not frappe.db.exists("Item Group", group.get("item_group")):
                 item_group = get_root_of(group.get("item_group"))
@@ -1758,6 +1760,7 @@ def get_items(pos_profile):
                 row.update(item)
                 row.update(
                     {
+                        "warehouse": pos_profile.get("warehouse"),
                         "rate": item_price.get("price_list_rate") or 0,
                         "currency": item_price.get("currency")
                         or pos_profile.get("currency"),
@@ -1772,6 +1775,20 @@ def get_items(pos_profile):
                     result.append(row)
 
     return result
+
+def get_stock_availability(item_code, warehouse):
+    latest_sle = frappe.db.sql(
+        """select qty_after_transaction
+		from `tabStock Ledger Entry`
+		where item_code = %s and warehouse = %s
+		order by posting_date desc, posting_time desc
+		limit 1""",
+        (item_code, warehouse),
+        as_dict=1,
+    )
+
+    sle_qty = latest_sle[0].qty_after_transaction or 0 if latest_sle else 0
+    return sle_qty
 
 #for testing purposes
 @frappe.whitelist()
@@ -1834,3 +1851,10 @@ def save_subitems(data):
 
     return result
 
+@frappe.whitelist()
+def save_packaging_items(data):
+   data = json.loads(data)
+   invoice_doc = frappe.get_doc('Sales Invoice', data.get("invoice_doc"))
+   invoice_doc.packaging_details = data.get("packaging_details")
+   invoice_doc.update()
+   return invoice_doc

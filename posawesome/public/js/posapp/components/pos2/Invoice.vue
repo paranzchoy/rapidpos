@@ -773,7 +773,6 @@ export default {
       if(item.is_parent_item){
         this.manage_subitems_dialog(item);
       }
-
     },
     get_new_item(item) {
       const new_item = { ...item };
@@ -1588,12 +1587,19 @@ export default {
       this.submit_coupon_codes(discount);
       this.discount_return_coupon = discount;
     });
-    evntBus.$on("save_subitems", (filtred_items, data) => {
+    evntBus.$on("save_subitems", (subitems, item_code) => {
        this.items.forEach((element)=>{
-        if (element.item_code === data.item_code){
-          element.subitems = filtred_items;
+        if (element.item_code === item_code){
+          element.subitems = subitems;
         }
       });
+    });
+    evntBus.$on("save_packaging_items", (data) => {
+       this.items.forEach((element)=>{
+        if (element.item_code === data.item_code){
+          element.packaging_items = data.packaging_items;
+        }
+        });
     });
     evntBus.$on("submit_subitems", (data) => {
       this.items.forEach((element)=>{
@@ -1603,6 +1609,11 @@ export default {
       });
       this.invoice_doc = data.invoice_doc;
     });
+
+    evntBus.$on("submit_packaging_items", (invoice_doc) => {
+      this.invoice_doc = invoice_doc;
+    });
+
 
     this.$nextTick(function (){
       this.get_discount();
