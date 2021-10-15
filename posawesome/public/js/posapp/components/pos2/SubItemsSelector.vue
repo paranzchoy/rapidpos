@@ -17,9 +17,6 @@
                 ></v-combobox>
             </v-col>
             <v-spacer></v-spacer>
-            <v-col cols="2">
-              <v-btn color="blue-grey" dark @click="open_packaging_items">Packaging Details</v-btn>
-            </v-col>
             <v-col cols="3">
               Max. Qty left: {{remaining_qty * item_doc.qty}}
             </v-col>
@@ -93,62 +90,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="packaging_modal" max-width="500px">
-      <v-card>
-        <!-- Title -->
-        <v-card-title>
-          <span class="headline indigo--text">Set Packaging Details</span>
-        </v-card-title>
-
-        <!-- Content -->
-        <v-card-text>
-          <template>
-            <form>
-            <div class="content">
-              <!-- TAB: Cash -->
-                <template>
-                  <v-data-table
-                    :headers="packaging_headers"
-                    :items="packaging_details"
-                    :items-per-page="5"
-                    class="elevation-1"
-                    hide-default-footer
-                    disable-pagination
-                    dense
-                    height="320px"
-                  >
-
-                  <template v-slot:item.actual_qty="props">
-                    <v-row justify="center">
-                      <v-col
-                        sm="7"
-                      >
-                       <v-text-field
-                          v-model="props.item.actual_qty"
-                          label="0"
-                          single-line
-                          type="number"
-                          dense
-                          min=0 oninput="validity.valid||(value='');"
-                      ></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </template>
-                  </v-data-table>
-                </template>
-              </div>
-            </form>
-          </template>
-        </v-card-text>
-
-        <!-- Buttons -->
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" dark @click="close_packaging_dialog">Cancel</v-btn>
-          <v-btn color="primary" dark @click="close_packaging_dialog">Ok</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-row>
 </template>
 <script>
@@ -159,12 +100,10 @@ export default {
       invoice_doc:'',
       item_doc:'',
       dialog_state: false,
-      packaging_modal:false,
       select: '',
       total_inputted_qty:0,
       items:[],
       item_groups:[],
-      packaging_details:[],
       item_group:'ALL',
       subitem_item_group:[],
       items_headers: [
@@ -173,10 +112,6 @@ export default {
       { text: 'Currency', value: 'currency', align: 'start' },
       { text: 'Available QTY', value: 'actual_qty', align: 'start' },
       { text: 'UOM', value: 'stock_uom', align: 'start' },
-      ],
-      packaging_headers: [
-      { text: 'Packaging', align: 'start', sortable: true, value: 'item_name' },
-      { text: 'Qty', value: 'actual_qty', align: 'start' }
       ],
       itemsPerPage: 12,
       enableDisable: false,
@@ -189,9 +124,6 @@ export default {
           this.dialog_state = false;
           //this.enableDisable = false;
           this.disable_qty = false;
-      },
-      close_packaging_dialog(){
-        this.packaging_modal = false;
       },
       add_item(item){
         if (this.total_qty>=this.item_doc.max_subitem_quantity){
@@ -379,19 +311,6 @@ export default {
           this.save_subitems(data);
           this.close_dialog();
       },
-      submit_packaging_dialog(){
-        let data={};
-        this.packaging_details.forEach((element)=> {
-          if(!element.actual_qty<=0){
-            data.packaging_details.push(element);
-          }
-        })
-        this.item_doc.packaging_items = this.packaging_details;
-        data.invoice_doc = this.invoice_doc;
-        data.item_doc = this.item_doc;
-        this.send_packitems_to_invoice(this.item_doc);
-        this.save_packaging_items(data);
-      },
       get_new_item(item) {
           const new_item = { ...item };
           if (!item.qty) {
@@ -414,12 +333,8 @@ export default {
           }
           return new_item;
       },
-
       send_subitems_to_invoice(data){
           evntBus.$emit("save_subitems", this.items, this.item_doc.item_code);
-      },
-      send_packitems_to_invoice(data){
-          evntBus.$emit("save_packaging_items", data);
       },
       save_subitems(data){
           const vm = this;
@@ -434,28 +349,6 @@ export default {
                   evntBus.$emit("submit_subitems", r.message);
                   evntBus.$emit('show_mesage', {
                     text: `Subitems added!`,
-                    color: 'success',
-                  });
-                  frappe.utils.play_sound('submit');
-
-
-              }
-            },
-          });
-      },
-      save_packaging_items(data){
-         const vm = this;
-          frappe.call({
-            method: 'posawesome.posawesome.api.custom_posapp.save_packaging_items',
-            args: {
-              data: data
-            },
-            callback: function (r) {
-              if (r.message) {
-                  vm.invoice_doc = r.message;
-                  evntBus.$emit("submit_packaging_items", r.message);
-                  evntBus.$emit('show_mesage', {
-                    text: `Packaging items added!`,
                     color: 'success',
                   });
                   frappe.utils.play_sound('submit');
@@ -514,29 +407,6 @@ export default {
         this.get_item_groups();
         this.filtred_items=subitems;
       },
-      open_packaging_items(){
-        this.packaging_modal = true;
-        if (!this.item_doc.packaging_items){
-          this.get_packaging_items();
-        }
-        else{
-          this.packaging_details = this.item_doc.packaging_items;
-        }
-      },
-      get_packaging_items(){
-            this.pos_profile.packagingitem_trigger = true;
-            const vm = this;
-            frappe.call({
-            method: 'posawesome.posawesome.api.custom_posapp.get_items',
-            args: { pos_profile: vm.pos_profile },
-            async: true,
-            callback: function (r) {
-              if (r.message) {
-                  vm.packaging_details = r.message;
-                }
-              },
-            });
-      },
       get_search(first_search) {
         let search_term = '';
           if (first_search && first_search.startsWith(this.pos_profile.posa_scale_barcode_start)) {
@@ -566,7 +436,6 @@ export default {
   created: function () {
     evntBus.$on('open_items_selector', (data) => {
         this.item_doc = data.item;
-        this.item_doc.packaging_details = [];
         this.pos_profile = data.pos_profile;
         this.invoice_doc = data.invoice_doc;
         this.check_item_subitems();
