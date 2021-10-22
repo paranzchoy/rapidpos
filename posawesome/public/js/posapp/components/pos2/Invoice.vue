@@ -371,8 +371,9 @@
                   ></v-text-field>
                 </v-col>
                  <v-col cols="12">
+                   <!-- v-model="discount_amount" -->
                   <v-text-field
-                    v-model="discount_amount"
+                    :value="formtCurrency(total_items_discount_amount)"
                     label="ِAdditional Discount"
                     ref="discount"
                     outlined
@@ -598,12 +599,15 @@ export default {
     },
     subtotal() {
       this.close_payments();
+      // this.calculate_discount();
       let sum = 0;
+      let d = this.calculate_discount();
       this.items.forEach((item) => {
         sum += item.qty * item.rate;
       });
       // sum -= flt(this.discount_amount);
-      sum -= flt(this.calculate_discount());
+      // sum -= flt(this.calculate_discount());
+      sum -= flt(d);
       return flt(sum).toFixed(2);
     },
     
@@ -632,7 +636,7 @@ export default {
             callback: function (r) {
               if (r.message) {
                 r.message.get_discount.forEach((element) => {
-                  vm.discount_types.push(element)
+                  vm.discount_types.push(element) //HERE!
                 })
           }
         },
@@ -640,45 +644,66 @@ export default {
     },
 
     calculate_discount() {
-      let consumable_sum = 0;
-      let consumable_discount = 0;
-      let medical_sum = 0;
-      let medical_discount = 0;
       let item_sum = 0;
-      let coupon_percentage_discount = 0;
-      let coupon_amount_discount = 0;
-      let total_amount_discount = 0;
 
-      this.items.forEach((item) => {
-        
-        if(this.selectedDiscount){
-            if (item.item_group == "FOOD") {
-              consumable_sum += item.qty * item.rate;
-            }
-            if (item.item_group == "MEDICAL") {
-              medical_sum += item.qty * item.rate;
-            }
-        }
-        item_sum += item.qty * item.rate;
-        total_amount_discount += item.discount_amount;
-      });
-
-      if(this.coupon_activated){
-          this.coupon_discounts.forEach((element) => {
-            if(element.discount_type == "Percentage"){
-              coupon_percentage_discount += item_sum*(element.discount_value/100);
-            }
-            if (element.discount_type == "Amount"){
-              coupon_amount_discount += element.discount_value;
-            }
-          });
-        }
-      
-      consumable_discount = consumable_sum * 0.05;
-      medical_discount = medical_sum * 0.20;
-      this.discount_amount = consumable_discount + medical_discount + coupon_percentage_discount + coupon_amount_discount + total_amount_discount;
-      return this.discount_amount;
+      if (this.selectedDiscount) {
+        this.items.forEach((item) => {
+          item_sum += item.qty * item.rate;
+        });
+        frappe
+        .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_selected_discount_percentage", {
+          selected_discount_type: this.selectedDiscount,
+        })
+        .then((r) => {
+          if (r.message) {
+            this.discount_amount = item_sum * (r.message/100);
+          }
+        })
+      }
+      return flt(this.discount_amount).toFixed(2);
     },
+
+    // calculate_discount() {
+    //   let consumable_sum = 0;
+    //   let consumable_discount = 0;
+    //   let medical_sum = 0;
+    //   let medical_discount = 0;
+    //   let item_sum = 0;
+    //   let coupon_percentage_discount = 0;
+    //   let coupon_amount_discount = 0;
+    //   let total_amount_discount = 0;
+
+    //   this.items.forEach((item) => {
+        
+    //     if(this.selectedDiscount){
+    //         if (item.item_group == "CONSUMABLE") {
+    //           consumable_sum += item.qty * item.rate;
+    //         }
+    //         if (item.item_group == "MEDICAL") {
+    //           medical_sum += item.qty * item.rate;
+    //         }
+    //     }
+    //     item_sum += item.qty * item.rate;
+    //     total_amount_discount += item.discount_amount;
+    //   });
+
+    //   if(this.coupon_activated){
+    //       this.coupon_discounts.forEach((element) => {
+    //         if(element.discount_type == "Percentage"){
+    //           coupon_percentage_discount += item_sum*(element.discount_value/100);
+    //         }
+    //         if (element.discount_type == "Amount"){
+    //           coupon_amount_discount += element.discount_value;
+    //         }
+    //       });
+    //     }
+      
+    //   consumable_discount = consumable_sum * 0.05;
+    //   medical_discount = medical_sum * 0.20;
+    //   // this.discount_amount = consumable_discount + medical_discount + coupon_percentage_discount + coupon_amount_discount + total_amount_discount;
+    //   // this.discount_amount = 10;
+    //   return this.discount_amount;
+    // },
 
     submit_discount_authentication() {
       this.enableDiscount()
