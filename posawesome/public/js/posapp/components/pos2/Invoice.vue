@@ -737,7 +737,6 @@ export default {
       // this.$forceUpdate();
     },
     add_item(item) {
-      console.log(item);
       if (!item.uom) {
         item.uom = item.stock_uom;
       }
@@ -748,6 +747,9 @@ export default {
         const new_item = this.get_new_item(item);
         this.items.unshift(new_item);
         this.update_item_detail(new_item);
+        if(item.is_parent_item){
+            this.manage_subitems_dialog(new_item);
+        }
       } else {
         const cur_item = this.items[index];
         this.update_items_details([cur_item]);
@@ -771,9 +773,7 @@ export default {
           }
         }
       }
-      if(item.is_parent_item){
-        this.manage_subitems_dialog(item);
-      }
+     
     },
     get_new_item(item) {
       const new_item = { ...item };
@@ -1525,7 +1525,6 @@ export default {
     },
     submit_coupon_codes(discount){
       this.coupon_discounts = discount;
-      this.save_coupon_to_invoice(discount);
       this.coupon_activated = true;
       evntBus.$emit("show_mesage", {
             text: `Coupon Payments added!`,
@@ -1548,7 +1547,7 @@ export default {
                 coupon_percentage_discount += item_sum*(element.discount_value/100);
                 coupon_list.push({coupon_name:element.coupon_name, qty: element.qty, discounted_amount:coupon_percentage_discount})
               }
-              if (element.discount_type == "Amount"){
+              else if (element.discount_type == "Amount"){
                 coupon_amount_discount += element.discount_value;
                 coupon_list.push({coupon_name:element.coupon_name, qty: element.qty, discounted_amount:coupon_amount_discount})
               }
