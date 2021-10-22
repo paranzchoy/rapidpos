@@ -1230,13 +1230,7 @@ def submit_invoice(data):
                 break
     if len(payments) == 0:
         payments = [invoice_doc.payments[0]]
-    # invoice_doc.coupon_list = data.get("coupon_list")
-    for item in data.get("coupon_list"):
-        invoice_doc.append("coupon_list", {
-              "coupon_name": item["coupon_name"],
-              "qty": item["qty"],
-              "discounted_amount": item["discounted_amount"]
-        })
+    invoice_doc.set("coupon_list", data.get("coupon_list"))
     invoice_doc.payments = payments
     invoice_doc.due_date = data.get("due_date")
     invoice_doc.flags.ignore_permissions = True

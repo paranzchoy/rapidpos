@@ -3,43 +3,51 @@
     <v-dialog v-model="dialog_state" max-width="1500px" scrollable>
       <v-card>
         <v-card-title>
-           <v-col cols="4" class="headline indigo--text">Select subitems for {{item_doc.item_name}}</v-col>
-           <v-spacer></v-spacer>
-           <v-col cols="3">
-                <v-combobox style="margin-top:8px;"
+          <span class="headline indigo--text">Select subitems for {{item_doc.item_name}}</span>
+        </v-card-title>
+        <v-container>
+          <v-row>
+             <v-col cols="4">
+                <v-combobox
                   v-model="item_group"
                   :items="subitem_item_group"
                   label="Item Group"
                   outlined
                   dense
                 ></v-combobox>
-           </v-col>
-           <v-spacer></v-spacer>
-           <v-col cols="3">
+            </v-col>
+            <v-spacer></v-spacer>
+            <v-col cols="3">
               Max. Qty left: {{remaining_qty * item_doc.qty}}
             </v-col>
-        </v-card-title>
+          </v-row>
+        </v-container>
         <v-divider></v-divider>
         <v-card-text>
           <v-row>
+               <!-- <v-col
+                v-for="(item) in filtred_items"
+                :key="item.name"
+                xl="2"
+                lg="3"
+                md="12"
+                sm="12"
+                cols="4"
+                min-height="50"
+              > -->
               <v-col
                 v-for="(item) in filtred_items"
                 :key="item.name"
-                xl="1"
-                lg="1"
-                md="2"
-                sm="3"
-                cols="4"
+                cols="1.5"
                 min-height="50"
               >
-                <v-card hover="hover" :style="color(item)">
+                <v-card hover="hover" @click="add_item(item)">
                       <v-col cols="12">
                         <v-img
                           :src="
                             item.image ||
                             '/assets/posawesome/js/posapp/components/pos/placeholder-image.png'
                           "
-                          @click="add_item(item)"
                           class="white--text align-end"
                           gradient="to bottom, rgba(0,0,0,.2), rgba(0,0,0,.7)"
                           height="100px"
@@ -50,23 +58,22 @@
                           ></v-card-text>
                         </v-img>
                       </v-col>
-                      <v-row style="margin-left: .5px;">
-                          <v-col class="text-caption indigo--text accent-3" cols="5">
-                            <!-- {{ item.rate || 0 }} {{ item.currency || '' }} -->
-                            Qty
-                          </v-col>
-                          <v-col cols="7">
-                                  <v-text-field
-                                    v-model.number="item.actual_qty"
-                                    dense
-                                    single-line
-                                    type="number"
-                                    :disabled="disable_qty">
-                                  </v-text-field>
-                          </v-col>
-                      </v-row>
-                    
+                     <div class="text-caption indigo--text accent-3">
+                        {{ item.rate || 0 }} {{ item.currency || '' }}
+                     </div>
                 </v-card>
+                <!-- :disabled="enableDisable" -->
+                <v-col cols="12">
+                        <v-card-text class="text--primary pa-1">
+                            <v-text-field
+                              v-model.number="item.actual_qty"
+                              label="Qty"
+                              type="number"
+                              :disabled="disable_qty">
+                            </v-text-field>
+                        </v-card-text>
+                </v-col>
+
               </v-col>
           </v-row>
         </v-card-text>
@@ -108,39 +115,11 @@ export default {
       ],
       itemsPerPage: 12,
       enableDisable: false,
-      items_with_qty:[],
-      counter:0
+      items_with_qty:[]
   }),
-  // watch: {
-  //   // items(){
-  //   //   this.items.forEach((element)=>{
-  //   //     this.counter++;
-  //   //     if (element.actual_qty != 0){
-
-  //   //       // console.log("niagi ko dri" + element.item_name);
-  //   //       const index = this.filtred_items.findIndex((el) => el === element);
-  //         // const index = this.filtred_items.lastIndexOf(item);
-  //   //       this.filtred_items.splice(index,1);
-  //   //       // this.items.unshift(element);
-  //   //     }
-  //   //   })
-  //   // },
-  //   filtred_items(item){
-  //       if (item.actual_qty != 0){
-  //         this.items.splice(0,item);
-  //         this.items.unshift(item);
-  //       }
-  //   }
-  // },
+  watch: {
+  },
   methods: {
-     color(item){
-      if(item.actual_qty!=0){
-        return "background-color:#e0dfdc;";
-      }
-      else{
-        return "background-color:#ffffff;";
-      }
-    },
       close_dialog(){
           this.dialog_state = false;
           //this.enableDisable = false;
@@ -321,26 +300,35 @@ export default {
       },
       submit_dialog(){
           let data = {};
-          // let selected_items = [];
-          console.log("Filtred Items");
-          console.log(this.filtred_items);
+          let selected_items = [];
           this.filtred_items.forEach((item) => {
               if (item.actual_qty!=0){
-                // selected_items.push({'item_name': item.item_code, 'qty': item.actual_qty, 'rate': item.rate*item.actual_qty, 'uom': item.stock_uom, 'expense_account': this.pos_profile.write_off_account});
-                console.log("Before submit " + item.item_name);
-                console.log(item);
-                this.add_item_details(item);
+                // selected_items.push({'warehouse':item.warehouse, 'item_name': item.item_name,'item_code': item.item_code, 'item_id':Date.now(), 'qty': item.actual_qty, 'conversion_factor':1, 'rate': item.rate, 'amount': item.rate*item.actual_qty, 'uom': item.stock_uom, 'expense_account': this.pos_profile.write_off_account});
+                // this.add_item_details(item);
+                const new_item = this.get_item(item);
+                selected_items.push(new_item);
               }
           });
-          console.log("items with qty");
           console.log(this.items_with_qty);
           data.item_code = this.item_doc.item_code;
           data.invoice_name = this.invoice_doc.name;
-          data.selected_items = this.items_with_qty;
-          // data.selected_items = selected_items;
+          // data.selected_items = this.items_with_qty;
+          data.selected_items = selected_items;
           this.send_subitems_to_invoice(data);
           this.save_subitems(data);
           this.close_dialog();
+      },
+      get_item(item) {
+        const new_item = { ...item };
+        new_item.expense_account = this.pos_profile.write_off_account;
+        new_item.price_list_rate = item.rate;
+        new_item.qty = item.actual_qty;
+        new_item.amount = item.price_list_rate * item.actual_qty;
+        new_item.uom = item.uom ? item.uom : item.stock_uom;
+        new_item.actual_batch_qty = '';
+        new_item.conversion_factor = 1;
+        new_item.item_id = Date.now();
+        return new_item;
       },
       get_new_item(item) {
           const new_item = { ...item };
@@ -404,7 +392,7 @@ export default {
                 r.message.forEach(element => {
                   if (element.item_group !== 'All Item Groups') {
                     vm.subitem_item_group.push(element.item_group);
-                    vm.item_groups.push({"item_group":element.item_group});
+                    vm.item_groups.push({item_group:element.item_group});
                   }
                 });
                 }
@@ -427,6 +415,7 @@ export default {
             callback: function (r) {
               if (r.message) {
                   vm.items = r.message;
+                  console.log(vm.items);
                 }
               },
             });
@@ -459,7 +448,7 @@ export default {
         else{
           this.get_items();
         }
-      }
+      },
   },
   created: function () {
     evntBus.$on('open_items_selector', (data) => {
@@ -528,12 +517,6 @@ export default {
           }
         }
       }
-      // filtred_list.forEach((element)=>{
-      //   if (element.actual_qty > 0){
-      //       this.filtred_list.splice(0,element);
-      //       this.filtred_list.unshift(element);
-      //   }
-      // })
       return filtred_list.slice(0, 50);
   },
   }
