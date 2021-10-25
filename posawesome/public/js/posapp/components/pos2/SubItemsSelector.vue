@@ -24,7 +24,8 @@
           <v-row>
               <v-col
                 v-for="(item) in filtred_items"
-                :key="item.name"
+                :value="filtred_items"
+                :key="item.actual_qty"
                 xl="1"
                 lg="1"
                 md="2"
@@ -111,27 +112,8 @@ export default {
       items_with_qty:[],
       counter:0
   }),
-  // watch: {
-  //   // items(){
-  //   //   this.items.forEach((element)=>{
-  //   //     this.counter++;
-  //   //     if (element.actual_qty != 0){
-
-  //   //       // console.log("niagi ko dri" + element.item_name);
-  //   //       const index = this.filtred_items.findIndex((el) => el === element);
-  //         // const index = this.filtred_items.lastIndexOf(item);
-  //   //       this.filtred_items.splice(index,1);
-  //   //       // this.items.unshift(element);
-  //   //     }
-  //   //   })
-  //   // },
-  //   filtred_items(item){
-  //       if (item.actual_qty != 0){
-  //         this.items.splice(0,item);
-  //         this.items.unshift(item);
-  //       }
-  //   }
-  // },
+  watch: {
+  },
   methods: {
      color(item){
       if(item.actual_qty!=0){
@@ -157,8 +139,11 @@ export default {
         else{
           // this.add_item_details(item);
           this.items.forEach((element) => {
+            const index = this.items.findIndex((el) => el.item_name === element.item_name);
               if (element===item){
                 element.actual_qty++;
+                this.items.splice(index, 1);
+                this.items.unshift(element);
               }
             });
           console.log(this.items_with_qty);
@@ -497,6 +482,7 @@ export default {
       this.search = this.get_search(this.first_search);
       let filtred_list = [];
       let filtred_group_list = [];
+
       if (this.item_group != 'ALL') {
         filtred_group_list = this.items.filter((item) =>
           item.item_group.toLowerCase().includes(this.item_group.toLowerCase())
@@ -528,12 +514,6 @@ export default {
           }
         }
       }
-      // filtred_list.forEach((element)=>{
-      //   if (element.actual_qty > 0){
-      //       this.filtred_list.splice(0,element);
-      //       this.filtred_list.unshift(element);
-      //   }
-      // })
       return filtred_list.slice(0, 50);
   },
   }
