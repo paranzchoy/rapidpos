@@ -194,7 +194,7 @@ export default {
         //   item.qty = 1;
         // }
         new_item.expense_account = this.pos_profile.write_off_account;
-        new_item.stock_qty = item.qty;
+        new_item.stock_qty = item.actual_qty;
         new_item.discount_amount = 0;
         new_item.discount_percentage = 0;
         new_item.discount_amount_per_item = 0;
