@@ -1230,13 +1230,7 @@ def submit_invoice(data):
                 break
     if len(payments) == 0:
         payments = [invoice_doc.payments[0]]
-    # invoice_doc.coupon_list = data.get("coupon_list")
-    for item in data.get("coupon_list"):
-        invoice_doc.append("coupon_list", {
-              "coupon_name": item["coupon_name"],
-              "qty": item["qty"],
-              "discounted_amount": item["discounted_amount"]
-        })
+    invoice_doc.set("coupon_list", data.get("coupon_list"))
     invoice_doc.payments = payments
     invoice_doc.due_date = data.get("due_date")
     invoice_doc.flags.ignore_permissions = True
@@ -1635,20 +1629,9 @@ def apply_coupons(coupon_list, invoice_doc):
         if incrementUsage == False:
             error_messages.append("Allowed quantity is exhausted")
         discount_return.append({'discount_type': disc_type, 'discount_value': disc_val, 'customer': customer_name, 'coupon_type': coupon_type, 'coupon_name': coupon.coupon_name, 'qty': item["qty"]})
-        # valid_coupon_list.append({'coupon_name': coupon.coupon_name, 'qty': item["qty"]})
 
     data["error_messages"] = error_messages
     data["discount"] = discount_return
-
-    #save to Sales Invoice db
-    # if len(error_messages)==0:
-    #    invoice_doc = frappe.get_doc('Sales Invoice', invoice_data["name"])
-    #    for item in valid_coupon_list:
-    #       invoice_doc.append("coupon_list", {
-    #           "coupon_name": item["coupon_name"],
-	# 		  "qty": item["qty"]
-    #       })
-    #    invoice_doc.save()
     return data
 		
 def update_coupon_code_count(coupon_name,transaction_type,quantity):
@@ -1673,10 +1656,8 @@ def get_items(pos_profile):
           item_group_to_use = pos_profile.get("item_groups")
     else:
           item_group_to_use = pos_profile.get("subitem_item_group")
-    if pos_profile.get("packagingitem_trigger"):
-          item_groups_list.append(pos_profile.get("packaging_item_group"))
 
-    if item_group_to_use and pos_profile.get("packagingitem_trigger") == False:
+    if item_group_to_use:
         for group in item_group_to_use:
             if not frappe.db.exists("Item Group", group.get("item_group")):
                 item_group = get_root_of(group.get("item_group"))
@@ -1850,11 +1831,3 @@ def save_subitems(data):
     result["invoice_doc"] = invoice_doc
 
     return result
-
-@frappe.whitelist()
-def save_packaging_items(data):
-   data = json.loads(data)
-   invoice_doc = frappe.get_doc('Sales Invoice', data.get("invoice_doc"))
-   invoice_doc.packaging_details = data.get("packaging_details")
-   invoice_doc.update()
-   return invoice_doc
