@@ -131,6 +131,8 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="4">
+                    <!--  :value="formtCurrency(test)" 
+                    v-model.number="item.discount_percentage" -->
                     <v-text-field
                       dense
                       outlined
@@ -371,9 +373,10 @@
                   ></v-text-field>
                 </v-col>
                  <v-col cols="12">
-                   <!-- v-model="discount_amount" -->
+                   <!-- v-model="discount_amount" 
+                   :value="formtCurrency(total_items_discount_amount)"-->
                   <v-text-field
-                    :value="formtCurrency(total_items_discount_amount)"
+                    v-model="discount_amount"
                     label="ِAdditional Discount"
                     ref="discount"
                     outlined
@@ -580,7 +583,10 @@ export default {
         { text: 'Subitems', value: 'sub_items', align: 'center' },
         { text: 'QTY', value: 'qty', align: 'center' },
         { text: 'UOM', value: 'uom', align: 'center' },
-        { text: 'Rate', value: 'rate', align: 'center' },
+        // { text: 'Rate', value: 'rate', align: 'center' },
+        { text: 'Rate', value: 'price_list_rate', align: 'center' },
+        { text: 'Discount Percentage', value: 'discount_percentage', align: 'center' },
+        { text: 'Discount Amount', value: 'discount_amount', align: 'center' },
         { text: 'Amount', value: 'amount', align: 'center' },
       ],
     };
@@ -599,21 +605,19 @@ export default {
     },
     subtotal() {
       this.close_payments();
-      // this.calculate_discount();
       let sum = 0;
-      let d = this.calculate_discount();
       this.items.forEach((item) => {
         sum += item.qty * item.rate;
       });
-      // sum -= flt(this.discount_amount);
-      // sum -= flt(this.calculate_discount());
-      sum -= flt(d);
+      sum -= flt(this.discount_amount);
       return flt(sum).toFixed(2);
     },
     
     total_items_discount_amount() {
       let sum = 0;
-      sum += flt(this.discount_amount);
+      this.items.forEach((item) => {
+        sum += item.qty * item.discount_amount;
+      });
       return flt(sum).toFixed(2);
     },
   },
@@ -636,32 +640,59 @@ export default {
             callback: function (r) {
               if (r.message) {
                 r.message.get_discount.forEach((element) => {
-                  vm.discount_types.push(element) //HERE!
+                  vm.discount_types.push(element)
                 })
           }
         },
         });
     },
 
-    calculate_discount() {
-      let item_sum = 0;
+    // item_group_calculate_discount() {
+    // // THIS IS FOR TESTING
+    //   let item_group = '';
+    //   let item_sum = 0;
+    //   let d = 0;
 
-      if (this.selectedDiscount) {
-        this.items.forEach((item) => {
-          item_sum += item.qty * item.rate;
-        });
-        frappe
-        .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_selected_discount_percentage", {
-          selected_discount_type: this.selectedDiscount,
-        })
-        .then((r) => {
-          if (r.message) {
-            this.discount_amount = item_sum * (r.message/100);
-          }
-        })
-      }
-      return flt(this.discount_amount).toFixed(2);
-    },
+    //   if (this.selectedDiscount) {
+    //     this.items.forEach((item) => {
+    //       item_sum += item.qty * item.rate;
+    //       item_group = item.item_group;
+    //     });
+    //     frappe
+    //     .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_discount_item_group", {
+    //       selected_discount_type: this.selectedDiscount,
+    //       selected_item_group: item_group
+    //     })
+    //     .then((r) => {
+    //       if (r.message) {
+    //         // this.discount_amount = item_sum * (r.message/100);
+    //         this.d = r.message;
+    //       }
+    //     })
+    //   }
+    //   // return flt(this.discount_amount).toFixed(2);
+    //   return this.d;
+    // },
+
+    // calculate_discount() {
+    //   let item_sum = 0;
+
+    //   if (this.selectedDiscount) {
+    //     this.items.forEach((item) => {
+    //       item_sum += item.qty * item.rate;
+    //     });
+    //     frappe
+    //     .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_selected_discount_percentage", {
+    //       selected_discount_type: this.selectedDiscount,
+    //     })
+    //     .then((r) => {
+    //       if (r.message) {
+    //         this.discount_amount = item_sum * (r.message/100);
+    //       }
+    //     })
+    //   }
+    //   return flt(this.discount_amount).toFixed(2);
+    // },
 
     // calculate_discount() {
     //   let consumable_sum = 0;
@@ -783,11 +814,25 @@ export default {
       if (item.rate===0){
         new_item.is_packaging_item = 1;
       }
+      if (this.selectedDiscount) {
+        frappe
+        .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_discount_item_group", {
+          selected_discount_type: this.selectedDiscount,
+          selected_item_group: item.item_group
+        })
+        .then((r) => {
+          if (r.message) {
+            new_item.discount_percentage = r.message;
+          }
+        })
+      } else {
+        new_item.discount_percentage = 0;
+      }
       new_item.subitems_reference = '';
       new_item.stock_qty = item.qty;
       new_item.discount_amount = 0;
       new_item.selectedDiscount = null;
-      new_item.discount_percentage = 0;
+      // new_item.discount_percentage = 0;
       new_item.discount_amount_per_item = 0;
       new_item.price_list_rate = item.rate;
       new_item.qty = item.qty;
