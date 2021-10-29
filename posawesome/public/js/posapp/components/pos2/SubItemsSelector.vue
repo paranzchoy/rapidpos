@@ -62,6 +62,7 @@
                                     dense
                                     single-line
                                     type="number"
+                                    min="0"
                                     :disabled="disable_qty">
                                   </v-text-field>
                           </v-col>

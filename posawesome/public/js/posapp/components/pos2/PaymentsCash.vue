@@ -398,7 +398,7 @@ export default {
         this.invoice_doc.name +
         '&trigger_print=1' +
         '&format=' +
-        "Sales Invoice Cash" +
+        "Jacobs Breadnuts Receipt" +
         '&no_letterhead=' +
         letter_head;
       const printWindow = window.open(url, 'Print');
