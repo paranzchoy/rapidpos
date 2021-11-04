@@ -1370,6 +1370,8 @@ export default {
           ).toFixed(2);
         }
       }
+
+      // else if qty has value, then discount_amount = qty * discount_amount
     },
     calc_item_price(item) {
       if (!item.has_pricing_rule) {
