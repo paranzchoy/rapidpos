@@ -949,7 +949,8 @@ export default {
       doc.items = this.get_invoice_items();
       doc.total = this.subtotal;
       doc.coupon_list = this.save_coupon_to_invoice(this.discount_return_coupon);
-      doc.discount_amount = flt(this.discount_amount);
+      // doc.discount_amount = flt(this.discount_amount);
+      doc.discount_amount = flt(this.overall_discount());
       doc.additional_discount_type = this.selectedDiscount;
       doc.posa_pos_opening_shift = this.pos_opening_shift.name;
       doc.payments = this.get_payments();
@@ -958,6 +959,16 @@ export default {
       doc.return_against = this.invoice_doc.return_against;
       return doc;
     },
+    //
+    overall_discount() {
+      let sum = 0;
+      this.items.forEach((item) => {
+        sum += item.qty * item.discount_amount;
+      });
+      sum = flt(sum) + flt(this.discount_amount);
+      return sum;
+    },
+    //
     get_invoice_items() {
       const items_list = [];
       this.items.forEach((item) => {
