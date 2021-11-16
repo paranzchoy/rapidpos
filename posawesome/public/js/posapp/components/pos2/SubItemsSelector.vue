@@ -159,7 +159,9 @@ export default {
                 'qty': item.actual_qty, 
                 'stock_qty': item.actual_qty, 
                 'warehouse': item.warehouse, 
-                'rate': item.rate, 
+                'rate': 0, 
+                'incoming_rate': item.rate, 
+                // 'base_net_rate': item.rate, 
                 // 'base_net_rate': item.rate, 
                 // 'base_net_amount': item.rate * item.actual_qty, 
                 // 'net_amount': item.rate * item.actual_qty, 
@@ -171,7 +173,7 @@ export default {
                 'price_list_rate': item.rate,
                 'cost_center': this.pos_profile.cost_center,
                 // 'income_account': this.pos_profile.write_off_account,
-                'expense_account': this.pos_profile.write_off_account,
+                // 'expense_account': this.pos_profile.write_off_account,
                 'currency': this.pos_profile.currency
                 });
 
