@@ -131,8 +131,6 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="4">
-                    <!--  :value="formtCurrency(test)" 
-                    v-model.number="item.discount_percentage" -->
                     <v-text-field
                       dense
                       outlined
@@ -373,8 +371,6 @@
                   ></v-text-field>
                 </v-col>
                  <v-col cols="12">
-                   <!-- v-model="discount_amount" 
-                   :value="formtCurrency(total_items_discount_amount)"-->
                   <v-text-field
                     v-model="discount_amount"
                     label="ِAdditional Discount"
@@ -401,6 +397,7 @@
                       :disabled="enableDisable"
                       ref="discount"
                       item-text="discount_type"
+                      @change="enableDisable = true"
                     ></v-autocomplete>
                 </v-col>
                 <v-col cols="12">
@@ -589,6 +586,8 @@ export default {
         { text: 'Discount Amount', value: 'discount_amount', align: 'center' },
         { text: 'Amount', value: 'amount', align: 'center' },
       ],
+      item_group_discounts: [],
+      default_discount: 0,
     };
   },
   components: {
@@ -645,6 +644,40 @@ export default {
           }
         },
         });
+    },
+
+    get_item_group_discounts() {
+      const vm = this;
+      frappe.call({
+        method: "rapidposcustom.rapidposcustom.api.rapidposcustom.get_item_group_discounts",
+        args: { selected_discount_type: this.selectedDiscount },
+        callback: function (r) {
+          if (r.message) {
+            if (r.message.get_item_group_discount_list) {
+              r.message.get_item_group_discount_list.forEach((element) => {
+                vm.item_group_discounts.push(element)
+                // evntBus.$emit('show_mesage', {
+                // text: `Testing ${element.item_group} - ${element.discount_percentage}`,
+                // color: 'success',
+                // });
+              })
+            }
+            else {
+              vm.default_discount = r.message;
+              // evntBus.$emit('show_mesage', {
+              // text: `Testing default ${vm.default_discount}`,
+              // color: 'success',
+              // });
+            }
+          }
+          else {
+            evntBus.$emit('show_mesage', {
+              text: `Testing FAILED`,
+              color: 'warning',
+            });
+          }
+        }
+      })
     },
 
     // item_group_calculate_discount() {
@@ -763,7 +796,7 @@ export default {
     },
 
     submit_discount_authentication() {
-      this.enableDiscount()
+      this.enableDiscount();
       evntBus.$emit("show_mesage", {
             text: `Additional Discount enabled`,
             color: "success",
@@ -840,20 +873,20 @@ export default {
       if (item.rate===0){
         new_item.is_packaging_item = 1;
       }
-      if (this.selectedDiscount) {
-        frappe
-        .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_discount_item_group", {
-          selected_discount_type: this.selectedDiscount,
-          selected_item_group: item.item_group
-        })
-        .then((r) => {
-          if (r.message) {
-            new_item.discount_percentage = r.message;
+      if (this.item_group_discounts && this.default_discount === 0) {
+        this.item_group_discounts.forEach((element) => {
+          if (element.item_group === item.item_group) {
+            new_item.discount_percentage = element.discount_percentage;
           }
         })
-      } else {
+      }
+      else if (this.default_discount > 0 ) {
+        new_item.discount_percentage = this.default_discount;
+      }
+      else {
         new_item.discount_percentage = 0;
       }
+      
       new_item.subitems_reference = '';
       new_item.stock_qty = item.qty;
       new_item.discount_amount = 0;
@@ -1751,6 +1784,13 @@ export default {
         this.update_item_detail(data_value[0]);
       }
     },
+    // test
+    selectedDiscount() {
+      if (this.selectedDiscount) {
+        this.get_item_group_discounts();
+      }
+    },
+    // test
   },
 };
 </script>
