@@ -608,7 +608,7 @@ export default {
       this.items.forEach((item) => {
         sum += item.qty * item.rate;
       });
-      sum -= flt(this.discount_amount);
+      sum -= (flt(this.discount_amount) + flt(this.calculate_coupon_discount()));
       return flt(sum).toFixed(2);
     },
     
@@ -768,6 +768,32 @@ export default {
     //   // this.discount_amount = 10;
     //   return this.discount_amount;
     // },
+
+    calculate_coupon_discount() {
+      let item_sum = 0;
+      let coupon_percentage_discount = 0;
+      let coupon_amount_discount = 0;
+      let total_amount_discount = 0;
+
+      this.items.forEach((item) => {
+        item_sum += item.qty * item.rate;
+        total_amount_discount += item.discount_amount;
+      });
+
+      if(this.coupon_activated){
+          this.coupon_discounts.forEach((element) => {
+            if(element.discount_type == "Percentage"){
+              coupon_percentage_discount += item_sum*(element.discount_value/100);
+            }
+            if (element.discount_type == "Amount"){
+              coupon_amount_discount += element.discount_value;
+            }
+          });
+        }
+      
+      let discount_amount = coupon_percentage_discount + coupon_amount_discount + total_amount_discount;
+      return discount_amount;
+    },
 
     submit_discount_authentication() {
       this.enableDiscount();
@@ -998,7 +1024,7 @@ export default {
       this.items.forEach((item) => {
         sum += item.qty * item.discount_amount;
       });
-      sum = flt(sum) + flt(this.discount_amount);
+      sum = flt(sum) + flt(this.discount_amount) + flt(this.calculate_coupon_discount);
       return sum;
     },
     //
