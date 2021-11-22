@@ -35,7 +35,7 @@ export default {
     },
   },
   mounted() {
-    console.log("mounting Home2");
+    // console.log("mounting Home2");
 
     this.remove_frappe_nav();
   },

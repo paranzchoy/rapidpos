@@ -71,7 +71,7 @@
                   @click="close_shift_dialog"
                   v-if="!pos_profile.posa_hide_closing_shift"
                 > -->
-                <v-list-item
+                <!-- <v-list-item
                   @click="close_shift_dialog"
                 >
                   <v-list-item-icon>
@@ -80,7 +80,7 @@
                   <v-list-item-content>
                     <v-list-item-title>Close Shift</v-list-item-title>
                   </v-list-item-content>
-                </v-list-item>
+                </v-list-item> -->
                 <v-list-item
                   @click="close_shift_dialog2"
                 >
@@ -88,7 +88,7 @@
                     <v-icon>mdi-folder-open</v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
-                    <v-list-item-title>Close Shift v2</v-list-item-title>
+                    <v-list-item-title>Close Shift</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
                 <v-divider class="my-0"></v-divider>
@@ -278,7 +278,7 @@ export default {
     }, 
   },
   created: function () {
-    console.log("mounting NavBar2...");
+    // console.log("mounting NavBar2...");
 
     this.$nextTick(function () {
       evntBus.$on('show_mesage', (data) => {

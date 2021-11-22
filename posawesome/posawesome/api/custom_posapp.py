@@ -1224,8 +1224,6 @@ def submit_invoice(data):
                         i.card_expiry_date = payment["card_expiry_date"]
                     if (payment["mode_of_payment"] == "Debit Card"):
                         i.bank_name = payment["bank_name"]
-                    if (payment["mode_of_payment"] == "Coupon"):
-                        i.coupon_code = payment["coupon_code"]
                     payments.append(i)
                 break
     if len(payments) == 0:

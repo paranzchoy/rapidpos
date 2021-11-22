@@ -1133,8 +1133,6 @@ export default {
       this.determine_payment_method(payment_method);
       const invoice_doc = this.proces_invoice();
       invoice_doc.customer_info = this.customer_info;
-      console.log(this.invoice_doc);
-      console.log();
       // evntBus.$emit('send_invoice_doc_payment', invoice_doc);
       if(payment_method==="Cash"){
         evntBus.$emit('send_invoice_doc_cash', invoice_doc);
@@ -1693,7 +1691,7 @@ export default {
     evntBus.$on('load_return_invoice', (data) => {
       this.new_invoice(data.invoice_doc);
       this.discount_amount = -data.return_doc.discount_amount;
-      console.log(data);
+      // console.log(data);
       this.return_doc = data.return_doc;
     });
     evntBus.$on("submit_discount_authentication", (data) => {
