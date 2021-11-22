@@ -204,7 +204,7 @@ export default {
           if (r.message) {
             vm.items = r.message;
             vm.loading = false;
-            console.log('loadItmes');
+            // console.log('loadItmes');
             if (vm.pos_profile.posa_local_storage) {
               localStorage.setItem('items_storage', '');
               localStorage.setItem('items_storage', JSON.stringify(r.message));
@@ -383,7 +383,7 @@ export default {
       if (e.key === 'F2') {
         e.preventDefault();
 
-        console.log({ e });
+        // console.log({ e });
         this.$refs.quantity_field.focus();
       }
     },
@@ -391,7 +391,7 @@ export default {
       if (e.key === 'F3') {
         e.preventDefault();
 
-        console.log({ e });
+        // console.log({ e });
         this.$refs.search_items_field.focus();
       }
     },

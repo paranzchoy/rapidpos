@@ -88,13 +88,21 @@
                       >
                       <v-text-field
                           v-model="cash_withdrawal.cash_details = props.item.quantity"
-                          :rules="[max25chars]"
                           label="0"
                           single-line
                           type="number"
                           dense
                           min=0 oninput="validity.valid||(value='');"
                       ></v-text-field>
+                       <!-- <v-text-field
+                          v-model="cash_withdrawal.cash_details = props.item.quantity"
+                          :rules="[max25chars]"
+                          label="0"
+                          single-line
+                          type="number"
+                          dense
+                          min=0 oninput="validity.valid||(value='');"
+                      ></v-text-field> -->
                       </v-col>
                     </v-row>
                   </template>
@@ -472,7 +480,7 @@ export default {
             }
           })
       }
-      this.$refs.form.reset()
+      // this.$refs.form.reset()
 
     },
     submit_dialog() {
