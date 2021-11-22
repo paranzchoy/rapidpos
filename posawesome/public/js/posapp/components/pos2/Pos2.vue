@@ -151,7 +151,7 @@ export default {
             this.pos_opening_shift = r.message.pos_opening_shift;
             evntBus.$emit("register_pos_profile", r.message);
             evntBus.$emit("set_company", r.message.company);
-            console.log("LoadPosProfile v2");
+            // console.log("LoadPosProfile v2");
           } else {
             this.create_opening_voucher();
           }
