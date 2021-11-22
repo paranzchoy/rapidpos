@@ -477,7 +477,8 @@ export default {
       }
 
       let total_change =
-        parseInt(this.paid_change) + parseInt(-this.credit_change);
+        // parseInt(this.paid_change) + parseInt(-this.credit_change);
+        parseFloat(this.paid_change) + parseFloat(-this.credit_change);
 
       if (this.is_cashback && total_change != -this.diff_payment && !this.is_credit_sale) {
         evntBus.$emit('show_mesage', {
@@ -579,7 +580,7 @@ export default {
         this.invoice_doc.name +
         '&trigger_print=1' +
         '&format=' +
-        "Sales Invoice Cash" +
+        "Jacobs Breadnuts Receipt" +
         '&no_letterhead=' +
         letter_head;
       const printWindow = window.open(url, 'Print');

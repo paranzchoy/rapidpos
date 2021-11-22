@@ -397,6 +397,7 @@
                       :disabled="enableDisable"
                       ref="discount"
                       item-text="discount_type"
+                      @change="enableDisable = true"
                     ></v-autocomplete>
                 </v-col>
                 <v-col cols="12">
@@ -579,9 +580,14 @@ export default {
         { text: 'Subitems', value: 'sub_items', align: 'center' },
         { text: 'QTY', value: 'qty', align: 'center' },
         { text: 'UOM', value: 'uom', align: 'center' },
-        { text: 'Rate', value: 'rate', align: 'center' },
+        // { text: 'Rate', value: 'rate', align: 'center' },
+        { text: 'Rate', value: 'price_list_rate', align: 'center' },
+        { text: 'Discount Percentage', value: 'discount_percentage', align: 'center' },
+        { text: 'Discount Amount', value: 'discount_amount', align: 'center' },
         { text: 'Amount', value: 'amount', align: 'center' },
       ],
+      item_group_discounts: [],
+      default_discount: 0,
     };
   },
   components: {
@@ -602,14 +608,15 @@ export default {
       this.items.forEach((item) => {
         sum += item.qty * item.rate;
       });
-      // sum -= flt(this.discount_amount);
-      sum -= flt(this.calculate_discount());
+      sum -= (flt(this.discount_amount) + flt(this.calculate_coupon_discount()));
       return flt(sum).toFixed(2);
     },
     
     total_items_discount_amount() {
       let sum = 0;
-      sum += flt(this.discount_amount);
+      this.items.forEach((item) => {
+        sum += item.qty * item.discount_amount;
+      });
       return flt(sum).toFixed(2);
     },
   },
@@ -639,26 +646,136 @@ export default {
         });
     },
 
-    calculate_discount() {
-      let consumable_sum = 0;
-      let consumable_discount = 0;
-      let medical_sum = 0;
-      let medical_discount = 0;
+    get_item_group_discounts() {
+      const vm = this;
+      frappe.call({
+        method: "rapidposcustom.rapidposcustom.api.rapidposcustom.get_item_group_discounts",
+        args: { selected_discount_type: this.selectedDiscount },
+        callback: function (r) {
+          if (r.message) {
+            if (r.message.get_item_group_discount_list) {
+              r.message.get_item_group_discount_list.forEach((element) => {
+                vm.item_group_discounts.push(element)
+                // evntBus.$emit('show_mesage', {
+                // text: `Testing ${element.item_group} - ${element.discount_percentage}`,
+                // color: 'success',
+                // });
+              })
+            }
+            else {
+              vm.default_discount = r.message;
+              // evntBus.$emit('show_mesage', {
+              // text: `Testing default ${vm.default_discount}`,
+              // color: 'success',
+              // });
+            }
+          }
+          else {
+            evntBus.$emit('show_mesage', {
+              text: `Testing FAILED`,
+              color: 'warning',
+            });
+          }
+        }
+      })
+    },
+
+    // item_group_calculate_discount() {
+    // // THIS IS FOR TESTING
+    //   let item_group = '';
+    //   let item_sum = 0;
+    //   let d = 0;
+
+    //   if (this.selectedDiscount) {
+    //     this.items.forEach((item) => {
+    //       item_sum += item.qty * item.rate;
+    //       item_group = item.item_group;
+    //     });
+    //     frappe
+    //     .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_discount_item_group", {
+    //       selected_discount_type: this.selectedDiscount,
+    //       selected_item_group: item_group
+    //     })
+    //     .then((r) => {
+    //       if (r.message) {
+    //         // this.discount_amount = item_sum * (r.message/100);
+    //         this.d = r.message;
+    //       }
+    //     })
+    //   }
+    //   // return flt(this.discount_amount).toFixed(2);
+    //   return this.d;
+    // },
+
+    // calculate_discount() {
+    //   let item_sum = 0;
+
+    //   if (this.selectedDiscount) {
+    //     this.items.forEach((item) => {
+    //       item_sum += item.qty * item.rate;
+    //     });
+    //     frappe
+    //     .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_selected_discount_percentage", {
+    //       selected_discount_type: this.selectedDiscount,
+    //     })
+    //     .then((r) => {
+    //       if (r.message) {
+    //         this.discount_amount = item_sum * (r.message/100);
+    //       }
+    //     })
+    //   }
+    //   return flt(this.discount_amount).toFixed(2);
+    // },
+
+    // calculate_discount() {
+    //   let consumable_sum = 0;
+    //   let consumable_discount = 0;
+    //   let medical_sum = 0;
+    //   let medical_discount = 0;
+    //   let item_sum = 0;
+    //   let coupon_percentage_discount = 0;
+    //   let coupon_amount_discount = 0;
+    //   let total_amount_discount = 0;
+
+    //   this.items.forEach((item) => {
+        
+    //     if(this.selectedDiscount){
+    //         if (item.item_group == "CONSUMABLE") {
+    //           consumable_sum += item.qty * item.rate;
+    //         }
+    //         if (item.item_group == "MEDICAL") {
+    //           medical_sum += item.qty * item.rate;
+    //         }
+    //     }
+    //     item_sum += item.qty * item.rate;
+    //     total_amount_discount += item.discount_amount;
+    //   });
+
+    //   if(this.coupon_activated){
+    //       this.coupon_discounts.forEach((element) => {
+    //         if(element.discount_type == "Percentage"){
+    //           coupon_percentage_discount += item_sum*(element.discount_value/100);
+    //         }
+    //         if (element.discount_type == "Amount"){
+    //           coupon_amount_discount += element.discount_value;
+    //         }
+    //       });
+    //     }
+      
+    //   consumable_discount = consumable_sum * 0.05;
+    //   medical_discount = medical_sum * 0.20;
+    //   // this.discount_amount = consumable_discount + medical_discount + coupon_percentage_discount + coupon_amount_discount + total_amount_discount;
+    //   // this.discount_amount = 10;
+    //   return this.discount_amount;
+    // },
+
+    calculate_coupon_discount() {
       let item_sum = 0;
       let coupon_percentage_discount = 0;
       let coupon_amount_discount = 0;
       let total_amount_discount = 0;
 
       this.items.forEach((item) => {
-        
-        if(this.selectedDiscount){
-            if (item.item_group == "FOOD") {
-              consumable_sum += item.qty * item.rate;
-            }
-            if (item.item_group == "MEDICAL") {
-              medical_sum += item.qty * item.rate;
-            }
-        }
         item_sum += item.qty * item.rate;
         total_amount_discount += item.discount_amount;
       });
@@ -674,14 +791,12 @@ export default {
           });
         }
       
-      consumable_discount = consumable_sum * 0.05;
-      medical_discount = medical_sum * 0.20;
-      this.discount_amount = consumable_discount + medical_discount + coupon_percentage_discount + coupon_amount_discount + total_amount_discount;
-      return this.discount_amount;
+      let discount_amount = coupon_percentage_discount + coupon_amount_discount + total_amount_discount;
+      return discount_amount;
     },
 
     submit_discount_authentication() {
-      this.enableDiscount()
+      this.enableDiscount();
       evntBus.$emit("show_mesage", {
             text: `Additional Discount enabled`,
             color: "success",
@@ -722,6 +837,9 @@ export default {
         const new_item = this.get_new_item(item);
         this.items.unshift(new_item);
         this.update_item_detail(new_item);
+        if(item.is_parent_item){
+            this.manage_subitems_dialog(new_item);
+        }
       } else {
         const cur_item = this.items[index];
         this.update_items_details([cur_item]);
@@ -745,21 +863,35 @@ export default {
           }
         }
       }
-      if(item.is_parent_item){
-        this.manage_subitems_dialog(item);
-      }
-
+     
     },
     get_new_item(item) {
       const new_item = { ...item };
       if (!item.qty) {
         item.qty = 1;
       }
+      if (item.rate===0){
+        new_item.is_packaging_item = 1;
+      }
+      if (this.item_group_discounts && this.default_discount === 0) {
+        this.item_group_discounts.forEach((element) => {
+          if (element.item_group === item.item_group) {
+            new_item.discount_percentage = element.discount_percentage;
+          }
+        })
+      }
+      else if (this.default_discount > 0 ) {
+        new_item.discount_percentage = this.default_discount;
+      }
+      else {
+        new_item.discount_percentage = 0;
+      }
+      
       new_item.subitems_reference = '';
       new_item.stock_qty = item.qty;
       new_item.discount_amount = 0;
       new_item.selectedDiscount = null;
-      new_item.discount_percentage = 0;
+      // new_item.discount_percentage = 0;
       new_item.discount_amount_per_item = 0;
       new_item.price_list_rate = item.rate;
       new_item.qty = item.qty;
@@ -876,7 +1008,8 @@ export default {
       doc.items = this.get_invoice_items();
       doc.total = this.subtotal;
       doc.coupon_list = this.save_coupon_to_invoice(this.discount_return_coupon);
-      doc.discount_amount = flt(this.discount_amount);
+      // doc.discount_amount = flt(this.discount_amount);
+      doc.discount_amount = flt(this.overall_discount());
       doc.additional_discount_type = this.selectedDiscount;
       doc.posa_pos_opening_shift = this.pos_opening_shift.name;
       doc.payments = this.get_payments();
@@ -885,6 +1018,16 @@ export default {
       doc.return_against = this.invoice_doc.return_against;
       return doc;
     },
+    //
+    overall_discount() {
+      let sum = 0;
+      this.items.forEach((item) => {
+        sum += item.qty * item.discount_amount;
+      });
+      sum = flt(sum) + flt(this.discount_amount) + flt(this.calculate_coupon_discount);
+      return sum;
+    },
+    //
     get_invoice_items() {
       const items_list = [];
       this.items.forEach((item) => {
@@ -900,7 +1043,8 @@ export default {
           discount_percentage: item.discount_percentage,
           discount_amount: item.discount_amount,
           batch_no: item.batch_no,
-          subitems_reference: item.subitems_reference
+          subitems_reference: item.subitems_reference,
+          is_packaging_item: item.is_packaging_item
         });
       });
       return items_list;
@@ -1496,7 +1640,6 @@ export default {
     },
     submit_coupon_codes(discount){
       this.coupon_discounts = discount;
-      this.save_coupon_to_invoice(discount);
       this.coupon_activated = true;
       evntBus.$emit("show_mesage", {
             text: `Coupon Payments added!`,
@@ -1519,7 +1662,7 @@ export default {
                 coupon_percentage_discount += item_sum*(element.discount_value/100);
                 coupon_list.push({coupon_name:element.coupon_name, qty: element.qty, discounted_amount:coupon_percentage_discount})
               }
-              if (element.discount_type == "Amount"){
+              else if (element.discount_type == "Amount"){
                 coupon_amount_discount += element.discount_value;
                 coupon_list.push({coupon_name:element.coupon_name, qty: element.qty, discounted_amount:coupon_amount_discount})
               }
@@ -1563,12 +1706,19 @@ export default {
       this.submit_coupon_codes(discount);
       this.discount_return_coupon = discount;
     });
-    evntBus.$on("save_subitems", (filtred_items, data) => {
+    evntBus.$on("save_subitems", (subitems, item_code) => {
        this.items.forEach((element)=>{
-        if (element.item_code === data.item_code){
-          element.subitems = filtred_items;
+        if (element.item_code === item_code){
+          element.subitems = subitems;
         }
       });
+    });
+    evntBus.$on("save_packaging_items", (data) => {
+       this.items.forEach((element)=>{
+        if (element.item_code === data.item_code){
+          element.packaging_items = data.packaging_items;
+        }
+        });
     });
     evntBus.$on("submit_subitems", (data) => {
       this.items.forEach((element)=>{
@@ -1578,6 +1728,11 @@ export default {
       });
       this.invoice_doc = data.invoice_doc;
     });
+
+    evntBus.$on("submit_packaging_items", (invoice_doc) => {
+      this.invoice_doc = invoice_doc;
+    });
+
 
     this.$nextTick(function (){
       this.get_discount();
@@ -1629,6 +1784,13 @@ export default {
         this.update_item_detail(data_value[0]);
       }
     },
+    // test
+    selectedDiscount() {
+      if (this.selectedDiscount) {
+        this.get_item_group_discounts();
+      }
+    },
+    // test
   },
 };
 </script>

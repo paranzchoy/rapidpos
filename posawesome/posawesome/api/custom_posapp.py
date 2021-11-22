@@ -1230,13 +1230,7 @@ def submit_invoice(data):
                 break
     if len(payments) == 0:
         payments = [invoice_doc.payments[0]]
-    # invoice_doc.coupon_list = data.get("coupon_list")
-    for item in data.get("coupon_list"):
-        invoice_doc.append("coupon_list", {
-              "coupon_name": item["coupon_name"],
-              "qty": item["qty"],
-              "discounted_amount": item["discounted_amount"]
-        })
+    invoice_doc.set("coupon_list", data.get("coupon_list"))
     invoice_doc.payments = payments
     invoice_doc.due_date = data.get("due_date")
     invoice_doc.flags.ignore_permissions = True
@@ -1635,20 +1629,9 @@ def apply_coupons(coupon_list, invoice_doc):
         if incrementUsage == False:
             error_messages.append("Allowed quantity is exhausted")
         discount_return.append({'discount_type': disc_type, 'discount_value': disc_val, 'customer': customer_name, 'coupon_type': coupon_type, 'coupon_name': coupon.coupon_name, 'qty': item["qty"]})
-        # valid_coupon_list.append({'coupon_name': coupon.coupon_name, 'qty': item["qty"]})
 
     data["error_messages"] = error_messages
     data["discount"] = discount_return
-
-    #save to Sales Invoice db
-    # if len(error_messages)==0:
-    #    invoice_doc = frappe.get_doc('Sales Invoice', invoice_data["name"])
-    #    for item in valid_coupon_list:
-    #       invoice_doc.append("coupon_list", {
-    #           "coupon_name": item["coupon_name"],
-	# 		  "qty": item["qty"]
-    #       })
-    #    invoice_doc.save()
     return data
 		
 def update_coupon_code_count(coupon_name,transaction_type,quantity):
@@ -1758,6 +1741,7 @@ def get_items(pos_profile):
                 row.update(item)
                 row.update(
                     {
+                        "warehouse": pos_profile.get("warehouse"),
                         "rate": item_price.get("price_list_rate") or 0,
                         "currency": item_price.get("currency")
                         or pos_profile.get("currency"),
@@ -1772,6 +1756,20 @@ def get_items(pos_profile):
                     result.append(row)
 
     return result
+
+def get_stock_availability(item_code, warehouse):
+    latest_sle = frappe.db.sql(
+        """select qty_after_transaction
+		from `tabStock Ledger Entry`
+		where item_code = %s and warehouse = %s
+		order by posting_date desc, posting_time desc
+		limit 1""",
+        (item_code, warehouse),
+        as_dict=1,
+    )
+
+    sle_qty = latest_sle[0].qty_after_transaction or 0 if latest_sle else 0
+    return sle_qty
 
 #for testing purposes
 @frappe.whitelist()
@@ -1833,4 +1831,3 @@ def save_subitems(data):
     result["invoice_doc"] = invoice_doc
 
     return result
-
