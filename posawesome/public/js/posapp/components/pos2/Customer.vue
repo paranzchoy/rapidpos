@@ -67,7 +67,7 @@ export default {
 
   methods: {
     get_customer_names() {
-      console.log("get_customer_names()");
+      // console.log("get_customer_names()");
       const vm = this;
       if (vm.pos_profile.posa_local_storage && localStorage.customer_storage) {
         vm.customers = JSON.parse(localStorage.getItem('customer_storage'));
@@ -80,7 +80,7 @@ export default {
         callback: function (r) {
           if (r.message) {
             vm.customers = r.message;
-            console.log('loadCustomers');
+            // console.log('loadCustomers');
             if (vm.pos_profile.posa_local_storage) {
               localStorage.setItem('customer_storage', '');
               localStorage.setItem(
@@ -142,7 +142,7 @@ export default {
   computed: {},
 
   created: function () {
-    console.log("mounting Customer2.vue...");
+    // console.log("mounting Customer2.vue...");
 
 
     this.$nextTick(function () {
