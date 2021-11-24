@@ -683,8 +683,6 @@ export default {
 
     calculate_discount() { //calculate coupon and item discounts
       let item_sum = 0;
-      let coupon_percentage_discount = 0;
-      let coupon_amount_discount = 0;
       let total_amount_discount = 0;
 
       this.items.forEach((item) => {
@@ -692,19 +690,26 @@ export default {
         total_amount_discount += item.discount_amount;
       });
 
-      if(this.coupon_activated){
-          this.coupon_discounts.forEach((element) => {
-            if(element.discount_type == "Percentage"){
-              coupon_percentage_discount += item_sum*(element.discount_value/100);
-            }
-            if (element.discount_type == "Amount"){
-              coupon_amount_discount += element.discount_value;
-            }
-          });
-        }
-      
-      let discount_amount = coupon_percentage_discount + coupon_amount_discount + total_amount_discount;
+      let discount_amount =  this.calculate_coupon_discount(item_sum) + total_amount_discount;
+      this.discount_amount = discount_amount;
       return discount_amount;
+    },
+
+    calculate_coupon_discount(item_sum){
+      let coupon_percentage_discount = 0;
+      let coupon_amount_discount = 0;
+
+      if(this.coupon_activated){
+              this.coupon_discounts.forEach((element) => {
+                if(element.discount_type == "Percentage"){
+                  coupon_percentage_discount += item_sum*(element.discount_value/100);
+                }
+                if (element.discount_type == "Amount"){
+                  coupon_amount_discount += element.discount_value;
+                }
+              });
+      }
+      return coupon_percentage_discount + coupon_amount_discount;
     },
 
     submit_discount_authentication() {
@@ -922,7 +927,8 @@ export default {
       doc.total = this.subtotal;
       doc.coupon_list = this.save_coupon_to_invoice(this.discount_return_coupon);
       // doc.discount_amount = flt(this.discount_amount);
-      doc.discount_amount = flt(this.overall_discount());
+      // doc.discount_amount = flt(this.overall_discount());
+      doc.discount_amount = flt(this.calculate_discount());
       doc.additional_discount_type = this.selectedDiscount;
       doc.posa_pos_opening_shift = this.pos_opening_shift.name;
       doc.payments = this.get_payments();
@@ -938,6 +944,7 @@ export default {
         sum += item.qty * item.discount_amount;
       });
       sum = flt(this.calculate_discount());
+      // sum = flt(sum) + flt(this.discount_amount); - original
       // sum = flt(sum) + flt(this.discount_amount) + flt(this.calculate_discount());
       return sum;
     },
