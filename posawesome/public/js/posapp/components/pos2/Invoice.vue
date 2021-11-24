@@ -608,7 +608,8 @@ export default {
       this.items.forEach((item) => {
         sum += item.qty * item.rate;
       });
-      sum -= (flt(this.discount_amount) + flt(this.calculate_coupon_discount()));
+      // sum -= (flt(this.discount_amount) + flt(this.calculate_discount()));
+      sum -= (flt(this.calculate_discount()));
       return flt(sum).toFixed(2);
     },
     
@@ -680,96 +681,7 @@ export default {
       })
     },
 
-    // item_group_calculate_discount() {
-    // // THIS IS FOR TESTING
-    //   let item_group = '';
-    //   let item_sum = 0;
-    //   let d = 0;
-
-    //   if (this.selectedDiscount) {
-    //     this.items.forEach((item) => {
-    //       item_sum += item.qty * item.rate;
-    //       item_group = item.item_group;
-    //     });
-    //     frappe
-    //     .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_discount_item_group", {
-    //       selected_discount_type: this.selectedDiscount,
-    //       selected_item_group: item_group
-    //     })
-    //     .then((r) => {
-    //       if (r.message) {
-    //         // this.discount_amount = item_sum * (r.message/100);
-    //         this.d = r.message;
-    //       }
-    //     })
-    //   }
-    //   // return flt(this.discount_amount).toFixed(2);
-    //   return this.d;
-    // },
-
-    // calculate_discount() {
-    //   let item_sum = 0;
-
-    //   if (this.selectedDiscount) {
-    //     this.items.forEach((item) => {
-    //       item_sum += item.qty * item.rate;
-    //     });
-    //     frappe
-    //     .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_selected_discount_percentage", {
-    //       selected_discount_type: this.selectedDiscount,
-    //     })
-    //     .then((r) => {
-    //       if (r.message) {
-    //         this.discount_amount = item_sum * (r.message/100);
-    //       }
-    //     })
-    //   }
-    //   return flt(this.discount_amount).toFixed(2);
-    // },
-
-    // calculate_discount() {
-    //   let consumable_sum = 0;
-    //   let consumable_discount = 0;
-    //   let medical_sum = 0;
-    //   let medical_discount = 0;
-    //   let item_sum = 0;
-    //   let coupon_percentage_discount = 0;
-    //   let coupon_amount_discount = 0;
-    //   let total_amount_discount = 0;
-
-    //   this.items.forEach((item) => {
-        
-    //     if(this.selectedDiscount){
-    //         if (item.item_group == "CONSUMABLE") {
-    //           consumable_sum += item.qty * item.rate;
-    //         }
-    //         if (item.item_group == "MEDICAL") {
-    //           medical_sum += item.qty * item.rate;
-    //         }
-    //     }
-    //     item_sum += item.qty * item.rate;
-    //     total_amount_discount += item.discount_amount;
-    //   });
-
-    //   if(this.coupon_activated){
-    //       this.coupon_discounts.forEach((element) => {
-    //         if(element.discount_type == "Percentage"){
-    //           coupon_percentage_discount += item_sum*(element.discount_value/100);
-    //         }
-    //         if (element.discount_type == "Amount"){
-    //           coupon_amount_discount += element.discount_value;
-    //         }
-    //       });
-    //     }
-      
-    //   consumable_discount = consumable_sum * 0.05;
-    //   medical_discount = medical_sum * 0.20;
-    //   // this.discount_amount = consumable_discount + medical_discount + coupon_percentage_discount + coupon_amount_discount + total_amount_discount;
-    //   // this.discount_amount = 10;
-    //   return this.discount_amount;
-    // },
-
-    calculate_coupon_discount() {
+    calculate_discount() { //calculate coupon and item discounts
       let item_sum = 0;
       let coupon_percentage_discount = 0;
       let coupon_amount_discount = 0;
@@ -977,6 +889,7 @@ export default {
           }
         });
       }
+      this.coupon_activated = false;
     },
     save_draft_invoice() {
       const vm = this;
@@ -1024,7 +937,8 @@ export default {
       this.items.forEach((item) => {
         sum += item.qty * item.discount_amount;
       });
-      sum = flt(sum) + flt(this.discount_amount) + flt(this.calculate_coupon_discount);
+      sum = flt(this.calculate_discount());
+      // sum = flt(sum) + flt(this.discount_amount) + flt(this.calculate_discount());
       return sum;
     },
     //
