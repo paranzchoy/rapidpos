@@ -657,25 +657,14 @@ export default {
             if (r.message.get_item_group_discount_list) {
               r.message.get_item_group_discount_list.forEach((element) => {
                 vm.item_group_discounts.push(element)
-                // evntBus.$emit('show_mesage', {
-                // text: `Testing ${element.item_group} - ${element.discount_percentage}`,
-                // color: 'success',
-                // });
               })
             }
             else {
               vm.default_discount = r.message;
-              // evntBus.$emit('show_mesage', {
-              // text: `Testing default ${vm.default_discount}`,
-              // color: 'success',
-              // });
             }
           }
           else {
-            evntBus.$emit('show_mesage', {
-              text: `Testing FAILED`,
-              color: 'warning',
-            });
+            //
           }
         }
       })
@@ -800,7 +789,7 @@ export default {
       else if (this.default_discount > 0 ) {
         new_item.discount_percentage = this.default_discount;
       }
-      else {
+      else if (!this.selectedDiscount) {
         new_item.discount_percentage = 0;
       }
       
@@ -1068,6 +1057,9 @@ export default {
        evntBus.$emit('send_invoice_doc_payment', invoice_doc);
       }
       this.enableDisable = true;
+      this.selectedDiscount = null;
+      this.item_group_discounts = null;
+      this.default_discount = 0;
     },
     //to determine what mode_of_payment page to open
     determine_payment_method(payment_method){
