@@ -608,7 +608,8 @@ export default {
       this.items.forEach((item) => {
         sum += item.qty * item.rate;
       });
-      sum -= (flt(this.discount_amount) + flt(this.calculate_coupon_discount()));
+      // sum -= (flt(this.discount_amount) + flt(this.calculate_discount()));
+      sum -= (flt(this.calculate_discount()));
       return flt(sum).toFixed(2);
     },
     
@@ -656,123 +657,21 @@ export default {
             if (r.message.get_item_group_discount_list) {
               r.message.get_item_group_discount_list.forEach((element) => {
                 vm.item_group_discounts.push(element)
-                // evntBus.$emit('show_mesage', {
-                // text: `Testing ${element.item_group} - ${element.discount_percentage}`,
-                // color: 'success',
-                // });
               })
             }
             else {
               vm.default_discount = r.message;
-              // evntBus.$emit('show_mesage', {
-              // text: `Testing default ${vm.default_discount}`,
-              // color: 'success',
-              // });
             }
           }
           else {
-            evntBus.$emit('show_mesage', {
-              text: `Testing FAILED`,
-              color: 'warning',
-            });
+            //
           }
         }
       })
     },
 
-    // item_group_calculate_discount() {
-    // // THIS IS FOR TESTING
-    //   let item_group = '';
-    //   let item_sum = 0;
-    //   let d = 0;
-
-    //   if (this.selectedDiscount) {
-    //     this.items.forEach((item) => {
-    //       item_sum += item.qty * item.rate;
-    //       item_group = item.item_group;
-    //     });
-    //     frappe
-    //     .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_discount_item_group", {
-    //       selected_discount_type: this.selectedDiscount,
-    //       selected_item_group: item_group
-    //     })
-    //     .then((r) => {
-    //       if (r.message) {
-    //         // this.discount_amount = item_sum * (r.message/100);
-    //         this.d = r.message;
-    //       }
-    //     })
-    //   }
-    //   // return flt(this.discount_amount).toFixed(2);
-    //   return this.d;
-    // },
-
-    // calculate_discount() {
-    //   let item_sum = 0;
-
-    //   if (this.selectedDiscount) {
-    //     this.items.forEach((item) => {
-    //       item_sum += item.qty * item.rate;
-    //     });
-    //     frappe
-    //     .call("rapidposcustom.rapidposcustom.api.rapidposcustom.get_selected_discount_percentage", {
-    //       selected_discount_type: this.selectedDiscount,
-    //     })
-    //     .then((r) => {
-    //       if (r.message) {
-    //         this.discount_amount = item_sum * (r.message/100);
-    //       }
-    //     })
-    //   }
-    //   return flt(this.discount_amount).toFixed(2);
-    // },
-
-    // calculate_discount() {
-    //   let consumable_sum = 0;
-    //   let consumable_discount = 0;
-    //   let medical_sum = 0;
-    //   let medical_discount = 0;
-    //   let item_sum = 0;
-    //   let coupon_percentage_discount = 0;
-    //   let coupon_amount_discount = 0;
-    //   let total_amount_discount = 0;
-
-    //   this.items.forEach((item) => {
-        
-    //     if(this.selectedDiscount){
-    //         if (item.item_group == "CONSUMABLE") {
-    //           consumable_sum += item.qty * item.rate;
-    //         }
-    //         if (item.item_group == "MEDICAL") {
-    //           medical_sum += item.qty * item.rate;
-    //         }
-    //     }
-    //     item_sum += item.qty * item.rate;
-    //     total_amount_discount += item.discount_amount;
-    //   });
-
-    //   if(this.coupon_activated){
-    //       this.coupon_discounts.forEach((element) => {
-    //         if(element.discount_type == "Percentage"){
-    //           coupon_percentage_discount += item_sum*(element.discount_value/100);
-    //         }
-    //         if (element.discount_type == "Amount"){
-    //           coupon_amount_discount += element.discount_value;
-    //         }
-    //       });
-    //     }
-      
-    //   consumable_discount = consumable_sum * 0.05;
-    //   medical_discount = medical_sum * 0.20;
-    //   // this.discount_amount = consumable_discount + medical_discount + coupon_percentage_discount + coupon_amount_discount + total_amount_discount;
-    //   // this.discount_amount = 10;
-    //   return this.discount_amount;
-    // },
-
-    calculate_coupon_discount() {
+    calculate_discount() { //calculate coupon and item discounts
       let item_sum = 0;
-      let coupon_percentage_discount = 0;
-      let coupon_amount_discount = 0;
       let total_amount_discount = 0;
 
       this.items.forEach((item) => {
@@ -780,19 +679,26 @@ export default {
         total_amount_discount += item.discount_amount;
       });
 
-      if(this.coupon_activated){
-          this.coupon_discounts.forEach((element) => {
-            if(element.discount_type == "Percentage"){
-              coupon_percentage_discount += item_sum*(element.discount_value/100);
-            }
-            if (element.discount_type == "Amount"){
-              coupon_amount_discount += element.discount_value;
-            }
-          });
-        }
-      
-      let discount_amount = coupon_percentage_discount + coupon_amount_discount + total_amount_discount;
+      let discount_amount =  this.calculate_coupon_discount(item_sum) + total_amount_discount;
+      this.discount_amount = discount_amount;
       return discount_amount;
+    },
+
+    calculate_coupon_discount(item_sum){
+      let coupon_percentage_discount = 0;
+      let coupon_amount_discount = 0;
+
+      if(this.coupon_activated){
+              this.coupon_discounts.forEach((element) => {
+                if(element.discount_type == "Percentage"){
+                  coupon_percentage_discount += item_sum*(element.discount_value/100);
+                }
+                if (element.discount_type == "Amount"){
+                  coupon_amount_discount += element.discount_value;
+                }
+              });
+      }
+      return coupon_percentage_discount + coupon_amount_discount;
     },
 
     submit_discount_authentication() {
@@ -883,7 +789,7 @@ export default {
       else if (this.default_discount > 0 ) {
         new_item.discount_percentage = this.default_discount;
       }
-      else {
+      else if (!this.selectedDiscount) {
         new_item.discount_percentage = 0;
       }
       
@@ -977,6 +883,7 @@ export default {
           }
         });
       }
+      this.coupon_activated = false;
     },
     save_draft_invoice() {
       const vm = this;
@@ -1009,7 +916,8 @@ export default {
       doc.total = this.subtotal;
       doc.coupon_list = this.save_coupon_to_invoice(this.discount_return_coupon);
       // doc.discount_amount = flt(this.discount_amount);
-      doc.discount_amount = flt(this.overall_discount());
+      // doc.discount_amount = flt(this.overall_discount());
+      doc.discount_amount = flt(this.calculate_discount());
       doc.additional_discount_type = this.selectedDiscount;
       doc.posa_pos_opening_shift = this.pos_opening_shift.name;
       doc.payments = this.get_payments();
@@ -1024,7 +932,9 @@ export default {
       this.items.forEach((item) => {
         sum += item.qty * item.discount_amount;
       });
-      sum = flt(sum) + flt(this.discount_amount) + flt(this.calculate_coupon_discount);
+      sum = flt(this.calculate_discount());
+      // sum = flt(sum) + flt(this.discount_amount); - original
+      // sum = flt(sum) + flt(this.discount_amount) + flt(this.calculate_discount());
       return sum;
     },
     //
@@ -1147,6 +1057,9 @@ export default {
        evntBus.$emit('send_invoice_doc_payment', invoice_doc);
       }
       this.enableDisable = true;
+      this.selectedDiscount = null;
+      this.item_group_discounts = null;
+      this.default_discount = 0;
     },
     //to determine what mode_of_payment page to open
     determine_payment_method(payment_method){
