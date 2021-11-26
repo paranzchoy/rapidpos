@@ -657,14 +657,13 @@ export default {
             if (r.message.get_item_group_discount_list) {
               r.message.get_item_group_discount_list.forEach((element) => {
                 vm.item_group_discounts.push(element)
-              })
+              });
             }
             else {
               vm.default_discount = r.message;
             }
           }
           else {
-            //
           }
         }
       })
@@ -792,7 +791,7 @@ export default {
       else if (!this.selectedDiscount) {
         new_item.discount_percentage = 0;
       }
-      
+      //
       new_item.subitems_reference = '';
       new_item.stock_qty = item.qty;
       new_item.discount_amount = 0;
