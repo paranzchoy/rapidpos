@@ -1209,6 +1209,12 @@ def submit_invoice(data):
         invoice_doc.loyalty_amount = data.get("loyalty_amount")
         invoice_doc.redeem_loyalty_points = data.get("redeem_loyalty_points")
         invoice_doc.loyalty_points = data.get("loyalty_points")
+    default_discount_account = frappe.db.get_value('Company', {'name': data.get("company")}, ['default_discount_account'])
+    items = []
+    for item in data.get("items"):
+        for i in invoice_doc.items:
+            i.discount_account = default_discount_account
+            items.append(i)
     payments = []
     for payment in data.get("payments"): 
         for i in invoice_doc.payments:
@@ -1230,6 +1236,7 @@ def submit_invoice(data):
         payments = [invoice_doc.payments[0]]
     invoice_doc.set("coupon_list", data.get("coupon_list"))
     invoice_doc.payments = payments
+    invoice_doc.items = items
     invoice_doc.due_date = data.get("due_date")
     invoice_doc.flags.ignore_permissions = True
     frappe.flags.ignore_account_permission = True
@@ -1829,3 +1836,9 @@ def save_subitems(data):
     result["invoice_doc"] = invoice_doc
 
     return result
+
+
+@frappe.whitelist()
+def get_discount_account(invoice_doc):
+	data = json.loads(invoice_doc)
+	return frappe.get_value("Company", data.get("company"), "default_discount_account")
