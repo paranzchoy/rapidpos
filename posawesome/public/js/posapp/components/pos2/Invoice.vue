@@ -608,8 +608,8 @@ export default {
       this.items.forEach((item) => {
         sum += item.qty * item.rate;
       });
-      // sum -= (flt(this.discount_amount) + flt(this.calculate_discount()));
-      sum -= (flt(this.calculate_discount()));
+      sum -= (flt(this.discount_amount));
+      // sum -= (flt(this.calculate_discount()));
       return flt(sum).toFixed(2);
     },
     
@@ -657,14 +657,13 @@ export default {
             if (r.message.get_item_group_discount_list) {
               r.message.get_item_group_discount_list.forEach((element) => {
                 vm.item_group_discounts.push(element)
-              })
+              });
             }
             else {
               vm.default_discount = r.message;
             }
           }
           else {
-            //
           }
         }
       })
@@ -792,7 +791,7 @@ export default {
       else if (!this.selectedDiscount) {
         new_item.discount_percentage = 0;
       }
-      
+      //
       new_item.subitems_reference = '';
       new_item.stock_qty = item.qty;
       new_item.discount_amount = 0;
@@ -915,9 +914,9 @@ export default {
       doc.items = this.get_invoice_items();
       doc.total = this.subtotal;
       doc.coupon_list = this.save_coupon_to_invoice(this.discount_return_coupon);
-      // doc.discount_amount = flt(this.discount_amount);
+      doc.discount_amount = flt(this.discount_amount);
       // doc.discount_amount = flt(this.overall_discount());
-      doc.discount_amount = flt(this.calculate_discount());
+      // doc.discount_amount = flt(this.calculate_discount());
       doc.additional_discount_type = this.selectedDiscount;
       doc.posa_pos_opening_shift = this.pos_opening_shift.name;
       doc.payments = this.get_payments();
@@ -932,8 +931,8 @@ export default {
       this.items.forEach((item) => {
         sum += item.qty * item.discount_amount;
       });
-      sum = flt(this.calculate_discount());
-      // sum = flt(sum) + flt(this.discount_amount); - original
+      // sum = flt(this.calculate_discount());
+      sum = flt(sum) + flt(this.discount_amount);
       // sum = flt(sum) + flt(this.discount_amount) + flt(this.calculate_discount());
       return sum;
     },
