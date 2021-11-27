@@ -25,7 +25,7 @@
               <v-col
                 v-for="(item) in filtred_items"
                 :value="filtred_items"
-                :key="item.actual_qty"
+                :key="item.name"
                 xl="1"
                 lg="1"
                 md="2"
@@ -163,7 +163,7 @@ export default {
                 'incoming_rate': item.rate, 
                 // 'base_net_rate': item.rate, 
                 // 'base_net_rate': item.rate, 
-                // 'base_net_amount': item.rate * item.actual_qty, 
+                'base_net_amount': item.rate * item.actual_qty, 
                 // 'net_amount': item.rate * item.actual_qty, 
                 // 'is_fixed_asset': 0, 
                 'amount': item.rate * item.actual_qty, 

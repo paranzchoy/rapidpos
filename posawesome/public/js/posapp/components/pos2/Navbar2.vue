@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <v-app-bar app height="40" class="elevation-2" style="background-image: linear-gradient(to right, white, #f2ce2c);">
+    <v-app-bar app height="40" class="elevation-2" style="background-image: linear-gradient(to right, white, #97c11f);">
       <v-app-bar-nav-icon
         @click.stop="mini = !mini"
         class="white--text"
@@ -124,7 +124,7 @@
       :mini-variant.sync="mini"
       app
       class="indigo margen-top"
-      style="background-image: linear-gradient(#a4de1d, #ffffff);"
+      style="background-image: linear-gradient(#f2ce2c, #ffffff);"
     >
       <v-list dark>
         <v-list-item class="px-2">
