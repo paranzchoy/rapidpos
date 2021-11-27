@@ -25,7 +25,7 @@
               <v-col
                 v-for="(item) in filtred_items"
                 :value="filtred_items"
-                :key="item.actual_qty"
+                :key="item.name"
                 xl="1"
                 lg="1"
                 md="2"
@@ -159,11 +159,12 @@ export default {
                 'qty': item.actual_qty, 
                 'stock_qty': item.actual_qty, 
                 'warehouse': item.warehouse, 
-                'rate': 0, 
+                'rate':  0, 
                 'incoming_rate': item.rate, 
                 // 'base_net_rate': item.rate, 
                 // 'base_net_rate': item.rate, 
-                // 'base_net_amount': item.rate * item.actual_qty, 
+                // 'base_net_amount': item.rate * item.actual_qty,  
+                // 'base_net_amount': 0, 
                 // 'net_amount': item.rate * item.actual_qty, 
                 // 'is_fixed_asset': 0, 
                 'amount': item.rate * item.actual_qty, 
@@ -172,7 +173,7 @@ export default {
                 'item_id': Date.now(),
                 'price_list_rate': item.rate,
                 'cost_center': this.pos_profile.cost_center,
-                // 'income_account': this.pos_profile.write_off_account,
+                // 'income_account': this.income_account,
                 // 'expense_account': this.pos_profile.write_off_account,
                 'currency': this.pos_profile.currency
                 });
