@@ -526,6 +526,16 @@ export default {
       this.back_to_invoice();
     },
     submit_invoice() {
+
+      this.invoice_doc.payments.forEach((element) => {
+        if(element.mode_of_payment != "Cash"){
+          element.card_number = "";
+          element.bank_name = "";
+          element.approval_code = "";
+          element.card_expiry_date = "";
+        }
+      })
+
       let formData = this.invoice_doc;
       formData['total_change'] = -this.diff_payment;
       formData['paid_change'] = this.paid_change;
