@@ -1223,13 +1223,15 @@ def submit_invoice(data):
                 i.base_amount = 0
                 if i.amount:
                     if(payment["mode_of_payment"] == "Credit Card"):
-                        i.card_number = payment["card_number"]
-                        i.card_number_hidden = cardNumberHide(payment["card_number"])
-                        i.bank_name = payment["bank_name"]
-                        i.approval_code = payment["approval_code"]
-                        i.card_expiry_date = payment["card_expiry_date"]
+                        if payment["card_number"] != "":
+                           i.card_number = payment["card_number"]
+                           i.card_number_hidden = cardNumberHide(payment["card_number"])
+                           i.bank_name = payment["bank_name"]
+                           i.approval_code = payment["approval_code"]
+                           i.card_expiry_date = payment["card_expiry_date"]
                     if (payment["mode_of_payment"] == "Debit Card"):
-                        i.bank_name = payment["bank_name"]
+                        if(payment["bank_name"]!=""):
+                           i.bank_name = payment["bank_name"]
                     payments.append(i)
                 break
     if len(payments) == 0:
@@ -1554,7 +1556,7 @@ def view_opening_shift_details(opening_shift_name):
 	{'name': "Ending SI No", 'value': get_op_shift.last_sales_invoice}, {'name': "Beginning Void No", 'value': get_op_shift.first_void_no},
 	{'name': "Ending Void No", 'value': get_op_shift.last_void_no}, {'name': "Sales Count", 'value': get_op_shift.no_of_invoices-get_op_shift.void_count},
 	{'name': "Void Count", 'value': get_op_shift.void_count}, {'name': "Total Transactions", 'value': get_op_shift.no_of_invoices},
-	{'name': "Beginning Balance", 'value': "000,019,275,409.19"}, {'name': "Ending Balance", 'value': "000,019,333,397.47"},
+	{'name': "Beginning Balance", 'value': "N/A"}, {'name': "Ending Balance", 'value': "N/A"},
 	{'name': "Gross Amount", 'value': get_op_shift.gross_amount}, {'name': "Less", 'value': ''},
 	{'name': "Discount", 'value': get_op_shift.pwd_discount+get_op_shift.senior_discount}, {'name': "Senior Discount", 'value': get_op_shift.senior_discount}, 
 	{'name': "PWD Discount", 'value': get_op_shift.pwd_discount}, {'name': "Void", 'value': "0"},
