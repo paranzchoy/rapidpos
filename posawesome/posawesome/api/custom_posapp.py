@@ -1223,13 +1223,15 @@ def submit_invoice(data):
                 i.base_amount = 0
                 if i.amount:
                     if(payment["mode_of_payment"] == "Credit Card"):
-                        i.card_number = payment["card_number"]
-                        i.card_number_hidden = cardNumberHide(payment["card_number"])
-                        i.bank_name = payment["bank_name"]
-                        i.approval_code = payment["approval_code"]
-                        i.card_expiry_date = payment["card_expiry_date"]
+                        if payment["card_number"] != "":
+                           i.card_number = payment["card_number"]
+                           i.card_number_hidden = cardNumberHide(payment["card_number"])
+                           i.bank_name = payment["bank_name"]
+                           i.approval_code = payment["approval_code"]
+                           i.card_expiry_date = payment["card_expiry_date"]
                     if (payment["mode_of_payment"] == "Debit Card"):
-                        i.bank_name = payment["bank_name"]
+                        if(payment["bank_name"]!=""):
+                           i.bank_name = payment["bank_name"]
                     payments.append(i)
                 break
     if len(payments) == 0:
