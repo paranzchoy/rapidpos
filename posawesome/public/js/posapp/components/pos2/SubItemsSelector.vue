@@ -16,7 +16,7 @@
            </v-col>
            <v-spacer></v-spacer>
            <v-col cols="3">
-              Max. Qty left: {{remaining_qty * item_doc.qty}}
+              Remaining Qty: {{remaining_qty * item_doc.qty}}
             </v-col>
         </v-card-title>
         <v-divider></v-divider>
@@ -142,13 +142,19 @@ export default {
             const index = this.items.findIndex((el) => el.item_name === element.item_name);
               if (element===item){
                 element.actual_qty++;
-                this.items.splice(index, 1);
-                this.items.unshift(element);
               }
             });
         }
       },
       submit_dialog(){
+        if (this.remaining_qty * this.item_doc.qty > 0){
+           evntBus.$emit('show_mesage', {
+              text: `Quantity not met!`,
+              color: 'error',
+            });
+            frappe.utils.play_sound('error');
+        }
+        else{
           let data = {};
           let selected_items = [];
           this.filtred_items.forEach((item) => {
@@ -187,6 +193,7 @@ export default {
           this.send_subitems_to_invoice(data);
           this.save_subitems(data);
           this.close_dialog();
+        }
       },
       send_subitems_to_invoice(data){
           evntBus.$emit("save_subitems", this.items, this.item_doc.item_code);
