@@ -142,8 +142,6 @@ export default {
             const index = this.items.findIndex((el) => el.item_name === element.item_name);
               if (element===item){
                 element.actual_qty++;
-                this.items.splice(index, 1);
-                this.items.unshift(element);
               }
             });
         }
