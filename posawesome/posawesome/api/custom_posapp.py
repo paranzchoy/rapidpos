@@ -1437,6 +1437,14 @@ def get_customer_group_data():
     return customer_group_list
 
 @frappe.whitelist()
+def get_customer_type_data():
+	customer_type_list = []
+	get_customer_type = frappe.get_list("Customer Type", fields=["name"], order_by='name')
+	for i in get_customer_type:
+		customer_type_list.append(i.name)
+	return customer_type_list
+
+@frappe.whitelist()
 def create_opening_voucher(pos_profile, company, balance_details, pos_checkout_counter):
     balance_details = json.loads(balance_details)
 
