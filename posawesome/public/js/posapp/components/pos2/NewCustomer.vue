@@ -21,6 +21,53 @@
                   v-model="customer_name"
                 ></v-text-field>
               </v-col>
+              <!-- <v-col cols="6">
+                <v-select
+                  outlined
+                  v-model="customer_type"
+                  color="indigo"
+                  background-color="white"
+                  :items="customer_type_list"
+                  label="Select Customer Type"
+                ></v-select>
+              </v-col> -->
+              <v-col cols="6">
+                <v-menu
+                  ref="menu"
+                  v-model="menu"
+                  :close-on-content-click="false"
+                  :return-value.sync="date_of_birth"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="date_of_birth"
+                      label="Date of Birth"
+                      prepend-icon="mdi-calendar"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                    </v-text-field>
+                  </template>
+
+                  <v-date-picker no-title scrollable v-model="date_of_birth">
+                    <v-spacer></v-spacer>
+                    <v-btn text color="primary" @click="menu = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="$refs.menu.save(date_of_birth)"
+                    >
+                      OK
+                    </v-btn>
+                  </v-date-picker>
+                </v-menu>
+              </v-col>
               <v-col cols="6">
                 <v-text-field
                   dense
@@ -54,23 +101,23 @@
             </v-row>
             <v-row>
               <v-col cols="6">
-               <v-select
-                      outlined
-                      v-model="customer_group"
-                      color="indigo"
-                      background-color="white"
-                      :items="customer_group_list"
-                      label="Select Customer Group"
+                <v-select
+                  outlined
+                  v-model="customer_group"
+                  color="indigo"
+                  background-color="white"
+                  :items="customer_group_list"
+                  label="Select Customer Group"
                 ></v-select>
               </v-col>
-               <v-col cols="6">
+              <v-col cols="6">
                 <v-select
-                      outlined
-                      v-model="territory"
-                      color="indigo"
-                      background-color="white"
-                      :items="territory_list"
-                      label="Select Territory"
+                  outlined
+                  v-model="territory"
+                  color="indigo"
+                  background-color="white"
+                  :items="territory_list"
+                  label="Select Territory"
                 ></v-select>
               </v-col>
             </v-row>
@@ -99,39 +146,60 @@ export default {
     customer_group: "",
     territory: "",
     customer_group_list: [],
-    territory_list: []
+    territory_list: [],
+    customer_type_list: [],
+    customer_type: "",
+    date_of_birth: "",
+    menu: false,
   }),
   watch: {},
   methods: {
     close_dialog() {
       this.customerDialog = false;
     },
-    get_territory_list(){
+    get_territory_list() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.custom_posapp.get_territory_data',
+        method: "posawesome.posawesome.api.custom_posapp.get_territory_data",
         args: {},
         async: true,
         callback: function (r) {
           if (r.message) {
             r.message.forEach((element) => {
-              vm.territory_list.push(element)
-            })
+              vm.territory_list.push(element);
+            });
           }
         },
       });
     },
-    get_customer_group_list(){
+    get_customer_group_list() {
       const vm = this;
       frappe.call({
-        method: 'posawesome.posawesome.api.custom_posapp.get_customer_group_data',
+        method:
+          "posawesome.posawesome.api.custom_posapp.get_customer_group_data",
         args: {},
         async: true,
         callback: function (r) {
           if (r.message) {
             r.message.forEach((element) => {
-              vm.customer_group_list.push(element)
-            })
+              vm.customer_group_list.push(element);
+            });
+          }
+        },
+      });
+    },
+    get_customer_type_list() {
+      const vm = this;
+      frappe.call({
+        method:
+          "posawesome.posawesome.api.custom_posapp.get_customer_type_data",
+        args: {},
+        async: true,
+        callback: function (r) {
+          if (r.message) {
+            r.message.forEach((element) => {
+              vm.customer_type_list.push(element);
+            });
           }
         },
       });
@@ -140,12 +208,14 @@ export default {
       if (this.customer_name) {
         const vm = this;
         const args = {
-            customer_name: this.customer_name,
-            tax_id: this.tax_id,
-            mobile_no: this.mobile_no,
-            email_id: this.email_id,
-            customer_group: this.customer_group,
-            territory: this.territory,
+          customer_name: this.customer_name,
+          tax_id: this.tax_id,
+          mobile_no: this.mobile_no,
+          email_id: this.email_id,
+          customer_group: this.customer_group,
+          territory: this.territory,
+          date_of_birth: this.date_of_birth,
+          customer_type: this.customer_type,
         };
         frappe.call({
           method: "posawesome.posawesome.api.custom_posapp.create_customer",
@@ -156,7 +226,7 @@ export default {
                 text: "Customer contact created successfully.",
                 color: "success",
               });
-              args.name = r.message.name
+              args.name = r.message.name;
               frappe.utils.play_sound("submit");
               evntBus.$emit("add_customer_to_list", args);
               evntBus.$emit("set_customer", r.message.name);
@@ -166,6 +236,8 @@ export default {
               this.email_id = "";
               this.customer_group = "";
               this.territory = "";
+              this.date_of_birth = "";
+              this.customer_type = "";
             }
           },
         });
@@ -179,6 +251,7 @@ export default {
     });
     this.get_customer_group_list();
     this.get_territory_list();
+    // this.get_customer_type_list();
   },
 };
 </script>
